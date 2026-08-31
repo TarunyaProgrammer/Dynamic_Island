@@ -63,7 +63,7 @@ struct RefreshSchedulerTests {
     }
 }
 
-// シンプルなスレッドセーフ値コンテナ
+// Simple thread-safe value container
 private final class LockIsolated<Value: Sendable>: @unchecked Sendable {
     private var _value: Value
     private let lock = NSLock()

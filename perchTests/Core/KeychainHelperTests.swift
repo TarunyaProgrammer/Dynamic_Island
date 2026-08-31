@@ -10,7 +10,7 @@ struct KeychainHelperTests {
     private let testKey = "perch-test-keychain-\(UUID().uuidString)"
 
     init() {
-        // 各テストインスタンス生成時に前の値を削除してクリーンスタート
+        // Delete prior values on initialization to ensure a clean test start
         KeychainHelper.delete(forKey: testKey)
     }
 

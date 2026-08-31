@@ -344,12 +344,12 @@ private struct UsageLimitsSection: View {
 
     private func tierRow(tier: UsageTier) -> some View {
         VStack(alignment: .leading, spacing: 3) {
-            // ラベル
+            // Label
             Text(tier.label)
                 .font(.system(size: 10, weight: .semibold))
                 .foregroundStyle(.white.opacity(0.75))
 
-            // プログレスバー
+            // Progress bar
             GeometryReader { geo in
                 let barFraction = showRemaining ? tier.remainingFraction : tier.usedFraction
                 ZStack(alignment: .leading) {
@@ -368,18 +368,18 @@ private struct UsageLimitsSection: View {
             }
             .frame(height: 5)
 
-            // 使用量/残り% + リセット時刻
+            // Usage/remaining % + reset time
             HStack {
                 HStack(spacing: 4) {
                     Text(
                         showRemaining
-                            ? "\(tier.remainingPercent)% 残り"
-                            : "\(tier.usedPercent)% 使用"
+                            ? "\(tier.remainingPercent)% left"
+                            : "\(tier.usedPercent)% used"
                     )
                     .font(.system(size: 9))
                     .foregroundStyle(.white.opacity(0.55))
                     if tier.source == .localEstimate {
-                        Text("(推定)")
+                        Text("(est.)")
                             .font(.system(size: 8))
                             .foregroundStyle(.white.opacity(0.35))
                     }
@@ -392,11 +392,11 @@ private struct UsageLimitsSection: View {
                 }
             }
 
-            // ペース行（余裕 / 枯渇予測）
+            // Pace row (surplus / exhaustion projection)
             if showPace, let pace = tier.paceInfo() {
                 HStack {
                     if pace.willSurvive {
-                        Text("\(pace.surplusPercent)% 余裕")
+                        Text("\(pace.surplusPercent)% surplus")
                             .font(.system(size: 9, weight: .medium))
                             .foregroundStyle(Color.green.opacity(0.85))
                     } else if let exhaustDate = pace.exhaustionDate {
@@ -406,7 +406,7 @@ private struct UsageLimitsSection: View {
                     }
                     Spacer()
                     if pace.willSurvive {
-                        Text("リセットまで持続")
+                        Text("Sustained until reset")
                             .font(.system(size: 9))
                             .foregroundStyle(Color.green.opacity(0.65))
                     }
@@ -429,32 +429,29 @@ private struct UsageLimitsSection: View {
     }
 
     private func resetText(_ date: Date, absolute: Bool) -> String {
-        guard date > Date() else { return "リセット間近" }
+        guard date > Date() else { return "Resetting soon" }
         if absolute {
             let formatter = DateFormatter()
-            formatter.locale = Locale(identifier: "ja_JP")
-            formatter.dateFormat = Calendar.current.isDateInToday(date) ? "H:mm" : "M月d日 H:mm"
-            return "\(formatter.string(from: date)) にリセット"
+            formatter.dateFormat = Calendar.current.isDateInToday(date) ? "h:mm a" : "MMM d, h:mm a"
+            return "Resets at \(formatter.string(from: date))"
         } else {
             let fmt = RelativeDateTimeFormatter()
             fmt.unitsStyle = .abbreviated
-            fmt.locale = Locale(identifier: "ja_JP")
-            return "リセット \(fmt.localizedString(for: date, relativeTo: Date()))"
+            return "Resets \(fmt.localizedString(for: date, relativeTo: Date()))"
         }
     }
 
     private func exhaustionText(_ date: Date, absolute: Bool) -> String {
         if absolute {
             let formatter = DateFormatter()
-            formatter.locale = Locale(identifier: "ja_JP")
-            formatter.dateFormat = Calendar.current.isDateInToday(date) ? "H:mm" : "M月d日 H:mm"
-            return "\(formatter.string(from: date)) に枯渇"
+            formatter.dateFormat = Calendar.current.isDateInToday(date) ? "h:mm a" : "MMM d, h:mm a"
+            return "Depleted at \(formatter.string(from: date))"
         } else {
             let secs = date.timeIntervalSinceNow
             if secs < 3600 {
-                return "あと \(Int(secs / 60))分で枯渇"
+                return "Depleted in \(Int(secs / 60))m"
             } else {
-                return "あと \(String(format: "%.1f", secs / 3600))h で枯渇"
+                return "Depleted in \(String(format: "%.1f", secs / 3600))h"
             }
         }
     }

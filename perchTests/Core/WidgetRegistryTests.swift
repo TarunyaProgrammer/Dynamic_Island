@@ -4,7 +4,7 @@ import Testing
 
 @testable import perch
 
-// テスト用の最小 PerchWidget 実装
+// Minimal PerchWidget implementation for testing
 private nonisolated struct StubWidget: PerchWidget {
     let id: String
     var displayName: String { id.capitalized }

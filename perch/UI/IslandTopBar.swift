@@ -1,7 +1,6 @@
 import SwiftUI
 
-/// The expanded island's top row: three zones per
-/// docs/macOS-Expanded-Surface-Layout-Handbook-ja.md §8 ("ヘッダーの3領域設計") — left
+/// The expanded island's top row: three zones (three-region header design) — left
 /// (close button + module switcher, `maxWidth: .infinity` leading), center (a reserved
 /// gap the width of the physical/synthetic notch, so nothing renders under it), right
 /// (`SystemStatusCluster`, `maxWidth: .infinity` trailing).

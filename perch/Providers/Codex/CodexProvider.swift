@@ -21,7 +21,7 @@ nonisolated struct CodexProvider: AIProvider {
     nonisolated func fetchUsage() async throws -> AIUsageData {
         let dir = sessionsDir
 
-        // ローカル解析と WHAM 取得を並列実行
+        // Run local parsing and WHAM fetching concurrently
         async let localResult: AIUsageData? = Task.detached(priority: .utility) {
             try? Self.parseSessions(in: dir)
         }.value
@@ -33,10 +33,10 @@ nonisolated struct CodexProvider: AIProvider {
             whamTiers = try? await Self.fetchWhamLimits(
                 accessToken: creds.accessToken, accountId: creds.accountId)
             if whamTiers == nil {
-                warningMsg = "公式使用量取得失敗: WHAM API エラー"
+                warningMsg = "Remote usage fetch failed: WHAM API error"
             }
         } else {
-            warningMsg = "公式使用量取得失敗: ~/.codex/auth.json が見つかりません"
+            warningMsg = "Remote usage fetch failed: ~/.codex/auth.json not found"
         }
 
         var data = await localResult ?? AIUsageData(planName: "Codex", lastUpdated: Date())
@@ -140,9 +140,9 @@ nonisolated struct CodexProvider: AIProvider {
         }
 
         let sessionTier = (rateLimit["primary_window"] as? [String: Any])
-            .flatMap { parseTier($0, label: "セッション", defaultPeriod: 5 * 3600) }
+            .flatMap { parseTier($0, label: "Session", defaultPeriod: 5 * 3600) }
         let weeklyTier = (rateLimit["secondary_window"] as? [String: Any])
-            .flatMap { parseTier($0, label: "週間", defaultPeriod: 7 * 24 * 3600) }
+            .flatMap { parseTier($0, label: "Weekly", defaultPeriod: 7 * 24 * 3600) }
 
         guard let s = sessionTier, let w = weeklyTier else { return nil }
         return (s, w)

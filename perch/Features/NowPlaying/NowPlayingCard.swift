@@ -274,7 +274,7 @@ struct NowPlayingCard: View {
 }
 
 /// A playback control button that nudges 6pt in the direction of travel when pressed
-/// (handbook §11.5: "前後移動は押した方向へ6pt Nudge") — motion tied to meaning, distinct
+/// (forward/backward movement applies a 6pt nudge in the pressed direction) — motion tied to meaning, distinct
 /// from play/pause's plain symbol replace (`nudgeDirection == 0`).
 private struct NudgeControlButton: View {
     let systemName: String

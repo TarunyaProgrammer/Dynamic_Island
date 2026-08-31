@@ -31,11 +31,11 @@ struct AIUsageData: Sendable {
 }
 
 struct UsageTier: Sendable {
-    var usedFraction: Double  // 0.0–1.0 = 使用量 (0=未使用, 1=使い切り)
+    var usedFraction: Double  // 0.0–1.0 = usage (0=unused, 1=fully exhausted)
     var resetsAt: Date?
     var label: String
     var source: UsageSource
-    var periodDuration: TimeInterval? = nil  // セッション=5h、週間=7d
+    var periodDuration: TimeInterval? = nil  // session=5h, weekly=7d
 
     var remainingFraction: Double { max(0, 1.0 - min(1, usedFraction)) }
     var usedPercent: Int { Int((min(1, max(0, usedFraction)) * 100).rounded()) }
@@ -47,7 +47,7 @@ struct UsageTier: Sendable {
         else { return nil }
         let remaining = resetsAt.timeIntervalSince(now)
         let elapsed = periodDuration - remaining
-        guard elapsed > 60 else { return nil }  // 1分未満は不安定
+        guard elapsed > 60 else { return nil }  // Unstable if elapsed time is under 1 minute
         let rate = usedFraction / elapsed
         let projectedTotal = usedFraction + rate * remaining
         if projectedTotal <= 1.0 {
@@ -63,8 +63,8 @@ struct UsageTier: Sendable {
 }
 
 struct PaceInfo: Sendable {
-    var surplusFraction: Double  // 正=余裕あり、負=超過ペース
-    var exhaustionDate: Date?  // 枯渇予測（超過時のみ）
+    var surplusFraction: Double  // Positive = surplus rate, Negative = deficit rate
+    var exhaustionDate: Date?  // Projected exhaustion date (only when exceeding quota rate)
     var willSurvive: Bool { exhaustionDate == nil }
     var surplusPercent: Int { Int((max(0, surplusFraction) * 100).rounded()) }
 }

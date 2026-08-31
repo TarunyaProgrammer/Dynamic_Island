@@ -33,13 +33,13 @@ extension Defaults.Keys {
     static let claudeWeeklyTokenLimit = Key<Int>("claudeWeeklyTokenLimit", default: 500_000)
     static let claudeDailyTokenLimit = Key<Int>("claudeDailyTokenLimit", default: 88_000)
 
-    // AI Usage 表示設定
+    // AI Usage display settings
     static let aiUsageShowRemaining = Key<Bool>("aiUsageShowRemaining", default: false)
-    // false → "X% 使用" / true → "X% 残り"
+    // false → "X% used" / true → "X% left"
     static let aiUsageAbsoluteResetTime = Key<Bool>("aiUsageAbsoluteResetTime", default: true)
-    // true → "10:50 にリセット" / false → "リセット 2時間後"
+    // true → "Resets at 10:50 AM" / false → "Resets in 2 hours"
     static let aiUsageShowPace = Key<Bool>("aiUsageShowPace", default: true)
-    // ペース行（余裕% / 枯渇予測）の表示
+    // Pace row display (surplus% / exhaustion projection)
     static let aiUsagePaceAbsoluteTime = Key<Bool>("aiUsagePaceAbsoluteTime", default: false)
-    // 枯渇予測の形式: false → "あと 3h で枯渇" / true → "13:00 に枯渇"
+    // Depletion format: false → "Depleted in 3h" / true → "Depleted at 1:00 PM"
 }

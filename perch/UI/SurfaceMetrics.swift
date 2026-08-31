@@ -1,7 +1,6 @@
 import CoreGraphics
 
-/// Dimension constants for Rich mode's Home surface, collected in one place per
-/// docs/macOS-Expanded-Surface-Layout-Handbook-ja.md §3 ("寸法を型にする") — magic
+/// Dimension constants for Rich mode's Home surface, collected in one place (typed layout metrics) — magic
 /// numbers scattered across views are how a 540pt width and a 260/300pt width end up
 /// disagreeing with each other.
 nonisolated enum SurfaceMetrics {

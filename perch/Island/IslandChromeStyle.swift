@@ -1,8 +1,8 @@
 import Defaults
 import Foundation
 
-/// How the Perch island chrome presents itself: notch-attached (the default, "Atoll
-/// 風" pseudo-notch regardless of whether the Mac has a physical notch) or a floating
+/// How the Beacon island chrome presents itself: notch-attached (the default, Atoll-style
+/// pseudo-notch regardless of whether the Mac has a physical notch) or a floating
 /// pill below the menu bar.
 ///
 /// Deliberately two-valued, not three. The vendored `NookPresentation` offers an

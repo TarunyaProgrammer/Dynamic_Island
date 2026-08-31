@@ -10,8 +10,7 @@ enum DesignSystem {
 
     /// The notch shell's expand animation, applied via `Nook.transitionConfiguration`
     /// in `IslandHost`. Deliberately underdamped (a touch of overshoot) — asymmetric
-    /// with `shellClose`, per docs/SwiftUI-Animation-Architecture-Handbook-ja.md §4.3
-    /// ("展開と収納は非対称にする") and its §3.1 Motion Token example.
+    /// with `shellClose` (asymmetric open/close transitions).
     static let shellOpen = Animation.spring(response: 0.42, dampingFraction: 0.82)
 
     /// The notch shell's collapse animation. Critically damped — no bounce, so the

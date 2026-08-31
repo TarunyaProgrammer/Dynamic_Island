@@ -12,13 +12,13 @@ nonisolated enum ClaudeUsageMerger {
         case (.success(let limits), .failure(let localErr)):
             return makeData(
                 limits: limits, local: nil,
-                warning: "ローカルログ読み取り失敗: \(localErr.localizedDescription)"
+                warning: "Local log read failed: \(localErr.localizedDescription)"
             )
 
         case (.failure(let remoteErr), .success(let localUsage)):
             return makeData(
                 limits: nil, local: localUsage,
-                warning: "公式使用量取得失敗: \(remoteErr.errorDescription ?? remoteErr.localizedDescription)"
+                warning: "Remote usage fetch failed: \(remoteErr.errorDescription ?? remoteErr.localizedDescription)"
             )
 
         case (.failure(let remoteErr), .failure(let localErr)):
@@ -40,13 +40,13 @@ nonisolated enum ClaudeUsageMerger {
         let session = limits?.session.map { window in
             UsageTier(
                 usedFraction: window.usedFraction, resetsAt: window.resetsAt,
-                label: "セッション", source: .anthropicOAuth,
+                label: "Session", source: .anthropicOAuth,
                 periodDuration: 5 * 3600)
         }
         let weekly = limits?.weekly.map { window in
             UsageTier(
                 usedFraction: window.usedFraction, resetsAt: window.resetsAt,
-                label: "週間", source: .anthropicOAuth,
+                label: "Weekly", source: .anthropicOAuth,
                 periodDuration: 7 * 24 * 3600)
         }
         let routines = limits?.routines.map { window in
