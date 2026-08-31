@@ -2,6 +2,10 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
+    <key>CFBundleDisplayName</key>
+    <string>Beacon</string>
+    <key>CFBundleName</key>
+    <string>Beacon</string>
     <key>CFBundleShortVersionString</key>
     <string>$(MARKETING_VERSION)</string>
     <key>CFBundleVersion</key>
@@ -9,15 +13,15 @@
     <key>LSUIElement</key>
     <true/>
     <key>NSHumanReadableCopyright</key>
-    <string>Licensed under the Apache License, Version 2.0.</string>
+    <string>Copyright © 2026 Tarunya K. All rights reserved.</string>
     <key>NSScreenCaptureUsageDescription</key>
-    <string>Perch uses audio capture to animate the waveform visualizer in sync with your music.</string>
+    <string>Beacon uses audio capture to animate the waveform visualizer in sync with your music.</string>
     <key>SUFeedURL</key>
-    <string>https://raw.githubusercontent.com/perch/perch/main/appcast.xml</string>
+    <string>https://raw.githubusercontent.com/TarunyaProgrammer/Dynamic_Island/main/appcast.xml</string>
     <key>SUPublicEDKey</key>
     <string>l6IhQF6lojaWbwcObjcaHKIHC9LMuEvWDkh5dTLbmz4=</string>
     <key>NSCalendarsFullAccessUsageDescription</key>
-    <string>Perch shows today's events in its expanded calendar widget.</string>
+    <string>Beacon shows today's events in its expanded calendar widget.</string>
     <key>NSAppTransportSecurity</key>
     <dict>
         <key>NSExceptionDomains</key>

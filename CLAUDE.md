@@ -1,8 +1,8 @@
-# Perch — macOS Dynamic Island-style Live Hub
+# Beacon — macOS Dynamic Island-style Live Hub
 
 ## Project Overview
 
-PerchはmacOSの画面上端中央に常駐するDynamic Island風ライブハブアプリ。
+BeaconはmacOSの画面上端中央に常駐するDynamic Island風ライブハブアプリ。
 MacBookのノッチ周辺に自然に馴染むピル型UIで、AI利用状況、開発ステータス、
 Now Playing、ファイル棚などの情報・操作を常時アクセス可能にする。
 

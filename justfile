@@ -1,4 +1,4 @@
-# justfile — Perch command runner
+# justfile — Beacon command runner
 # Requires Homebrew tools: brew install xcbeautify swift-format lefthook
 # Usage: just <command>
 

@@ -1,6 +1,6 @@
 # Third-Party Notices
 
-Perch incorporates material from the following open-source packages.
+Beacon incorporates material from the following open-source packages.
 
 ---
 
