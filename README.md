@@ -1,5 +1,5 @@
 <div align="center">
-  <img src="docs/Perch.png" width="96" alt="Beacon icon">
+  <img src="docs/Beacon.png" width="108" alt="Beacon logo">
 
   # Beacon
 

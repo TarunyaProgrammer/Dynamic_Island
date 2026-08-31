@@ -17,6 +17,16 @@ enum DesignSystem {
     /// shell settles flush against the menu bar instead of wobbling on the way down.
     static let shellClose = Animation.spring(response: 0.46, dampingFraction: 1.0)
 
+    // Beacon Brand Tokens
+    static let beaconBlue = Color(red: 0.231, green: 0.509, blue: 0.965)
+    static let beaconIndigo = Color(red: 0.388, green: 0.400, blue: 0.945)
+    static let beaconPurple = Color(red: 0.545, green: 0.361, blue: 0.965)
+    static let beaconGradient = LinearGradient(
+        colors: [beaconBlue, beaconIndigo, beaconPurple],
+        startPoint: .topLeading,
+        endPoint: .bottomTrailing
+    )
+
     // AI provider brand colors
     static let claudeAmber = Color(red: 0.851, green: 0.467, blue: 0.024)  // #d97706
 }
