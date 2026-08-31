@@ -1,0 +1,75 @@
+# .github/workflows/ci.yml
+name: CI
+
+on:
+  push:
+    branches:
+      - "phase-**"
+      - main
+  pull_request:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    name: Build
+    runs-on: macos-26
+    timeout-minutes: 30
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Show Xcode and Swift version
+        run: |
+          xcodebuild -version
+          swift --version
+
+      - name: Install xcbeautify
+        run: brew install xcbeautify
+
+      - name: Cache DerivedData
+        uses: actions/cache@v4
+        with:
+          path: ~/Library/Developer/Xcode/DerivedData
+          key: ${{ runner.os }}-derived-data-${{ hashFiles('perch.xcodeproj/project.pbxproj', 'perch.xcodeproj/project.xcworkspace/xcshareddata/swiftpm/Package.resolved') }}
+          restore-keys: |
+            ${{ runner.os }}-derived-data-
+
+      - name: Build
+        run: |
+          set -euo pipefail
+          xcodebuild \
+            -scheme perch \
+            -configuration Debug \
+            -destination 'platform=macOS' \
+            -skipPackagePluginValidation \
+            -skipMacroValidation \
+            -jobs "$(sysctl -n hw.logicalcpu)" \
+            CODE_SIGNING_ALLOWED=NO \
+            build \
+            2>&1 | xcbeautify
+
+  lint:
+    name: Lint
+    runs-on: macos-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install swift-format
+        run: brew install swift-format
+
+      - name: Lint
+        # perch/Vendor はアップストリームのソースをそのまま取り込んでいる。
+        # Perch のスタイルに整形すると上流との diff が追えなくなるので除外する。
+        # swift-format に除外オプションが無く、.swift-format-ignore も 602 では
+        # ディレクトリ明示指定に効かないため、対象ファイルを列挙して渡す。
+        run: git ls-files '*.swift' | grep -v '^perch/Vendor/' | xargs swift-format lint
