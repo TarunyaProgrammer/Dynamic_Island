@@ -1,72 +1,35 @@
-# justfile — Beacon command runner
-# Requires Homebrew tools: brew install xcbeautify swift-format lefthook
+# justfile — Beacon command runner (Electron + TypeScript)
 # Usage: just <command>
 
 # Default: list available commands
 default:
     @just --list
 
-# Verify dev tools are available
+# Install dependencies
 setup:
-    @command -v xcbeautify >/dev/null 2>&1 || (echo "Error: xcbeautify not found. Run 'brew install xcbeautify'." && exit 1)
-    @command -v swift-format >/dev/null 2>&1 || (echo "Error: swift-format not found. Run 'brew install swift-format'." && exit 1)
-    @command -v lefthook >/dev/null 2>&1 || (echo "Error: lefthook not found. Run 'brew install lefthook'." && exit 1)
-    lefthook install
-    @echo "Dev environment ready. Git hooks installed."
+    npm install
 
-# Build the app (Debug)
-build:
-    #!/bin/bash
-    set -o pipefail
-    xcodebuild \
-        -scheme Beacon \
-        -configuration Debug \
-        -destination 'platform=macOS' \
-        build \
-        2>&1 | xcbeautify
+# Start development server with hot reload
+dev:
+    npm run dev
 
 # Run all unit tests
 test:
-    #!/bin/bash
-    set -o pipefail
-    xcodebuild \
-        -scheme Beacon \
-        -configuration Debug \
-        -destination 'platform=macOS' \
-        test \
-        2>&1 | xcbeautify
+    npm test
 
-# Format Swift files in-place
-format:
-    swift-format format --recursive --in-place Beacon/ BeaconTests/
+# Watch unit tests
+test-watch:
+    npm run test:watch
 
-# Lint Swift files (check only, no modification)
-lint:
-    swift-format lint --recursive Beacon/ BeaconTests/
+# Typecheck and build production assets
+build:
+    npm run build
 
-# Build for Release
-release:
-    #!/bin/bash
-    set -o pipefail
-    xcodebuild \
-        -scheme Beacon \
-        -configuration Release \
-        -destination 'platform=macOS' \
-        build \
-        2>&1 | xcbeautify
+# Package desktop application (.dmg & .zip)
+package:
+    npm run package
 
-# Clean DerivedData
+# Clean build artifacts
 clean:
-    #!/bin/bash
-    set -o pipefail
-    xcodebuild -scheme Beacon clean 2>&1 | xcbeautify
-    rm -rf ~/Library/Developer/Xcode/DerivedData/Beacon-*
-    echo "Cleaned DerivedData for Beacon"
-
-# Build and launch Beacon inline (Xcode ⌘R equivalent). Ctrl+C stops the app.
-run:
-    bash scripts/run.sh
-
-# Same as `run` but Release configuration
-run-release:
-    CONFIG=Release bash scripts/run.sh
+    rm -rf dist dist-electron release
+    @echo "Cleaned build artifacts."

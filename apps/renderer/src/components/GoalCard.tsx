@@ -1,0 +1,281 @@
+// apps/renderer/src/components/GoalCard.tsx
+import React, { useState } from 'react';
+import { Goal } from '@shared/types';
+import { GoalProgressRing } from './GoalProgressRing';
+import { QuickIncrementButton } from './QuickIncrementButton';
+import { MilestoneList } from './MilestoneList';
+import { CheckCircle, ChevronDown, ChevronUp, MoreHorizontal, Archive, Trash2, Edit3, Calendar } from 'lucide-react';
+
+interface GoalCardProps {
+  goal: Goal;
+  onIncrement: (goalId: string, delta?: number) => void;
+  onToggleMilestone: (goalId: string, milestoneId: string) => void;
+  onAddMilestone: (goalId: string, title: string, contribution?: number) => void;
+  onDeleteMilestone: (goalId: string, milestoneId: string) => void;
+  onComplete: (goalId: string) => void;
+  onArchive: (goalId: string) => void;
+  onDelete: (goalId: string) => void;
+  onEdit: (goal: Goal) => void;
+  compact?: boolean;
+}
+
+export const GoalCard: React.FC<GoalCardProps> = ({
+  goal,
+  onIncrement,
+  onToggleMilestone,
+  onAddMilestone,
+  onDeleteMilestone,
+  onComplete,
+  onArchive,
+  onDelete,
+  onEdit,
+  compact = false,
+}) => {
+  const [expanded, setExpanded] = useState(false);
+  const [menuOpen, setMenuOpen] = useState(false);
+
+  const fraction = goal.targetValue > 0 ? Math.min(1.0, goal.currentValue / goal.targetValue) : 0;
+  const isComplete = goal.status === 'completed' || (goal.targetValue > 0 && goal.currentValue >= goal.targetValue);
+
+  return (
+    <div
+      style={{
+        backgroundColor: 'rgba(255, 255, 255, 0.03)',
+        backdropFilter: 'blur(12px)',
+        WebkitBackdropFilter: 'blur(12px)',
+        border: '1px solid var(--border-subtle)',
+        borderRadius: 'var(--radius-lg)',
+        padding: compact ? '10px 12px' : '14px 16px',
+        display: 'flex',
+        flexDirection: 'column',
+        gap: '10px',
+        position: 'relative',
+        transition: 'all 0.2s ease',
+      }}
+    >
+      {/* Header Row */}
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '12px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flex: 1, minWidth: 0 }}>
+          <GoalProgressRing progressFraction={fraction} size={compact ? 36 : 42} strokeWidth={compact ? 3 : 3.5} />
+          
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '2px', minWidth: 0 }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+              <span
+                style={{
+                  fontSize: compact ? '13px' : '14px',
+                  fontWeight: 600,
+                  color: isComplete ? 'var(--text-muted)' : 'var(--text-primary)',
+                  textDecoration: isComplete ? 'line-through' : 'none',
+                  whiteSpace: 'nowrap',
+                  overflow: 'hidden',
+                  textOverflow: 'ellipsis',
+                }}
+              >
+                {goal.name}
+              </span>
+              {goal.category && (
+                <span
+                  style={{
+                    fontSize: '10px',
+                    padding: '2px 6px',
+                    backgroundColor: 'rgba(255, 255, 255, 0.06)',
+                    color: 'var(--text-secondary)',
+                    borderRadius: 'var(--radius-sm)',
+                    fontWeight: 500,
+                  }}
+                >
+                  {goal.category}
+                </span>
+              )}
+            </div>
+
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '11px', color: 'var(--text-secondary)' }}>
+              <span>
+                <strong style={{ color: 'var(--text-primary)' }}>{goal.currentValue}</strong>
+                {goal.targetValue > 0 && ` / ${goal.targetValue}`} {goal.unit || ''}
+              </span>
+
+              {goal.deadline && (
+                <span style={{ display: 'inline-flex', alignItems: 'center', gap: '3px', color: 'var(--text-muted)' }}>
+                  <Calendar size={10} />
+                  {new Date(goal.deadline).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}
+                </span>
+              )}
+            </div>
+          </div>
+        </div>
+
+        {/* Quick Action Button & Menu */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+          {!isComplete && (
+            <QuickIncrementButton
+              amount={goal.defaultIncrement || 1}
+              unit={goal.unit}
+              onClick={() => onIncrement(goal.id)}
+            />
+          )}
+
+          <div style={{ position: 'relative' }}>
+            <button
+              onClick={() => setMenuOpen(!menuOpen)}
+              className="btn-ghost"
+              style={{ padding: '4px', borderRadius: 'var(--radius-sm)' }}
+            >
+              <MoreHorizontal size={14} />
+            </button>
+
+            {menuOpen && (
+              <>
+                <div
+                  onClick={() => setMenuOpen(false)}
+                  style={{ position: 'fixed', inset: 0, zIndex: 40 }}
+                />
+                <div
+                  style={{
+                    position: 'absolute',
+                    top: '100%',
+                    right: 0,
+                    zIndex: 50,
+                    width: '130px',
+                    backgroundColor: 'rgba(28, 30, 39, 0.96)',
+                    backdropFilter: 'blur(20px)',
+                    border: '1px solid var(--border-subtle)',
+                    borderRadius: 'var(--radius-md)',
+                    padding: '4px',
+                    boxShadow: 'var(--shadow-lg)',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    gap: '2px',
+                  }}
+                >
+                  <button
+                    onClick={() => {
+                      setMenuOpen(false);
+                      onEdit(goal);
+                    }}
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '6px',
+                      padding: '6px 8px',
+                      fontSize: '11px',
+                      color: 'var(--text-primary)',
+                      borderRadius: '4px',
+                      cursor: 'pointer',
+                    }}
+                    onMouseEnter={(e) => ((e.currentTarget as HTMLElement).style.backgroundColor = 'var(--bg-glass-active)')}
+                    onMouseLeave={(e) => ((e.currentTarget as HTMLElement).style.backgroundColor = 'transparent')}
+                  >
+                    <Edit3 size={12} />
+                    <span>Edit Goal</span>
+                  </button>
+
+                  {!isComplete && (
+                    <button
+                      onClick={() => {
+                        setMenuOpen(false);
+                        onComplete(goal.id);
+                      }}
+                      style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '6px',
+                        padding: '6px 8px',
+                        fontSize: '11px',
+                        color: 'var(--accent-emerald)',
+                        borderRadius: '4px',
+                        cursor: 'pointer',
+                      }}
+                      onMouseEnter={(e) => ((e.currentTarget as HTMLElement).style.backgroundColor = 'var(--bg-glass-active)')}
+                      onMouseLeave={(e) => ((e.currentTarget as HTMLElement).style.backgroundColor = 'transparent')}
+                    >
+                      <CheckCircle size={12} />
+                      <span>Complete</span>
+                    </button>
+                  )}
+
+                  <button
+                    onClick={() => {
+                      setMenuOpen(false);
+                      onArchive(goal.id);
+                    }}
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '6px',
+                      padding: '6px 8px',
+                      fontSize: '11px',
+                      color: 'var(--text-secondary)',
+                      borderRadius: '4px',
+                      cursor: 'pointer',
+                    }}
+                    onMouseEnter={(e) => ((e.currentTarget as HTMLElement).style.backgroundColor = 'var(--bg-glass-active)')}
+                    onMouseLeave={(e) => ((e.currentTarget as HTMLElement).style.backgroundColor = 'transparent')}
+                  >
+                    <Archive size={12} />
+                    <span>Archive</span>
+                  </button>
+
+                  <button
+                    onClick={() => {
+                      setMenuOpen(false);
+                      onDelete(goal.id);
+                    }}
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '6px',
+                      padding: '6px 8px',
+                      fontSize: '11px',
+                      color: 'var(--accent-rose)',
+                      borderRadius: '4px',
+                      cursor: 'pointer',
+                    }}
+                    onMouseEnter={(e) => ((e.currentTarget as HTMLElement).style.backgroundColor = 'var(--bg-glass-active)')}
+                    onMouseLeave={(e) => ((e.currentTarget as HTMLElement).style.backgroundColor = 'transparent')}
+                  >
+                    <Trash2 size={12} />
+                    <span>Delete</span>
+                  </button>
+                </div>
+              </>
+            )}
+          </div>
+        </div>
+      </div>
+
+      {/* Accordion Toggle for Milestones */}
+      {goal.milestones && goal.milestones.length > 0 && (
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+          <button
+            onClick={() => setExpanded(!expanded)}
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              padding: '2px 0',
+              fontSize: '11px',
+              color: 'var(--text-muted)',
+              cursor: 'pointer',
+            }}
+          >
+            <span>
+              {goal.milestones.filter((m) => m.isCompleted).length}/{goal.milestones.length} milestones
+            </span>
+            {expanded ? <ChevronUp size={12} /> : <ChevronDown size={12} />}
+          </button>
+
+          {expanded && (
+            <MilestoneList
+              goalId={goal.id}
+              milestones={goal.milestones}
+              onToggle={onToggleMilestone}
+              onAdd={onAddMilestone}
+              onDelete={onDeleteMilestone}
+            />
+          )}
+        </div>
+      )}
+    </div>
+  );
+};

@@ -1,21 +1,9 @@
 # lefthook.yml — Git hooks configuration
 # https://github.com/evilmartians/lefthook
-# Install hooks: just setup (inside nix develop)
 
 pre-commit:
   parallel: false
   commands:
-    format:
-      glob: "*.swift"
-      # Beacon/Vendor はアップストリームのソースをそのまま取り込んでいる。
-      # 整形すると上流との diff が追えなくなるので触らない。
-      exclude:
-        - "Beacon/Vendor/**"
-      run: swift-format format --recursive --in-place {staged_files}
-      stage_fixed: true
-    lint:
-      glob: "*.swift"
-      exclude:
-        - "Beacon/Vendor/**"
-      run: swift-format lint --recursive {staged_files}
-      fail_text: "Swift lint errors found. Run 'just format' to fix."
+    test:
+      run: npm test
+      fail_text: "Unit tests failed. Fix errors before committing."

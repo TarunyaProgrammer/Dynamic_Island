@@ -3,120 +3,98 @@
 
   # Beacon
 
-  **A Dynamic Island-Style Live Hub for macOS**  
+  **Minimalist macOS Goal Operating Layer — Glance, Update, Move On**  
   *Engineered & Maintained by [Tarunya K](https://github.com/TarunyaProgrammer)*
 
-  [![macOS 15+](https://img.shields.io/badge/macOS-15%2B-black?logo=apple&logoColor=white)](https://www.apple.com/macos/)
-  [![Swift 6](https://img.shields.io/badge/Swift-6-f05138?logo=swift&logoColor=white)](https://swift.org)
-  [![License: Proprietary](https://img.shields.io/badge/License-Proprietary-red.svg)](LICENSE)
+  [![macOS](https://img.shields.io/badge/macOS-12%2B-black?logo=apple&logoColor=white)](https://www.apple.com/macos/)
+  [![TypeScript](https://img.shields.io/badge/TypeScript-5.8-3178c6?logo=typescript&logoColor=white)](https://www.typescriptlang.org)
+  [![React](https://img.shields.io/badge/React-19-61dafb?logo=react&logoColor=black)](https://react.dev)
+  [![Electron](https://img.shields.io/badge/Electron-34-47848f?logo=electron&logoColor=white)](https://www.electronjs.org)
+  [![SQLite](https://img.shields.io/badge/SQLite-Local_First-003b57?logo=sqlite&logoColor=white)](https://sqlite.org)
   [![GitHub](https://img.shields.io/badge/Repository-TarunyaProgrammer%2FDynamic__Island-blue?logo=github)](https://github.com/TarunyaProgrammer/Dynamic_Island)
 </div>
 
 ---
 
-**Beacon** is a native macOS live hub that brings an interactive, pill-shaped Dynamic Island interface to the top center of your screen. On MacBooks with a physical notch, Beacon seamlessly anchors inside the notch area. On non-notch screens, it floats as an elegant standalone dynamic island.
+**Beacon** is a fast, minimalist macOS goal and progress operating layer built on **Electron, TypeScript, React 19, Vite, and SQLite**.
 
-Hover or click to expand. Get real-time insight into your AI usage quotas, live media playback and synchronized lyrics, calendar events, and custom developer widgets — all without breaking your active workflow.
-
-> [!NOTE]
-> Beacon uses dedicated macOS windowing APIs (`kCGStatusWindowLevel`), screen capture audio analysis, and deep system integrations outside the Mac App Store sandbox. Distribution is provided directly via GitHub Releases.
+It eliminates the friction of traditional goal-tracking tools by embedding progress directly into your active workspace via the macOS menu bar, a Dynamic Island top overlay, and a global `⌘ + Shift + B` command palette.
 
 ---
 
 ## Key Highlights
 
-### 🏝️ Interactive Island Surface
-- Smart geometry engine automatically adapts to physical hardware notches or standalone displays.
-- Fluid hover-to-expand, auto-collapse delays, and Metal SDF visual transitions.
-- Lightweight menu bar companion with full status controls.
+### ⚡ Sub-2-Second Progress Updates
+- One-click `+1` / `+step` quick increments from the menu bar popover, top notch pill, or keyboard palette.
+- Instant feedback with undo/redo stack (`⌘Z` / `⌘⇧Z`) and automatic goal completion detection.
 
-### 🎵 Real-Time Media & Synced Lyrics
-- Detects playback across **Spotify**, **Apple Music**, and **YouTube Music**.
-- Real-time album artwork, transport controls (play/pause/skip), and animated audio waveforms.
-- Synchronized timecoded lyrics fetched dynamically via [LRCLIB](https://lrclib.net).
+### 🏝️ Dynamic Island Top Notch Overlay
+- Frameless, translucent pill pinned to the top center of your screen.
+- Auto-detects notch geometry, expands smoothly on hover to reveal focus goals, and auto-collapses on leave.
 
-### 🤖 AI Usage & Quota Monitor
-- Multi-provider quota telemetry for **Claude**, **Codex**, **OpenAI**, and **OpenRouter**.
-- Real-time cost estimates, token velocity tracking, and reset countdowns.
+### 🎯 Multi-Surface Synchronization
+- **Main Workspace**: Full goal dashboard, category filters, milestone breakdown, and live activity stream.
+- **Menu Bar Quick Hub**: Instant dropdown showing aggregated progress gauge and quick increment capsules.
+- **Command Palette (`⌘⇧B`)**: Spotlight-style modal supporting natural commands (`+1 Rust`, `new Read 20 books`).
 
-### 🧩 Modular Widget Presets
-- User-defined widget layout presets powered by `BeaconWidget` registry architecture.
-- Modular cards for calendar, system status, now playing, and AI metrics.
-
----
-
-## Requirements
-
-| Requirement | Specification |
-|---|---|
-| **Operating System** | macOS 15.0 (Sequoia) or later |
-| **Toolchain** | Xcode 16+ & Swift 6 |
-| **Architecture** | Universal (Apple Silicon & Intel) |
-| **Maintainer** | Tarunya K ([@TarunyaProgrammer](https://github.com/TarunyaProgrammer)) |
+### 🔒 Local-First SQLite Persistence
+- Pure offline storage in macOS `Application Support/Beacon/beacon.sqlite` with WAL mode and atomic transactions.
+- Zero cloud requirement, zero tracking, instant query latency.
 
 ---
 
-## Getting Started
+## Development & Quick Start
 
-### 1. Clone the Repository
+Beacon is built for 100% terminal-driven development without requiring Xcode.
+
+### Prerequisites
+- Node.js 22+
+- npm 10+
+
+### Setup & Run
 ```bash
+# Clone the repository
 git clone https://github.com/TarunyaProgrammer/Dynamic_Island.git
 cd Dynamic_Island
-```
 
-### 2. Build and Run in Xcode
-```bash
-open Beacon.xcodeproj
-```
+# Install dependencies
+npm install
 
-### 3. Command-Line Workflows
-```bash
-# Verify dev environment and setup hooks
-just setup
+# Start development server with Vite hot reload
+npm run dev
 
-# Build Debug binary
-just build
+# Run unit test suite
+npm test
 
-# Run comprehensive test suite
-just test
+# Build production bundle
+npm run build
 
-# Format Swift code
-just format
+# Package standalone macOS .dmg & .zip
+npm run package
 ```
 
 ---
 
-## Architecture Overview
+## Target Architecture
 
-```
-Beacon Architecture
- ├── UI Layer (SwiftUI)
- │    ├─ CompactPillView      — Minimal island pill and hover triggers
- │    ├─ ExpandedIslandView   — Modular expanded surface and card grid
- │    ├─ DesignSystem         — Unified visual tokens (SF Pro, radii, ultraDark vibrancy)
- │    └─ SettingsView         — Preferences and widget arrangement
- │
- ├── Core State & Services
- │    ├─ AppState             — Single source of truth (@Observable)
- │    ├─ PresetStore          — Widget preset layouts and persistence
- │    ├─ WidgetRegistry       — Dynamic widget registration and lifecycle
- │    └─ RefreshScheduler     — Concurrent background telemetry coordinator
- │
- └── System Integration (AppKit)
-      ├─ IslandWindow         — Transparent NSWindow overlay management
-      ├─ NotchDetector        — Hardware notch geometry detection
-      ├─ MediaRemoteBridge    — Media session event dispatch
-      └─ AudioCaptureService  — ScreenCaptureKit audio waveform analysis
+```text
+Beacon
+├── apps/
+│   ├── main/                    # Electron Main Process (Lifecycle, Windows, Tray, Shortcuts, IPC)
+│   ├── preload/                 # Typed ContextBridge (window.beacon)
+│   └── renderer/                # React 19 + Vite (Main, Tray Popover, Island, Palette)
+├── packages/
+│   ├── core/                    # Pure Domain Logic (GoalService, UndoManager, Models)
+│   └── database/                # SQLite Relational Engine (better-sqlite3, Migrations, Repositories)
+└── shared/                      # Shared DTOs and IPC channel constants
 ```
 
 ---
 
 ## Contributing & License
 
-- **License**: Beacon is licensed under a strict proprietary license. See [LICENSE](LICENSE) for full legal terms.
-- **Contributions**: Pull requests and code submissions are subject to strict quality and licensing requirements. See [CONTRIBUTING.md](CONTRIBUTING.md) before submitting code.
-
----
+- **License**: Beacon is licensed under a proprietary license. See [LICENSE](LICENSE) for terms.
+- **Contributions**: Quality submissions are welcome. See [CONTRIBUTING.md](CONTRIBUTING.md).
 
 <div align="center">
   <sub>Created with ❤️ by <b>Tarunya K</b> • <a href="https://github.com/TarunyaProgrammer">@TarunyaProgrammer</a></sub>

@@ -1,75 +1,29 @@
-# .github/workflows/ci.yml
 name: CI
 
 on:
   push:
-    branches:
-      - "phase-**"
-      - main
+    branches: [main]
   pull_request:
-
-concurrency:
-  group: ${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: true
-
-permissions:
-  contents: read
+    branches: [main]
 
 jobs:
-  build:
-    name: Build
-    runs-on: macos-26
-    timeout-minutes: 30
-
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Show Xcode and Swift version
-        run: |
-          xcodebuild -version
-          swift --version
-
-      - name: Install xcbeautify
-        run: brew install xcbeautify
-
-      - name: Cache DerivedData
-        uses: actions/cache@v4
-        with:
-          path: ~/Library/Developer/Xcode/DerivedData
-          key: ${{ runner.os }}-derived-data-${{ hashFiles('Beacon.xcodeproj/project.pbxproj', 'Beacon.xcodeproj/project.xcworkspace/xcshareddata/swiftpm/Package.resolved') }}
-          restore-keys: |
-            ${{ runner.os }}-derived-data-
-
-      - name: Build
-        run: |
-          set -euo pipefail
-          xcodebuild \
-            -scheme Beacon \
-            -configuration Debug \
-            -destination 'platform=macOS' \
-            -skipPackagePluginValidation \
-            -skipMacroValidation \
-            -jobs "$(sysctl -n hw.logicalcpu)" \
-            CODE_SIGNING_ALLOWED=NO \
-            build \
-            2>&1 | xcbeautify
-
-  lint:
-    name: Lint
+  test:
     runs-on: macos-latest
-    timeout-minutes: 10
-
     steps:
-      - name: Checkout
+      - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Install swift-format
-        run: brew install swift-format
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: 'npm'
 
-      - name: Lint
-        # Beacon/Vendor はアップストリームのソースをそのまま取り込んでいる。
-        # Beacon のスタイルに整形すると上流との diff が追えなくなるので除外する。
-        # swift-format に除外オプションが無く、.swift-format-ignore も 602 では
-        # ディレクトリ明示指定に効かないため、対象ファイルを列挙して渡す。
-        run: git ls-files '*.swift' | grep -v '^Beacon/Vendor/' | xargs swift-format lint
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run Unit Tests
+        run: npm test
+
+      - name: Typecheck & Build
+        run: npm run build

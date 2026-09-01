@@ -2,328 +2,41 @@ name: Release
 
 on:
   push:
-    branches:
-      - main
-    paths:
-      - version.env
-  workflow_dispatch:
-    inputs:
-      channel:
-        description: 'Release channel to publish from version.env'
-        required: true
-        type: choice
-        options:
-          - stable
-          - beta
-          - preview
-      preview_version:
-        description: 'Preview base version (e.g. 0.4.0). Defaults to STABLE_MARKETING_VERSION when empty. Ignored unless channel is preview.'
-        required: false
-        type: string
-      beta_display_version:
-        description: 'Beta display version (e.g. 0.4.0-beta.1). Required for a manual beta release; ignored for stable and preview.'
-        required: false
-        type: string
+    tags:
+      - 'v*'
 
 permissions:
-  contents: read
-
-concurrency:
-  group: release-${{ github.ref }}
-  cancel-in-progress: false
+  contents: write
 
 jobs:
-  check:
-    permissions:
-      contents: read
-    runs-on: ubuntu-latest
-    outputs:
-      skip:         ${{ steps.version.outputs.skip }}
-      channel:      ${{ steps.version.outputs.channel }}
-      version:      ${{ steps.version.outputs.version }}
-      base_version: ${{ steps.version.outputs.base_version }}
-      build_number: ${{ steps.version.outputs.build_number }}
-      tag:          ${{ steps.version.outputs.tag }}
-      is_beta:      ${{ steps.version.outputs.is_beta }}
-
+  release:
+    runs-on: macos-latest
     steps:
-      - name: Ensure manual stable/beta releases run from main
-        if: github.event_name == 'workflow_dispatch' && github.event.inputs.channel != 'preview' && github.ref != 'refs/heads/main'
-        run: |
-          echo "::error::Manual stable/beta releases must run from main. Use channel=preview to release from a branch."
-          exit 1
+      - name: Checkout repository
+        uses: actions/checkout@v4
 
-      - uses: actions/checkout@v4
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
         with:
-          fetch-depth: 0
+          node-version: 22
+          cache: 'npm'
 
-      - name: Set up uv
-        uses: astral-sh/setup-uv@fac544c07dec837d0ccb6301d7b5580bf5edae39
+      - name: Install dependencies
+        run: npm ci
 
-      - name: Capture previous version.env
-        if: github.event_name == 'push'
-        run: |
-          if git cat-file -e "${{ github.event.before }}:version.env" 2>/dev/null; then
-            git show "${{ github.event.before }}:version.env" > /tmp/version-before.env
-          else
-            touch /tmp/version-before.env
-          fi
+      - name: Run Tests
+        run: npm test
 
-      - name: Resolve release metadata
-        id: version
-        env:
-          BETA_DISPLAY_VERSION: ${{ github.event.inputs.beta_display_version }}
-        run: |
-          PREVIOUS_ARGS=()
-          CHANNEL_ARGS=()
-          PREVIEW_ARGS=()
-          BETA_DISPLAY_VERSION_ARGS=()
-
-          if [ "${{ github.event_name }}" = "push" ]; then
-            PREVIOUS_ARGS=(--previous /tmp/version-before.env)
-          else
-            CHANNEL_ARGS=(--channel "${{ github.event.inputs.channel }}")
-          fi
-
-          if [ "${{ github.event_name }}" = "workflow_dispatch" ] && [ "${{ github.event.inputs.channel }}" = "preview" ]; then
-            BRANCH_SLUG=$(echo "${{ github.ref_name }}" | tr '/' '-')
-            PREVIEW_ARGS=(
-              --preview-branch "$BRANCH_SLUG"
-              --preview-run "${{ github.run_number }}"
-              --preview-base-version "${{ github.event.inputs.preview_version }}"
-            )
-          fi
-
-          if [ "${{ github.event_name }}" = "workflow_dispatch" ] && [ "${{ github.event.inputs.channel }}" = "beta" ]; then
-            BETA_DISPLAY_VERSION_ARGS=(--beta-display-version "$BETA_DISPLAY_VERSION")
-          fi
-
-          UV_CACHE_DIR=.uv-cache uv run python scripts/resolve-release.py \
-            --current version.env \
-            "${PREVIOUS_ARGS[@]}" \
-            --event-name "${{ github.event_name }}" \
-            "${CHANNEL_ARGS[@]}" \
-            "${PREVIEW_ARGS[@]}" \
-            "${BETA_DISPLAY_VERSION_ARGS[@]}" \
-            --appcast appcast.xml
-
-      - name: Stop when version.env did not change a release block
-        if: steps.version.outputs.skip == 'true'
-        run: echo "No STABLE_* or BETA_* release fields changed."
-
-      - name: Check tag and release do not exist
-        if: steps.version.outputs.skip != 'true'
+      - name: Build & Package App
+        run: npm run package
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          TAG="${{ steps.version.outputs.tag }}"
-
-          if git ls-remote --exit-code --tags origin "refs/tags/${TAG}" >/dev/null 2>&1; then
-            echo "::error::Tag ${TAG} already exists."
-            exit 1
-          fi
-
-          if gh release view "$TAG" --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
-            echo "::error::Release ${TAG} already exists."
-            exit 1
-          fi
-
-  release:
-    permissions:
-      contents: write
-    needs: check
-    if: needs.check.outputs.skip != 'true'
-    runs-on: macos-26
-    env:
-      SCHEME:       Beacon
-      APP_NAME:     beacon
-      CHANNEL:      ${{ needs.check.outputs.channel }}
-      VERSION:      ${{ needs.check.outputs.version }}
-      BASE_VERSION: ${{ needs.check.outputs.base_version }}
-      BUILD_NUMBER: ${{ needs.check.outputs.build_number }}
-      TAG:          ${{ needs.check.outputs.tag }}
-      IS_BETA:      ${{ needs.check.outputs.is_beta }}
-
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-
-      - name: Set up uv
-        uses: astral-sh/setup-uv@fac544c07dec837d0ccb6301d7b5580bf5edae39
-
-      - name: Cache DerivedData
-        uses: actions/cache@v4
-        with:
-          path: build/DerivedData
-          key: ${{ runner.os }}-dd-release-${{ hashFiles('Beacon.xcodeproj/project.pbxproj', 'Beacon.xcodeproj/project.xcworkspace/xcshareddata/swiftpm/Package.resolved') }}
-          restore-keys: |
-            ${{ runner.os }}-dd-release-
-
-      - name: Build universal archive
-        run: |
-          set -o pipefail
-          mkdir -p build
-          xcodebuild archive \
-            -scheme "$SCHEME" \
-            -configuration Release \
-            -archivePath "build/$APP_NAME.xcarchive" \
-            -destination 'generic/platform=macOS' \
-            -derivedDataPath build/DerivedData \
-            -skipPackagePluginValidation \
-            -skipMacroValidation \
-            -jobs "$(sysctl -n hw.logicalcpu)" \
-            "ARCHS=arm64 x86_64" \
-            ONLY_ACTIVE_ARCH=NO \
-            CODE_SIGN_IDENTITY="-" \
-            CODE_SIGNING_REQUIRED=NO \
-            CODE_SIGNING_ALLOWED=NO \
-            MARKETING_VERSION="$BASE_VERSION" \
-            CURRENT_PROJECT_VERSION="$BUILD_NUMBER" \
-            SKIP_INSTALL=NO 2>&1 | tee build/xcodebuild-archive.log
-
-      - name: Upload archive build log on failure
-        if: failure()
-        uses: actions/upload-artifact@v4
-        with:
-          name: xcodebuild-archive-log
-          path: build/xcodebuild-archive.log
-          if-no-files-found: warn
-
-      - name: Ad-hoc sign app bundle
-        run: |
-          APP="build/$APP_NAME.xcarchive/Products/Applications/$APP_NAME.app"
-          codesign --force --deep --sign - --timestamp=none "$APP"
-          echo "Signed: $APP"
-
-      - name: Install create-dmg
-        run: brew install create-dmg
-
-      - name: Create DMG
-        run: |
-          mkdir -p build/dmg
-          bash scripts/build-dmg.sh \
-            "$VERSION" \
-            "build/$APP_NAME.xcarchive/Products/Applications/$APP_NAME.app" \
-            "build/dmg"
-
-      - name: Sign DMG for Sparkle
-        if: env.CHANNEL != 'preview'
-        id: sparkle_signature
-        env:
-          SPARKLE_PRIVATE_KEY: ${{ secrets.SPARKLE_PRIVATE_KEY }}
-        run: |
-          set -euo pipefail
-          test -n "$SPARKLE_PRIVATE_KEY" || {
-            echo "::error::SPARKLE_PRIVATE_KEY is required for stable and beta releases."
-            exit 1
-          }
-
-          KEY_FILE=$(mktemp "${RUNNER_TEMP}/sparkle-private-key.XXXXXX")
-          trap 'rm -f -- "$KEY_FILE"' EXIT
-          chmod 600 "$KEY_FILE"
-          printf '%s' "$SPARKLE_PRIVATE_KEY" > "$KEY_FILE"
-
-          SIGN_UPDATE="build/DerivedData/SourcePackages/artifacts/sparkle/Sparkle/bin/sign_update"
-          test -x "$SIGN_UPDATE" || {
-            echo "::error::Sparkle SPM sign_update was not resolved by xcodebuild archive."
-            exit 1
-          }
-
-          DMG_PATH="build/dmg/${APP_NAME}-${VERSION}.dmg"
-          SIGN_UPDATE_OUTPUT=$("$SIGN_UPDATE" --ed-key-file "$KEY_FILE" "$DMG_PATH")
-          ED_SIGNATURE=$(printf '%s\n' "$SIGN_UPDATE_OUTPUT" | awk -F'"' '/edSignature=/{ print $2; exit }')
-          test -n "$ED_SIGNATURE" || {
-            echo "::error::Could not read an edSignature from sign_update output."
-            exit 1
-          }
-          echo "ed_signature=$ED_SIGNATURE" >> "$GITHUB_OUTPUT"
-
-      - name: Create release tag
-        run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git tag "$TAG" "$GITHUB_SHA"
-          git push origin "refs/tags/$TAG"
-
-      - name: Compose release body
-        id: body
-        run: |
-          {
-            echo "body<<__BODY__"
-            echo "## Beacon ${VERSION}"
-            echo ""
-            echo "### Install via Homebrew"
-            echo '```bash'
-            echo "brew install --cask beacon"
-            echo '```'
-            echo ""
-            echo "### Direct Download"
-            echo "- **beacon-${VERSION}.dmg** - Universal (Apple Silicon + Intel)"
-            echo ""
-            echo "> Not notarized by Apple. If Gatekeeper blocks it: right-click > Open > Open."
-            echo "__BODY__"
-          } >> "$GITHUB_OUTPUT"
 
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
         with:
-          tag_name:   ${{ env.TAG }}
-          name:       "Beacon ${{ env.VERSION }}"
-          body:       ${{ steps.body.outputs.body }}
-          files:      build/dmg/${{ env.APP_NAME }}-${{ env.VERSION }}.dmg
-          draft:      ${{ env.CHANNEL == 'preview' }}
-          prerelease: ${{ env.IS_BETA == 'true' }}
-
-      - name: Update appcast.xml
-        if: env.CHANNEL != 'preview'
+          files: |
+            release/*.dmg
+            release/*.zip
         env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          DMG_PATH="build/dmg/${APP_NAME}-${VERSION}.dmg"
-          DMG_URL="https://github.com/${GITHUB_REPOSITORY}/releases/download/${TAG}/${APP_NAME}-${VERSION}.dmg"
-          DMG_SIZE=$(stat -f%z "$DMG_PATH")
-
-          CHANNEL_ARG=""
-          [[ "$IS_BETA" == "true" ]] && CHANNEL_ARG="beta"
-
-          if gh api "repos/${GITHUB_REPOSITORY}/contents/appcast.xml?ref=main" \
-               --jq '.content' 2>/dev/null | python3 -c 'import base64,sys;sys.stdout.buffer.write(base64.b64decode(sys.stdin.buffer.read()))' > appcast.xml; then
-            echo "Fetched existing appcast.xml from main"
-          else
-            echo "appcast.xml not found on main - using template from checkout"
-          fi
-
-          if [[ -n "$CHANNEL_ARG" ]]; then
-            UV_CACHE_DIR=.uv-cache uv run python scripts/update-appcast.py \
-              "$VERSION" "$BUILD_NUMBER" "$DMG_URL" "$DMG_SIZE" \
-              "${{ steps.sparkle_signature.outputs.ed_signature }}" "$CHANNEL_ARG"
-          else
-            UV_CACHE_DIR=.uv-cache uv run python scripts/update-appcast.py \
-              "$VERSION" "$BUILD_NUMBER" "$DMG_URL" "$DMG_SIZE" \
-              "${{ steps.sparkle_signature.outputs.ed_signature }}"
-          fi
-
-          SHA=$(gh api "repos/${GITHUB_REPOSITORY}/contents/appcast.xml?ref=main" \
-            --jq '.sha' 2>/dev/null || echo "")
-
-          ENCODED=$(base64 -i appcast.xml | tr -d '\n')
-          jq -n \
-            --arg message "appcast: add v${VERSION} (build ${BUILD_NUMBER})" \
-            --arg content  "$ENCODED" \
-            --arg sha      "$SHA" \
-            '{"message": $message, "content": $content, "branch": "main"}
-             + (if $sha != "" then {"sha": $sha} else {} end)' \
-          | gh api "repos/${GITHUB_REPOSITORY}/contents/appcast.xml" \
-              --method PUT \
-              --input -
-
-          echo "appcast.xml updated for v${VERSION}"
-
-      - name: Clean up failed release artifacts
-        if: failure()
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          gh release delete "$TAG" --repo "$GITHUB_REPOSITORY" --yes || true
-          git push --delete origin "$TAG" || true
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
