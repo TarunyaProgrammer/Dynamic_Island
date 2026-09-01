@@ -109,7 +109,7 @@ End of example.
 
 ---
 
-## Perch Project Rules
+## Beacon Project Rules
 
 ### Island UI Component Conventions
 - 全カードコンポーネントは `IslandCardContainer` でラップすること

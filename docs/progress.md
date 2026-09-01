@@ -1,4 +1,4 @@
-# Perch Development Progress
+# Beacon Development Progress
 
 **Current Phase**: Phase 3 完了 → Phase UI（展開Island強化 + プリセットカスタマイズ）
 **Last Updated**: 2026-06-14
@@ -15,7 +15,7 @@
 - [x] T0-6: CLAUDE.md作成（プロジェクトレベル、包括的）
 - [x] T0-7: AGENTS.md作成（CLAUDE.mdへのシンボリックリンク）
 - [x] T0-8: progress.md作成
-- [x] T0-9: 既存スキルのPerch向けカスタマイズ（swiftui-pro, swift-concurrency, macos-design-guidelines）
+- [x] T0-9: 既存スキルのBeacon向けカスタマイズ（swiftui-pro, swift-concurrency, macos-design-guidelines）
 - [x] T0-10: 新規スキル作成（appkit-window-control, dynamic-island-ui, ai-provider-integration）
 - [x] T0-11: spec doc作成（docs/superpowers/specs/）
 
@@ -68,10 +68,10 @@
 - [x] T10: CodeRabbit 指摘解消 (empty state 言語統一)
 
 ### 新規ファイル
-- `perch/Features/NowPlaying/ArtworkFetcher.swift`
-- `perch/Core/L10n.swift`
-- `perch/Resources/en.lproj/Localizable.strings`
-- `perch/Resources/ja.lproj/Localizable.strings`
+- `Beacon/Features/NowPlaying/ArtworkFetcher.swift`
+- `Beacon/Core/L10n.swift`
+- `Beacon/Resources/en.lproj/Localizable.strings`
+- `Beacon/Resources/ja.lproj/Localizable.strings`
 
 ### 既知バグ（Phase 2c-fix で対応済み ✅）
 - [x] CI ビルド/テスト失敗 → swift-format 自動修正でクリア（commit `4ef8cf5`）
@@ -121,7 +121,7 @@
 - [x] T9: IslandWindow `tabbingMode = .disallowed` — 起動時の "Cannot index window tabs" 警告除去
 
 ### 新規ファイル
-- `perch/Core/NSImage+DominantColor.swift`
+- `Beacon/Core/NSImage+DominantColor.swift`
 
 ### 既知の制限（将来の改善候補）
 - YTM JS injection: YTM DOM 構造が変わると CSS セレクタが壊れる可能性（タブタイトル解析にフォールバック）
@@ -164,8 +164,8 @@
 - [x] T7: docs 更新 + pre-Phase-3 スペック作成
 
 ### 新規ファイル
-- `perch/Features/NowPlaying/LyricsStore.swift` — actor, LRCLIB fetch, LRC parse
-- `perch/Features/NowPlaying/LyricsView.swift` — ScrollViewReader, opacity, mask
+- `Beacon/Features/NowPlaying/LyricsStore.swift` — actor, LRCLIB fetch, LRC parse
+- `Beacon/Features/NowPlaying/LyricsView.swift` — ScrollViewReader, opacity, mask
 
 ### 既知の制限
 - 歌詞 word-level ハイライト: MusicKit TTML entitlement が必要なため本プロジェクトでは実装しない（行レベルで確定）
@@ -206,19 +206,19 @@
 
 ### 実装済み
 
-- [x] T3-1: AIProvider protocol (`perch/Providers/AIProvider.swift`)
+- [x] T3-1: AIProvider protocol (`Beacon/Providers/AIProvider.swift`)
 - [x] T3-2: 認証フロー — CLAUDE_CONFIG_DIR env + ~/.claude/projects/ + ~/.config/claude/projects/ フォールバック
-- [x] T3-3: Claude Provider (`perch/Providers/Claude/ClaudeProvider.swift`)
+- [x] T3-3: Claude Provider (`Beacon/Providers/Claude/ClaudeProvider.swift`)
   - JSONL パース (ccusage 準拠): composite (messageId:requestId) dedup key
   - isApiErrorMessage フィルタ、ephemeral_1h 2.0x、ephemeral_5m 1.25x
   - CostCalculator.swift: モデル別単価テーブル、cache tiering (5m/1h)
-- [x] T3-4: Codex Provider (`perch/Providers/Codex/CodexProvider.swift`)
+- [x] T3-4: Codex Provider (`Beacon/Providers/Codex/CodexProvider.swift`)
   - `~/.codex/sessions/YYYY/MM/DD/*.jsonl` を解析（ccusage準拠）
   - `turn_context.model` でモデル名取得、最後の `token_count` イベントを累積トークンとして使用
   - `cached_input_tokens` → cacheReadTokens として CostCalculator に渡す
   - 制限: Codex Desktop（GUI）はJSONL未出力のためトラッキング不可
-- [x] T3-5: AIUsageStore + RefreshScheduler (`perch/Features/AIUsage/AIUsageStore.swift`)
-- [x] T3-6: AIUsageCard / AIUsageWidget (`perch/Features/AIUsage/`)
+- [x] T3-5: AIUsageStore + RefreshScheduler (`Beacon/Features/AIUsage/AIUsageStore.swift`)
+- [x] T3-6: AIUsageCard / AIUsageWidget (`Beacon/Features/AIUsage/`)
 - [x] T3-7: Settings UI — Provider切り替えタブ
 - [x] T3-8: CompactPillView — AIUsageWidget プロバイダロゴ + コスト表示
 - [x] T3-9: IslandWindowController クラッシュ修正 — `observeExpanded()` state-scoped tracking（展開中は `compactWindowWidth` を監視しない）
@@ -226,17 +226,17 @@
   - `costUSD` JSONキー修正 (旧: `"cost_usd"` → 正: `"costUSD"`)
   - `isSidechain` フィルタ削除（サブエージェント呼び出しも課金対象）
   - 30日間コスト実測: ccusage Claude分 $528.83 に対して±5%以内
-- [x] T3-11: OpenAI Provider (`perch/Providers/OpenAI/OpenAIProvider.swift`)
+- [x] T3-11: OpenAI Provider (`Beacon/Providers/OpenAI/OpenAIProvider.swift`)
   - 公式 Usage API (2024年12月発表) — `/v1/organization/costs` + `/v1/organization/usage/completions`
   - **Organization Admin Key 必須**（通常の sk-... 不可）。`platform.openai.com/settings/organization/admin-keys` で発行
   - コスト (USD) + トークン数を30日分・日別・モデル別に取得
   - `amount.value` の String/Double 混在に対応（CodexBar 知見）
-- [x] T3-12: OpenRouter Provider (`perch/Providers/OpenRouter/OpenRouterProvider.swift`)
+- [x] T3-12: OpenRouter Provider (`Beacon/Providers/OpenRouter/OpenRouterProvider.swift`)
   - Regular Key (`sk-or-v1-...`): `/api/v1/key` で today/weekly/monthly 合計値取得
   - Management Key: `/api/v1/activity` で30日分の日別・モデル別データ取得（チャート表示対応）
   - 両キーを Keychain に個別保存。Management Key があれば自動的にフル機能
 - [x] T3-13: Settings UI — OpenAI/OpenRouter API Key 入力フォーム
-  - `perch/UI/SettingsView.swift` に "AI Usage" タブを追加
+  - `Beacon/UI/SettingsView.swift` に "AI Usage" タブを追加
   - SecureField + onSubmit + 削除ボタン
   - `KeychainHelper.swift`: `nonisolated` 追加（Swift 6 で nonisolated context から呼び出し可能に）
 
@@ -262,7 +262,7 @@
 
 #### Group A: CompactPillView / DesignSystem (Claude)
 - [x] A1: 背景色を Dynamic Island 黒に統一（.regularMaterial → Color.black）
-- [x] A2: アイドル状態UX — "Perch" テキスト削除 + ghost opacity 0.12
+- [x] A2: アイドル状態UX — "Beacon" テキスト削除 + ghost opacity 0.12
 - [x] A3: 衛星サークル（デフォルトOFF、右スワイプ、Metal SDF metaball）+ ピルサイズ3段階設定
 
 #### Group B: NowPlaying バグ修正
@@ -382,7 +382,7 @@
 
 ### 目標
 
-Island 層の独自実装（`perch/Island/` 595行）を vendored NookSurface に置き換え、展開UIを
+Island 層の独自実装（`Beacon/Island/` 595行）を vendored NookSurface に置き換え、展開UIを
 作り直し、実音波形を実際に動かす。機能ロジック（NowPlaying / AIUsage / Providers /
 PresetStore / WidgetRegistry）は全部引き継ぐ。
 
@@ -409,10 +409,10 @@ PresetStore / WidgetRegistry）は全部引き継ぐ。
 
 - [x] A0: デッドコード削除（`NotchExpandedView` 223 / `NowPlayingMorphContent` 244 / `MetalLiquidBlobView`+`LiquidBlob.metal` 54 / `IslandCardContainer` 13 / デッド Defaults 5件 / 効かない animationSpeed Slider / KeyboardShortcuts 依存）**実績 -590行**
 - [x] A1: macOS 15 Sequoia 引き上げ（pbxproj 4箇所 + CLAUDE.md + README）。Homebrew Cask は別リポジトリなので配布時に対応
-- [x] A2: `perch/Vendor/NookSurface/` に **21ファイル / 2,647行**取り込み（プランの見積 19/2,617 は誤り、実測が正）+ THIRD_PARTY_NOTICES.md に帰属追記
+- [x] A2: `Beacon/Vendor/NookSurface/` に **21ファイル / 2,647行**取り込み（プランの見積 19/2,617 は誤り、実測が正）+ THIRD_PARTY_NOTICES.md に帰属追記
 - [x] A3: vendored の改変3点 — 疑似ノッチ幅を可変化（既定 195pt）/ `notchSize`・`menubarHeight` を public 化 / `NookHoverBehavior.expandsOnHover` 追加 + 改変を守るテスト
 - [x] A4: `NookBridge` / `IslandSurfaceDriving` / `IslandChromeStyle` / `WidgetSizeMetrics` / `ScreenLocator` 追加 + テスト（3タスクに分割して実施。詳細は下記）
-- [x] A5: `perch/Island/` 旧7ファイル削除 + AppState 縮退 + UI シェル層削除
+- [x] A5: `Beacon/Island/` 旧7ファイル削除 + AppState 縮退 + UI シェル層削除
 - [x] A6: 既存テストの改廃（`IslandGeometryTests` / `NotchDetectorTests` 全削除、`AppStateTests` / `IslandPresentationTests` 改廃）+ A5 レビュー積み残し4件の回収
 
 #### A4 の内訳（サブエージェント駆動 + 二段レビューで実施）
@@ -439,10 +439,10 @@ vendored の状態遷移を `onExpand`/`onCompact` の2本だけで捉えると�
 
 #### A5: 配線 + 旧層削除 + AppState 縮退（13コミット、2段レビュー×2ラウンド）
 
-`AppDelegate` に vendored `Nook` + `NookBridge` を差し込み、旧 `perch/Island/` 7ファイル（641行）と UI シェル層（`IslandGlassSurface` / `RootIslandView` / `CompactPillView` の独自クローム）を削除。`AppState.presentation` を `Nook.state` からの一方向派生に降格し、`transitionGeneration` / 110ms・500ms タイマー / サイズ計算5プロパティを全廃。
+`AppDelegate` に vendored `Nook` + `NookBridge` を差し込み、旧 `Beacon/Island/` 7ファイル（641行）と UI シェル層（`IslandGlassSurface` / `RootIslandView` / `CompactPillView` の独自クローム）を削除。`AppState.presentation` を `Nook.state` からの一方向派生に降格し、`transitionGeneration` / 110ms・500ms タイマー / サイズ計算5プロパティを全廃。
 
 **ユーザー承認が要った設計判断**（AskUserQuestion で確認）:
-- クロームは Perch 独自の浮遊カプセル（シェイプ・vibrancy・影・固定420/460pt）を廃し、vendored `NookShape`+`NookBackdrop` のノッチ形状に一本化。表示**内容**は不変、**外枠**が変わる
+- クロームは Beacon 独自の浮遊カプセル（シェイプ・vibrancy・影・固定420/460pt）を廃し、vendored `NookShape`+`NookBackdrop` のノッチ形状に一本化。表示**内容**は不変、**外枠**が変わる
 - コンパクト表示は左=アートワーク+タイトル／右=波形の2スロット
 - 音楽なしの待機時も常にノッチ形状を表示（`AppState` に idle→hide の経路は足さない）
 
@@ -466,7 +466,7 @@ A5 最終レビューの Minor 積み残し4件を回収:
 - **N-3**: `scheduleCollapse` の sleep 明け再チェックに `!isHovering` を追加。当初想定したシナリオ（hidden→expand で必ず誤武装）は既に別ガードで塞がれていたが、実際の穴は「武装後にカーソルが島に戻っても `.onHover` イベントが欠落するとキャンセルされない」側だった
 - **N-4**: `restoreSurfaceIfLost` が `isSurfaceVisible` を見ずに `hasLiveWindow` だけで復帰させていた。将来 hide 経路が使われたときユーザーが明示的に消した島を復活させる潜在バグ
 
-テスト190件全パス。`perchUITests` の `CFBundleIdentifier` 未読み込みバグ（既存・A0以前から）は原因（`INFOPLIST_FILE` 手書き plist に bundle 系キー欠落）を特定したが、Phase A スコープ外として未修正。
+テスト190件全パス。`BeaconUITests` の `CFBundleIdentifier` 未読み込みバグ（既存・A0以前から）は原因（`INFOPLIST_FILE` 手書き plist に bundle 系キー欠落）を特定したが、Phase A スコープ外として未修正。
 
 **Phase A（A0〜A6）完了。** Island 層は独自実装からvendored `NookSurface` + アダプタ層（`NookBridge`/`IslandSurfaceDriving`/`ScreenLocator`/`IslandChromeStyle`）に完全移行。次は Phase B（Atoll 風展開UI）。
 
@@ -474,14 +474,14 @@ A5 最終レビューの Minor 積み残し4件を回収:
 
 - **lefthook の pre-commit が `swift-format format --in-place` + `stage_fixed: true` を走らせる。**
   vendored ファイルが意図せず整形されたため `lefthook.yml` と CI lint の両方で
-  `perch/Vendor/**` を除外した。上流との同一性は
-  `diff -rq <upstream>/Sources/NookSurface perch/Vendor/NookSurface` で常に検証できる
+  `Beacon/Vendor/**` を除外した。上流との同一性は
+  `diff -rq <upstream>/Sources/NookSurface Beacon/Vendor/NookSurface` で常に検証できる
 - `.swift-format-ignore` は swift-format 602 でディレクトリを明示指定した場合に効かない。
-  CI 側は `git ls-files '*.swift' | grep -v '^perch/Vendor/' | xargs swift-format lint` で回避
-- **`perchUITests` は `perch.app` の `CFBundleIdentifier` を読めず失敗する既存バグがある。**
+  CI 側は `git ls-files '*.swift' | grep -v '^Beacon/Vendor/' | xargs swift-format lint` で回避
+- **`BeaconUITests` は `beacon.app` の `CFBundleIdentifier` を読めず失敗する既存バグがある。**
   ソースの `Info.plist` に当該キーが無いのが原因で、A0 の変更前から再現する（stash して確認済み）。
   Phase A のスコープ外だが、UI テストを実際に書く前に解消が必要。
-  当面の検証は `xcodebuild test -only-testing:perchTests` で行う
+  当面の検証は `xcodebuild test -only-testing:BeaconTests` で行う
 
 ### Phase B タスク（Atoll 風展開UI）— **完了**
 
@@ -490,7 +490,7 @@ A5 最終レビューの Minor 積み残し4件を回収:
 
 `/hallmark` と `/ui-ux-pro-max` を必ず適用。Atoll の OSS 版は **GPL-3.0 なのでソースは読まない**
 （読むこと自体が派生物認定のリスク）。スクリーンショットから読み取れるレイアウト構造の
-着想のみ参考にし、視覚言語は Perch 独自にする。
+着想のみ参考にし、視覚言語は Beacon 独自にする。
 
 B4（NowPlaying 再デザイン）は次の NowPlaying フェーズへ、B6（File Shelf）は Phase 4 へ、
 B7（Timer）は対応フェーズ未定のまま保留として切り出し、それ以外を Phase B の完了条件とした
@@ -501,14 +501,14 @@ B7（Timer）は対応フェーズ未定のまま保留として切り出し、�
       **仕様変更**: Bluetoothは撤去した。SF Symbols に公式 Bluetooth ロゴが存在しないことを
       ユーザーが SF Symbols アプリで直接確認（Bluetooth SIG の商標のため未収録という説と一致）。
       代替アイコンで妥協せず、バッテリー＋WiFiの2点のみに確定
-- [x] B3: モジュールルーティング。**新規 `PerchModule` enum は作らず**、Phase A で「モジュール
+- [x] B3: モジュールルーティング。**新規 `BeaconModule` enum は作らず**、Phase A で「モジュール
       バーが選ぶ対象」として温存済みの `IslandCard` を再利用（当初の設計意図と一致する代替実装）
 - [x] B4: NowPlaying 展開の再デザイン（既存 `NowPlayingCard.swift` 374行の資産を活かす）—
       当初「次の NowPlaying フェーズへ移管」としていたが、**2026-07-30 に「Phase B4+」
       として本格着手・完了**（詳細は下記セクション参照）
 - [x] B5: `compactLeading` のレジストリ駆動化（`pillPrimary` を配線）。**`compactTrailing`
       （`pillSecondary`）は意図的に見送り** — waveform が生の音声キャプチャ状態（
-      `AudioCaptureService.rmsLevels`）に直接依存しており、`PerchWidget` プロトコルの
+      `AudioCaptureService.rmsLevels`）に直接依存しており、`BeaconWidget` プロトコルの
       静的な `body(size:)` では表現できないため。将来別の何かを trailing に出したくなった
       時に改めて設計する
 - [ ] ~~B6: File Shelf モジュール~~ — **Phase 4（File Shelf, v0.4）と完全に重複していたため
@@ -575,7 +575,7 @@ Phase Cに進む前に、Phase Bで積み残していたB4（NowPlaying展開の
       （素直な空状態）に置き換え。AI Usageは`ModuleSwitcher`経由の独立画面(`AIUsageFullView`)
       として引き続きアクセス可能
 - [x] BP4: NowPlayingCard再デザイン + 3カラム化（B4本体）— Rich mode展開画面を
-      「左=NowPlayingCard(大アートワーク化)／中央=歌詞(複数行、Perch独自のこだわり)／
+      「左=NowPlayingCard(大アートワーク化)／中央=歌詞(複数行、Beacon独自のこだわり)／
       右=CalendarWidget」の3カラムに再構成。Mirror（カメラプレビュー）はAtoll機能だが
       実装しないと確認済み（Phase Bスコープ追加時点で既にスコープ外）——ただしその分の
       余白は捨てず中央カラム(歌詞)に転用する、という設計判断
@@ -637,9 +637,9 @@ BP1〜BP5実装後、実機テストで追加の問題が判明。特にBP1（�
 ### Phase F: メディアプレイヤー機能（未着手・タスク分割のみ）
 
 **現状**: 右クリックでURLペースト、左クリックでファイル選択しGIF/mp4/movをループ再生する
-機能の要望あり。`perch/Features/FileShelf/`は`.gitkeep`のみで未実装（Phase 4と一部重複する
+機能の要望あり。`Beacon/Features/FileShelf/`は`.gitkeep`のみで未実装（Phase 4と一部重複する
 可能性は要検討）。NSOpenPanel/AVKit/`.sheet`/`.contextMenu`はいずれも本プロジェクトで
-前例ゼロ。`Nook.onFileDrop`コールバック（`perch/Vendor/NookSurface/Nook.swift`）は
+前例ゼロ。`Nook.onFileDrop`コールバック（`Beacon/Vendor/NookSurface/Nook.swift`）は
 配線口が用意されているが未使用で、ドラッグ&ドロップの土台として活用できる。
 
 - [ ] F1: ファイルアップロード（NSOpenPanel + `Nook.onFileDrop`配線）でGIF/mp4/movを
@@ -662,7 +662,7 @@ Timer等はスコープ外（既存合意通りPhase Fとして切り出し済�
 確定した設計判断（AskUserQuestionでユーザー確認済み）:
 - Calendar Compact/Standalone分離は**Option A**（現状の排他モデル維持、音楽なし時の
   Standaloneレイアウトのみハンドブック忠実化。Player+Calendar常時同居へのOption Bは
-  Perch独自の「歌詞に画面を使う」こだわりと構造的に相容れないため不採用）
+  Beacon独自の「歌詞に画面を使う」こだわりと構造的に相容れないため不採用）
 - 発光レイヤー・再生元アイコン・nudge/wiggleアニメーション等のプラスアルファ要素も
   今回全部含める
 - タスク1〜7を全て本セッションで実施
@@ -676,7 +676,7 @@ Timer等はスコープ外（既存合意通りPhase Fとして切り出し済�
 - [x] B5-3: 歌詞3〜4行固定高さ化 + カラム高さ相互依存の解消 — 根本原因は
       `leftColumnHeight`(NowPlayingCard実測高さ230〜260pt)を歌詞カラムにそのまま渡し
       「3〜4行に制限」処理が存在しなかったこと。歌詞カラム自身が独立した固定高さ
-      （130pt目安）を持つよう構造変更。複数行歌詞コンポーネント自体はPerch独自の
+      （130pt目安）を持つよう構造変更。複数行歌詞コンポーネント自体はBeacon独自の
       こだわりとして維持（ハンドブックの「1行Lyrics」提案は不採用）
 - [x] B5-4: ヘッダー3領域化（IslandTopBar） — 左(タブ,maxWidth:.infinity)/中央
       (物理ノッチ予約領域,min(collapsedWidth,300))/右(SystemStatusCluster)の3領域構造へ。
@@ -692,7 +692,7 @@ Timer等はスコープ外（既存合意通りPhase Fとして切り出し済�
       8/14pt、ボタンタップ領域を40x40(play)/30x30(prev/next)へ。曲送り6pt nudge・
       10秒seek相当10°wiggleのワンショットアニメーション追加
 
-**vendored`perch/Vendor/NookSurface/`配下は本フェーズで変更しない**（`NookStyle`の
+**vendored`Beacon/Vendor/NookSurface/`配下は本フェーズで変更しない**（`NookStyle`の
 角丸19/24pt化は意図的に対象外、別タスクとして切り出す）。
 
 ### Phase B6: Now Playing 実機フィードバック第2弾（2026-07-31〜）
@@ -739,7 +739,7 @@ Phase B6は8タスク全完了。実機検証は次回実機起動時に通し�
 
 **参照**: `docs/macOS-Battery-Monitoring-Animation-Handbook-ja.md`（全39章、
 §0設計原則〜§38チェックリスト）
-**現状**: `perch/UI/SystemStatusCluster.swift` + `perch/Core/SystemStatus/SystemStatusIcons.swift`
+**現状**: `Beacon/UI/SystemStatusCluster.swift` + `Beacon/Core/SystemStatus/SystemStatusIcons.swift`
 の素朴な閾値分岐（`battery.0percent`〜`battery.100percent` / `battery.100percent.bolt`）のみ。
 IOKit直読み・HUD調停・常設/一時アニメーションは未実装。
 **2026-07-30 追記**: Phase B4+着手に伴うユーザー指摘で新フェーズとして切り出し。
@@ -748,7 +748,7 @@ IOKit直読み・HUD調停・常設/一時アニメーションは未実装。
 
 - [ ] D1: IOKit Reader基盤 — `IOPowerSources`/`IOPSCopyPowerSourcesInfo`経由のバッテリー
       状態リーダー新設。充電状態・残量・推定残り時間・サイクルカウント等のデータモデル定義
-- [ ] D2: HUD調停・表示ポリシー — システム標準バッテリーHUDとPerch常駐表示の競合回避、
+- [ ] D2: HUD調停・表示ポリシー — システム標準バッテリーHUDとBeacon常駐表示の競合回避、
       常設表示と一時的な状態変化アニメーションの分離設計
 - [ ] D3: アニメーション実装 — 充電開始/完了・低残量警告・急速充電など状態遷移ごとのモーション
 - [ ] D4: テスト・検証 — IOKit読み取り結果→SF Symbol/表示状態マッピングを純粋関数として
@@ -756,7 +756,7 @@ IOKit直読み・HUD調停・常設/一時アニメーションは未実装。
 
 ### Phase E: WiFi拡張（テザリング/デュアルSIM検知、未着手・タスク分割のみ）
 
-**現状**: `perch/UI/SystemStatusCluster.swift` + `perch/Core/SystemStatus/WiFiMonitor.swift`は
+**現状**: `Beacon/UI/SystemStatusCluster.swift` + `Beacon/Core/SystemStatus/WiFiMonitor.swift`は
 `CWWiFiClient.shared().interface()?.powerOn()`によるWiFi電源ON/OFFの2値判定のみ
 （`SystemStatusIcons.wifiSymbolName`も`wifi`/`wifi.slash`の2値）。SSIDは意図的に未取得
 （Location権限回避、B2の既存方針）。
@@ -889,6 +889,6 @@ Phase C で SCK が直っても、**macOS 15 以降のオレンジ収録イン�
 - **「外側クリックで即収縮」が無くなる**（hover 展開と喧嘩するため）
 - **`Defaults[.pillSize]` を削除**。`.notch` 固定にすると floating pill の概念が消え、高さは
   `notchSize.height`、幅は content-driven になるため設定の意味が失われる
-- **同じ Perch でもマシンによってノッチ幅が変わる**（実ノッチ機は実寸、非ノッチ機は疑似 195pt）
-- `perchUITests/` は Xcode テンプレートのまま実質空。UI リグレッションは手動チェックリスト
+- **同じ Beacon でもマシンによってノッチ幅が変わる**（実ノッチ機は実寸、非ノッチ機は疑似 195pt）
+- `BeaconUITests/` は Xcode テンプレートのまま実質空。UI リグレッションは手動チェックリスト
   （設計書の E-1 節）で担保する

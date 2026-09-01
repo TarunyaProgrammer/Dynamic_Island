@@ -1,10 +1,10 @@
-# Perch 大改造計画 — OpenNook(vendored) 移行 + Atoll 風展開UI + 波形修理
+# Beacon 大改造計画 — OpenNook(vendored) 移行 + Atoll 風展開UI + 波形修理
 
 ## Context
 
 ### なぜやるか
 
-Perch は現在、コンパクトピルもノッチ融合表示も `perch/Island/`（595行）で完全に独自実装している。結果:
+Beacon は現在、コンパクトピルもノッチ融合表示も `Beacon/Island/`（595行）で完全に独自実装している。結果:
 
 - **UI が破綻している** — `RootIslandView` が NowPlaying の有無で2経路に分岐し、それぞれ別のガラス実装・別のタップハンドラ・別のサイズ源を持つ。形状ロジックは3箇所に重複。ノッチ検出は `NotchDetector` と `ScreenEnvironment` に二重実装され、実際に使われているのは後者だけ。
 - **回避策の塊** — `IslandWindow.setFrame` を override して SwiftUI のフレーム要求を握り潰す、`NSHostingView.sizingOptions = []`、`transitionGeneration` と 110ms/500ms のマジックナンバー、CALayer cornerRadius の手動同期 — すべて「AppKit の透明ウィンドウに SwiftUI を載せる」ことに起因する自作の対症療法。
@@ -31,7 +31,7 @@ Perch は現在、コンパクトピルもノッチ融合表示も `perch/Island
 
 ## 確認済み事実（PoC 実測 + 実ソース読解）
 
-PoC は `~/tmp/nook-poc`（捨てプロジェクト、Perch には未コミット）で実施。
+PoC は `~/tmp/nook-poc`（捨てプロジェクト、Beacon には未コミット）で実施。
 
 ### PoC 結果
 
@@ -68,11 +68,11 @@ PoC は `~/tmp/nook-poc`（捨てプロジェクト、Perch には未コミッ�
 | **4** | `AudioCaptureService.swift:132-138` | デコードエラーの**完全握りつぶし**（ログゼロ）。`AudioPCMDecoder` は6種の `LocalizedError` を定義しているのに一件も表に出ない |
 | **5** | `AudioCaptureService.swift:33-35` | `startCapturing` に再入ガードなし。await 点が3つあり孤児 SCStream が残りうる |
 | **6** | — | 権限拒否時の UI が無い。`CGPreflightScreenCaptureAccess` はコードベースに存在しない。`docs/progress.md:297` の `[ ] BF4` が未完了のまま |
-| **7** | — | **テストがゼロ**（`rg -l "Audio|Waveform|Spectrum" perchTests` → 0件） |
+| **7** | — | **テストがゼロ**（`rg -l "Audio|Waveform|Spectrum" BeaconTests` → 0件） |
 
 そして `WaveformView.swift:41-69` の `blendedLevels` が失敗時に合成波形へフォールバックするため、**壊れていても「滑らかに動いている」ように見え、成功と区別がつかない**。git log には `88e744f fix: pure synthetic waveform`（一度降参）→ `4cdcddd feat: blend real audio with synthetic flourish`（実音に再挑戦）→ `87172f0 fix: gate waveform levels on hasReceivedAudio`（実音が来ない前提のゲート追加）という往復が残っている。**原因に手を付けないままゲートで隠した**のが再発の構造的理由。
 
-権限まわりは正しく設定済み: `Info.plist` に `NSScreenCaptureUsageDescription` あり、`Perch.entitlements` は `app-sandbox = false`、pbxproj の紐付けも正常。ただし `scripts/run.sh` が毎回 DerivedData の `.app` を起動するため、**リビルドのたびに画面収録 TCC が実質リセットされる**環境である点は要注意。
+権限まわりは正しく設定済み: `Info.plist` に `NSScreenCaptureUsageDescription` あり、`Beacon.entitlements` は `app-sandbox = false`、pbxproj の紐付けも正常。ただし `scripts/run.sh` が毎回 DerivedData の `.app` を起動するため、**リビルドのたびに画面収録 TCC が実質リセットされる**環境である点は要注意。
 
 ### ScreenCaptureKit vs Core Audio Taps
 
@@ -99,10 +99,10 @@ PoC は `~/tmp/nook-poc`（捨てプロジェクト、Perch には未コミッ�
 
 | 対象 | 行数 |
 |---|---:|
-| `perch/UI/NotchExpandedView.swift`（参照0） | 223 |
-| `perch/Features/NowPlaying/NowPlayingMorphContent.swift`（参照0） | 244 |
-| `perch/UI/MetalLiquidBlobView.swift` + `perch/Metal/LiquidBlob.metal`（参照0、pbxproj のビルドフェーズからも削除） | 54 |
-| `perch/UI/IslandCardContainer.swift`（参照0） | 13 |
+| `Beacon/UI/NotchExpandedView.swift`（参照0） | 223 |
+| `Beacon/Features/NowPlaying/NowPlayingMorphContent.swift`（参照0） | 244 |
+| `Beacon/UI/MetalLiquidBlobView.swift` + `beacon/Metal/LiquidBlob.metal`（参照0、pbxproj のビルドフェーズからも削除） | 54 |
+| `Beacon/UI/IslandCardContainer.swift`（参照0） | 13 |
 | `Preferences.swift` のデッドキー `islandMode` / `windowLevel` / `displayScreen` / `showSatelliteCircle` | 4 |
 | `animationSpeed` Defaults + `SettingsView.swift:82-90` の Slider + L10n（**効かない UI**） | ~12 |
 | `CompactPillView.swift:79-83 formatCost` / `:15 isSatelliteVisible` | 7 |
@@ -112,29 +112,29 @@ PoC は `~/tmp/nook-poc`（捨てプロジェクト、Perch には未コミッ�
 
 ### A-1. NookSurface の vendoring
 
-`perch/Vendor/NookSurface/` に 19ファイル / 2,617行をコピー。**外部依存ゼロ**（import は SwiftUI / AppKit / Combine / Foundation のみ）。
+`Beacon/Vendor/NookSurface/` に 19ファイル / 2,617行をコピー。**外部依存ゼロ**（import は SwiftUI / AppKit / Combine / Foundation のみ）。
 
-- モジュールを分けず **Perch 本体ターゲットに直接含める**（SPM の別ターゲットにすると public/internal の境界を維持する必要が出て、改変の自由度という vendoring の目的を損なう）
-- 各ファイルの SPDX ヘッダはそのまま残す。改変したファイルの冒頭に `// Modified for Perch: <理由>` を追記（DNK → OpenNook が踏襲している慣行）
+- モジュールを分けず **Beacon 本体ターゲットに直接含める**（SPM の別ターゲットにすると public/internal の境界を維持する必要が出て、改変の自由度という vendoring の目的を損なう）
+- 各ファイルの SPDX ヘッダはそのまま残す。改変したファイルの冒頭に `// Modified for Beacon: <理由>` を追記（DNK → OpenNook が踏襲している慣行）
 
 **必要な改変（3点のみ、いずれも小さい）**:
 
 | # | ファイル | 改変 |
 |---|---|---|
 | 1 | `Internal/NSScreen+Extensions.swift:53` | `let arbitraryWidth: CGFloat = 300` を可変化。`Nook` から注入した幅を使う。既定は実ノッチ相当 **195pt**（185〜208 の中央値）とし、Defaults で調整可能に |
-| 2 | `Nook.swift:116-117` | `notchSize` / `menubarHeight` を `public private(set)` に昇格（Perch 側でレイアウト計算に使う） |
+| 2 | `Nook.swift:116-117` | `notchSize` / `menubarHeight` を `public private(set)` に昇格（Beacon 側でレイアウト計算に使う） |
 | 3 | `NookHoverBehavior.swift` + `Nook.swift:401-425` | `.expandsOnHover` を OptionSet に追加（既定 on で後方互換）。Phase A では既定のまま使い、オプション化は Phase B で判断 |
 
 **改変しないもの**: `NookShape` / `NookPanel` / `NookView` のヒットテスト・トランジション・レイアウト。PoC で正しく動くことを実証済みなので触らない。
 
-### A-2. `perch/Island/` の処遇
+### A-2. `Beacon/Island/` の処遇
 
 | ファイル | 行 | 処遇 |
 |---|---:|---|
 | `IslandWindow.swift` | 92 | **削除** — `NookPanel` が上位互換。`setFrame` 握り潰しハックは Kit がサイズ交渉をしないので問題自体が消滅 |
 | `IslandWindowController.swift` | 243 | **削除 → `NookBridge.swift` に縮退** — 固定NSView+`sizingOptions=[]`、レースガード、cornerRadius 手動同期、`didChangeScreenParameters` 再レイアウトはすべて Kit 内に等価物がある |
 | `IslandGeometry.swift` | 63 | **削除** — content-driven sizing |
-| `NotchDetector.swift` | 89 | **削除** — `perchNotchSize` は元々デッド。`perchPreferredScreen` は `NookScreenLocator`（A-3 でコピー）で代替 |
+| `NotchDetector.swift` | 89 | **削除** — `beaconNotchSize` は元々デッド。`beaconPreferredScreen` は `NookScreenLocator`（A-3 でコピー）で代替 |
 | `ScreenEnvironment.swift` | 79 | **削除** — `.auto` を使わない設計にしたので `screenHasNotch` 判定が不要 |
 | `MouseEventMonitor.swift` | 69 | **削除** — `.onHover` + `isHovering` + `staysExpandedOnHoverExit` で再現（A-5） |
 | `IslandMode.swift` | 6 | **削除** — `IslandChromeStyle` に統合 |
@@ -142,14 +142,14 @@ PoC は `~/tmp/nook-poc`（捨てプロジェクト、Perch には未コミッ�
 ### A-3. 新規ファイル
 
 ```
-perch/Island/
+Beacon/Island/
   NookBridge.swift            (~140行) — vendored Nook の所有者。AppState ⇄ Nook 同期
   IslandSurfaceDriving.swift  ( ~20行) — Kit 型を含まないプロトコル（fake 注入口）
   IslandChromeStyle.swift     ( ~40行) — notch/floating 2値 + Defaults 移行 + presentation マッピング
   ScreenLocator.swift         (~141行) — NookScreenLocator を Apache-2.0 のままコピー（帰属表示）
-perch/Core/
+Beacon/Core/
   WidgetSizeMetrics.swift     ( ~25行) — [WidgetSize: CGFloat] の一本化先
-perch/UI/
+Beacon/UI/
   IslandExpandedRoot.swift    ( ~30行) — expanded スロットの root
   IslandCompactSlots.swift    ( ~50行) — compactLeading / compactTrailing
 ```
@@ -217,23 +217,23 @@ E-1 の手動チェックリスト全項目 + 新規ユニットテスト通過�
 
 ### B-0. 設計方針 — Atoll から取るもの / 変えるもの
 
-**必ず `/hallmark` と `/ui-ux-pro-max` を適用する。** Atoll の OSS 版は GPL-3.0 なのでソースは読まない。スクリーンショットから読み取れる**レイアウト構造の着想**のみを参考にし、視覚言語は Perch 独自にする。
+**必ず `/hallmark` と `/ui-ux-pro-max` を適用する。** Atoll の OSS 版は GPL-3.0 なのでソースは読まない。スクリーンショットから読み取れる**レイアウト構造の着想**のみを参考にし、視覚言語は Beacon 独自にする。
 
-| Atoll から引き継ぐ構造 | Perch での差別化 |
+| Atoll から引き継ぐ構造 | Beacon での差別化 |
 |---|---|
-| 上部の横並びアイコンバーでモジュール切替 | アイコン選定・並び順・アクティブ表現を Perch の DesignSystem に合わせる。Perch は既に `PresetTabBar` を持つので**プリセット概念と統合**する（後述 B-1） |
-| 右上のシステムステータス群 | Atoll は多数のグリフを並べる。Perch は**情報密度を落とし**、バッテリー + WiFi + BT の3点に絞る（hallmark の「情報を詰め込まない」原則） |
-| NowPlaying: 左に大アートワーク、右にメタ情報 + シークバー + トランスポート | 既存の `NowPlayingCard.swift`(374) の資産を活かす。アートワーク内への波形オーバーレイは Perch の `ArtworkPalette` による色連動を強みにする |
-| 右側の補助パネル（カレンダー / Mirror） | Perch は**ウィジェットシステムを既に持っている**ので、補助パネルは固定要素にせず `PresetLayout` の sidebar 配置として表現する |
+| 上部の横並びアイコンバーでモジュール切替 | アイコン選定・並び順・アクティブ表現を Beacon の DesignSystem に合わせる。Beacon は既に `PresetTabBar` を持つので**プリセット概念と統合**する（後述 B-1） |
+| 右上のシステムステータス群 | Atoll は多数のグリフを並べる。Beacon は**情報密度を落とし**、バッテリー + WiFi + BT の3点に絞る（hallmark の「情報を詰め込まない」原則） |
+| NowPlaying: 左に大アートワーク、右にメタ情報 + シークバー + トランスポート | 既存の `NowPlayingCard.swift`(374) の資産を活かす。アートワーク内への波形オーバーレイは Beacon の `ArtworkPalette` による色連動を強みにする |
+| 右側の補助パネル（カレンダー / Mirror） | Beacon は**ウィジェットシステムを既に持っている**ので、補助パネルは固定要素にせず `PresetLayout` の sidebar 配置として表現する |
 
 ### B-1. モジュール切替とプリセットの統合（設計判断）
 
-Atoll の「ホーム / File Shelf / Timer」切替と、Perch の「Daily / Dev プリセット」は**別概念**。両方を上部バーに並べると混乱する。
+Atoll の「ホーム / File Shelf / Timer」切替と、Beacon の「Daily / Dev プリセット」は**別概念**。両方を上部バーに並べると混乱する。
 
 **採用する構造**: 上部バーは **モジュール**（NowPlaying中心のホーム / File Shelf / Timer / AI Usage）。プリセットは**ホームモジュール内のウィジェット配置**として残す（現行の `PresetTabBar` はホームの中に置く、または Settings に退避）。
 
 - `NookModule`（Kit の multi-module）は**使わない** — vendoring で NookKit を捨てたのに加え、descriptor.id の不変性制約とモジュール別 UserDefaults 分離を背負う実利がない
-- モジュール切替は `@State selectedModule` + `PerchModule` enum で足りる
+- モジュール切替は `@State selectedModule` + `BeaconModule` enum で足りる
 - `PresetStore` / `WidgetRegistry` / `WidgetProtocol` / `WidgetLayout` は**温存**（CLAUDE.md に「変更・削除禁止」と明記されている実装済みインフラ）
 
 ### B-2. 実装単位
@@ -242,7 +242,7 @@ Atoll の「ホーム / File Shelf / Timer」切替と、Perch の「Daily / Dev
 |---|---|---|
 | 1 | `IslandTopBar` — 左にモジュールアイコン列、右にステータスクラスタ | 新規 ~120行 |
 | 2 | `SystemStatusCluster` — バッテリー / WiFi / BT | 新規 ~150行 + 観測系 ~200行（B-3） |
-| 3 | `PerchModule` enum + モジュールルーティング | 新規 ~60行 |
+| 3 | `BeaconModule` enum + モジュールルーティング | 新規 ~60行 |
 | 4 | NowPlaying 展開の再デザイン（`NowPlayingCard.swift` 改修） | 改修 ~200行 |
 | 5 | `compactLeading` / `compactTrailing` のレジストリ駆動化（`pillPrimary`/`pillSecondary` を配線） | 改修 ~80行 |
 | 6 | File Shelf モジュール — Shelf モデル4ファイル(607行、Apache-2.0)をコピー + `NookShelfView` は自作 | コピー607 + 新規 ~200行 |
@@ -280,7 +280,7 @@ hallmark のチェックリスト通過 + 各モジュールが切り替わる +
 | 6 | **再入ガード** — `startCapturing` を actor 化するか、`isStarting` フラグ + `currentBundleId` を開始時点で設定 | `AudioCaptureService.swift:33-35` |
 | 7 | **権限の事前確認と拒否時UI** — `CGPreflightScreenCaptureAccess()` / `CGRequestScreenCaptureAccess()`。拒否時は Settings への導線を出す（`docs/progress.md:297` の `[ ] BF4`） | `AppDelegate.swift:38-45` |
 | 8 | **診断モードを足す** — Settings に「波形が実音か合成かを表示する」デバッグ表示。**再発を即座に検知できるようにする**（今回の再発の根本原因は「壊れても見た目が同じ」だったこと） | `SettingsView.swift` |
-| 9 | **テストを書く** — `AudioPCMDecoder`（各フォーマットのデコード）、`AudioSpectrumAnalyzer`（既知の入力に対するバンド出力）、`WaveformView.blendedLevels`（実音/合成/無音の3分岐）。いずれも純粋関数に近い | 新規 `perchTests/NowPlaying/Audio*Tests.swift` |
+| 9 | **テストを書く** — `AudioPCMDecoder`（各フォーマットのデコード）、`AudioSpectrumAnalyzer`（既知の入力に対するバンド出力）、`WaveformView.blendedLevels`（実音/合成/無音の3分岐）。いずれも純粋関数に近い | 新規 `BeaconTests/NowPlaying/Audio*Tests.swift` |
 
 ### C-2. 切り分け手順（実装の最初にやる）
 
@@ -309,9 +309,9 @@ Phase C で SCK が直っても、**macOS 15 のオレンジインジケータ�
 
 ### ライセンス
 
-Perch は Apache-2.0。vendoring で以下の義務が発生する。
+Beacon は Apache-2.0。vendoring で以下の義務が発生する。
 
-- `perch/Vendor/NookSurface/` の各ファイルの SPDX ヘッダを保持（MIT / Glendon Chin、原著 DynamicNotchKit / Kai Azim）
+- `Beacon/Vendor/NookSurface/` の各ファイルの SPDX ヘッダを保持（MIT / Glendon Chin、原著 DynamicNotchKit / Kai Azim）
 - `ThirdPartyLicenses/NookSurface-MIT.txt`, `ThirdPartyLicenses/DynamicNotchKit-MIT.txt`, `ThirdPartyLicenses/OpenNook-Apache-2.0.txt`（ScreenLocator / Shelf モデルをコピーする分）
 - ルートの `NOTICE` に帰属を記載
 - **アプリ内 Acknowledgements**（Settings に「About / Licenses」）— Apache-2.0 §4(d)
@@ -365,7 +365,7 @@ CLAUDE.md の「タスクごとに必ずテストコードを追加」を満た�
 
 ## E-1. 手動リグレッションチェックリスト（Phase A の PR 本文に貼る）
 
-`perchUITests/` は Xcode テンプレートのまま実質空で、UI リグレッションは手動でしか検出できない。全項目にチェックが付くまでマージしない。
+`BeaconUITests/` は Xcode テンプレートのまま実質空で、UI リグレッションは手動でしか検出できない。全項目にチェックが付くまでマージしない。
 
 ```markdown
 ### 表示
@@ -379,7 +379,7 @@ CLAUDE.md の「タスクごとに必ずテストコードを追加」を満た�
 - [ ] hover で展開する（新挙動）/ タップでも展開する
 - [ ] 展開中に PresetTabBar で Daily ⇄ Dev を切替でき、高さがプリセットに応じて変わる
 - [ ] hover を外して autoCollapseDelay 秒後に閉じる
-- [ ] メニューバーの Perch アイコン > Settings… で設定が開く
+- [ ] メニューバーの Beacon アイコン > Settings… で設定が開く
 
 ### クリック透過（最重要）
 - [ ] 画面上半分の Finder アイコンをクリックできる
@@ -390,7 +390,7 @@ CLAUDE.md の「タスクごとに必ずテストコードを追加」を満た�
 ### マルチディスプレイ / Space
 - [ ] 外部ディスプレイを抜き差しして再配置される
 - [ ] Space を切り替えて追従する / showInAllSpaces = false で追従しなくなる
-- [ ] 他アプリをフルスクリーンにしても Perch が消えない
+- [ ] 他アプリをフルスクリーンにしても Beacon が消えない
 
 ### 常駐品質
 - [ ] 30分放置後の CPU < 0.5%、メモリ増分 < 30MB
@@ -408,14 +408,14 @@ CLAUDE.md の「タスクごとに必ずテストコードを追加」を満た�
 
 | パス | 役割 |
 |---|---|
-| `perch/Island/IslandWindowController.swift`(243) | 削除 → `NookBridge.swift` へ縮退。全回避策の集約点 |
-| `perch/Core/AppState.swift` | 6プロパティ削除、タイマー/generation 削除、`applyNookState(_:)` 追加 |
-| `perch/UI/RootIslandView.swift` | 2分岐と `currentTapShape` を削除し、compact/expanded を3スロットへ分解する起点 |
-| `perch/UI/ExpandedIslandView.swift` | `widgetView(for:)` が唯一の実レンダリング地点。glass/shape/固定幅を剥がす |
-| `perch/UI/SettingsView.swift` | Island Style を2択化、pillSize / animationSpeed を削除、Phase C で診断表示追加 |
-| `perch/Features/NowPlaying/NowPlayingState.swift`(279) | Phase C: `sourceBundleId` を追加して MediaRemote の情報を捨てない |
-| `perch/Features/NowPlaying/AudioCaptureService.swift`(155) | Phase C: delegate 実装、エラーログ、再入ガード |
-| `perch.xcodeproj/project.pbxproj` | macOS 15、vendored ファイル追加、KeyboardShortcuts 削除、`LiquidBlob.metal` 削除 |
+| `Beacon/Island/IslandWindowController.swift`(243) | 削除 → `NookBridge.swift` へ縮退。全回避策の集約点 |
+| `Beacon/Core/AppState.swift` | 6プロパティ削除、タイマー/generation 削除、`applyNookState(_:)` 追加 |
+| `Beacon/UI/RootIslandView.swift` | 2分岐と `currentTapShape` を削除し、compact/expanded を3スロットへ分解する起点 |
+| `Beacon/UI/ExpandedIslandView.swift` | `widgetView(for:)` が唯一の実レンダリング地点。glass/shape/固定幅を剥がす |
+| `Beacon/UI/SettingsView.swift` | Island Style を2択化、pillSize / animationSpeed を削除、Phase C で診断表示追加 |
+| `Beacon/Features/NowPlaying/NowPlayingState.swift`(279) | Phase C: `sourceBundleId` を追加して MediaRemote の情報を捨てない |
+| `Beacon/Features/NowPlaying/AudioCaptureService.swift`(155) | Phase C: delegate 実装、エラーログ、再入ガード |
+| `Beacon.xcodeproj/project.pbxproj` | macOS 15、vendored ファイル追加、KeyboardShortcuts 削除、`LiquidBlob.metal` 削除 |
 | `CLAUDE.md` | macOS 15、Architecture 図、Phase Roadmap、Dependencies |
 
 ---
@@ -423,10 +423,10 @@ CLAUDE.md の「タスクごとに必ずテストコードを追加」を満た�
 ## Verification
 
 ```bash
-xcodebuild -scheme perch -configuration Debug build
-xcodebuild -scheme perch -configuration Debug test
-swift-format lint --recursive perch/ perchTests/    # perch/Vendor/ は除外設定を追加
-open perch.xcodeproj    # Run して E-1 のチェックリストを全通し
+xcodebuild -scheme beacon -configuration Debug build
+xcodebuild -scheme beacon -configuration Debug test
+swift-format lint --recursive beacon/ BeaconTests/    # Beacon/Vendor/ は除外設定を追加
+open Beacon.xcodeproj    # Run して E-1 のチェックリストを全通し
 ```
 
 - 各コミット後に build + test。Phase A の本体コミット後は E-1 の全項目を手動確認

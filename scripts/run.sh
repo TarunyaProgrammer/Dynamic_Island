@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# scripts/run.sh — Build Perch (Debug) and launch it inline, like Xcode ⌘R.
+# scripts/run.sh — Build Beacon (Debug) and launch it inline, like Xcode ⌘R.
 #
 # Streams the app's stdout/stderr into the terminal so print/os_log/print-style
 # debug output is visible. Ctrl+C terminates the app cleanly.
@@ -29,7 +29,7 @@ fail()  { printf '%s  ✗%s %s\n' "${RED}" "${RESET}" "$1" >&2; exit 1; }
 # ──────────────────────────────────────────────────────────────────────────────
 # Config
 # ──────────────────────────────────────────────────────────────────────────────
-SCHEME="perch"
+SCHEME="Beacon"
 CONFIG="${CONFIG:-Debug}"
 DESTINATION="platform=macOS"
 

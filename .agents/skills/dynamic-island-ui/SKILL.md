@@ -57,7 +57,7 @@ SwiftUIのアニメーションとAppKitのframeアニメーションを同期�
 - 背景: NSVisualEffectView ultraDark material
 - 形状: RoundedRectangle(cornerRadius: 28, style: .continuous)
 - 幅: 420pt、高さ: カード内容依存
-- ヘッダー: 左"Perch" + 右カード名
+- ヘッダー: 左"Beacon" + 右カード名
 - padding: 16pt（DesignSystem.cardPadding）
 - カード切り替え: 左右スワイプ or ページインジケーター
 

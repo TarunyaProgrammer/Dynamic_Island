@@ -38,14 +38,14 @@ All submissions must meet the following uncompromising engineering standards:
 
 ### Architecture & Conventions
 - **App Architecture**: Respect the 3-layer architecture (UI -> Core State -> Low-level System/Window Adapters).
-- **Widget System**: Widgets must conform strictly to `PerchWidget` / `WidgetLayout` protocols without mutating shared state outside `AppState`.
+- **Widget System**: Widgets must conform strictly to `BeaconWidget` / `WidgetLayout` protocols without mutating shared state outside `AppState`.
 - **Naming & Domain Integrity**:
-  - Logger identifiers and Keychain keys must follow `com.perch.*` reverse-DNS naming.
+  - Logger identifiers and Keychain keys must follow `com.beacon.*` reverse-DNS naming.
   - Type names within the core module should not carry redundant module prefixes.
 
 ### Testing & Verification
-- **Unit Tests Required**: Every new feature or bug fix must include comprehensive unit tests in `perchTests`.
-- **Pass All Tests**: `just test` (or `xcodebuild -scheme perch -configuration Debug test`) must pass 100% with zero failures.
+- **Unit Tests Required**: Every new feature or bug fix must include comprehensive unit tests in `BeaconTests`.
+- **Pass All Tests**: `just test` (or `xcodebuild -scheme Beacon -configuration Debug test`) must pass 100% with zero failures.
 - **Code Formatting**: Code must be strictly formatted with `swift-format`:
   ```bash
   just format

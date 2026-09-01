@@ -60,7 +60,7 @@ enum KeychainHelper {
 }
 ```
 
-サービス名規則: `com.tukuyomi032.perch.<provider-id>`
+サービス名規則: `com.beacon.<provider-id>`
 
 ## Data Models
 

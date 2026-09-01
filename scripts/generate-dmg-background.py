@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
 generate-dmg-background.py
-Generates assets/dmg/background.png for the Perch DMG installer.
+Generates assets/dmg/background.png for the Beacon DMG installer.
 
 Output: 1320x800 px (2x retina for a 660x400 pt window)
 Style: Solid #f5f5f5 — light neutral (matches Claude.app installer style)

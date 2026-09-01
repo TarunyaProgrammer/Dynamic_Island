@@ -1,5 +1,5 @@
 [project]
-name = "perch-release-tools"
+name = "beacon-release-tools"
 version = "0.1.0"
 description = "Local Python tooling for Beacon release scripts"
 requires-python = ">=3.12,<3.13"

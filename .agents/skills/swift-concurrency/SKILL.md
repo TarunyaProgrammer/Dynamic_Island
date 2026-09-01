@@ -210,7 +210,7 @@ When changing concurrency code:
 
 ---
 
-## Perch Concurrency Patterns
+## Beacon Concurrency Patterns
 
 ### RefreshScheduler Pattern
 ```swift
@@ -309,7 +309,7 @@ final class NowPlayingManager {
 
 ---
 
-## 既知パターン集（Perch プロジェクト）
+## 既知パターン集（Beacon プロジェクト）
 
 ### nonisolated の正しい使用場面
 

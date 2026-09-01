@@ -135,8 +135,8 @@ jobs:
     if: needs.check.outputs.skip != 'true'
     runs-on: macos-26
     env:
-      SCHEME:       perch
-      APP_NAME:     perch
+      SCHEME:       Beacon
+      APP_NAME:     beacon
       CHANNEL:      ${{ needs.check.outputs.channel }}
       VERSION:      ${{ needs.check.outputs.version }}
       BASE_VERSION: ${{ needs.check.outputs.base_version }}
@@ -156,7 +156,7 @@ jobs:
         uses: actions/cache@v4
         with:
           path: build/DerivedData
-          key: ${{ runner.os }}-dd-release-${{ hashFiles('perch.xcodeproj/project.pbxproj', 'perch.xcodeproj/project.xcworkspace/xcshareddata/swiftpm/Package.resolved') }}
+          key: ${{ runner.os }}-dd-release-${{ hashFiles('Beacon.xcodeproj/project.pbxproj', 'Beacon.xcodeproj/project.xcworkspace/xcshareddata/swiftpm/Package.resolved') }}
           restore-keys: |
             ${{ runner.os }}-dd-release-
 
@@ -251,15 +251,15 @@ jobs:
         run: |
           {
             echo "body<<__BODY__"
-            echo "## Perch ${VERSION}"
+            echo "## Beacon ${VERSION}"
             echo ""
             echo "### Install via Homebrew"
             echo '```bash'
-            echo "brew install --cask perch"
+            echo "brew install --cask beacon"
             echo '```'
             echo ""
             echo "### Direct Download"
-            echo "- **perch-${VERSION}.dmg** - Universal (Apple Silicon + Intel)"
+            echo "- **beacon-${VERSION}.dmg** - Universal (Apple Silicon + Intel)"
             echo ""
             echo "> Not notarized by Apple. If Gatekeeper blocks it: right-click > Open > Open."
             echo "__BODY__"
@@ -269,7 +269,7 @@ jobs:
         uses: softprops/action-gh-release@v2
         with:
           tag_name:   ${{ env.TAG }}
-          name:       "Perch ${{ env.VERSION }}"
+          name:       "Beacon ${{ env.VERSION }}"
           body:       ${{ steps.body.outputs.body }}
           files:      build/dmg/${{ env.APP_NAME }}-${{ env.VERSION }}.dmg
           draft:      ${{ env.CHANNEL == 'preview' }}

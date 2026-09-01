@@ -1,6 +1,6 @@
 # Release Flow
 
-Perch releases are driven by `version.env` on the `main` branch. Do not create
+Beacon releases are driven by `version.env` on the `main` branch. Do not create
 or push release tags manually for the normal flow.
 
 ## Stable Release
@@ -19,8 +19,8 @@ BETA_BUILD_NUMBER=2
 Commit and push to `main`. The Release workflow creates:
 
 - tag: `v0.3.1`
-- GitHub Release: `Perch 0.3.1`
-- DMG: `perch-0.3.1.dmg`
+- GitHub Release: `Beacon 0.3.1`
+- DMG: `beacon-0.3.1.dmg`
 - appcast entry without a beta channel
 
 ## Beta Release
@@ -39,8 +39,8 @@ BETA_BUILD_NUMBER=4
 Commit and push to `main`. The Release workflow creates:
 
 - tag: `v0.3.2-beta.1`
-- GitHub pre-release: `Perch 0.3.2-beta.1`
-- DMG: `perch-0.3.2-beta.1.dmg`
+- GitHub pre-release: `Beacon 0.3.2-beta.1`
+- DMG: `beacon-0.3.2-beta.1.dmg`
 - appcast entry with `sparkle:channel` set to `beta`
 
 ### Manual beta release
@@ -66,7 +66,7 @@ The generated item includes the resulting `sparkle:edSignature`, uses
 the workflow obtains the current `appcast.xml` from `main` and commits the
 updated feed directly to `main` through the GitHub Contents API.
 
-The generated public key is configured in `perch/Resources/Info.plist` as
+The generated public key is configured in `Beacon/Resources/Info.plist` as
 `SUPublicEDKey`; the feed URL is `SUFeedURL`. The private key belongs only in
 the `SPARKLE_PRIVATE_KEY` GitHub Actions secret.
 

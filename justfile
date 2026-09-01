@@ -19,7 +19,7 @@ build:
     #!/bin/bash
     set -o pipefail
     xcodebuild \
-        -scheme perch \
+        -scheme Beacon \
         -configuration Debug \
         -destination 'platform=macOS' \
         build \
@@ -30,7 +30,7 @@ test:
     #!/bin/bash
     set -o pipefail
     xcodebuild \
-        -scheme perch \
+        -scheme Beacon \
         -configuration Debug \
         -destination 'platform=macOS' \
         test \
@@ -38,18 +38,18 @@ test:
 
 # Format Swift files in-place
 format:
-    swift-format format --recursive --in-place perch/ perchTests/
+    swift-format format --recursive --in-place Beacon/ BeaconTests/
 
 # Lint Swift files (check only, no modification)
 lint:
-    swift-format lint --recursive perch/ perchTests/
+    swift-format lint --recursive Beacon/ BeaconTests/
 
 # Build for Release
 release:
     #!/bin/bash
     set -o pipefail
     xcodebuild \
-        -scheme perch \
+        -scheme Beacon \
         -configuration Release \
         -destination 'platform=macOS' \
         build \
@@ -59,11 +59,11 @@ release:
 clean:
     #!/bin/bash
     set -o pipefail
-    xcodebuild -scheme perch clean 2>&1 | xcbeautify
-    rm -rf ~/Library/Developer/Xcode/DerivedData/perch-*
-    echo "Cleaned DerivedData for perch"
+    xcodebuild -scheme Beacon clean 2>&1 | xcbeautify
+    rm -rf ~/Library/Developer/Xcode/DerivedData/Beacon-*
+    echo "Cleaned DerivedData for Beacon"
 
-# Build and launch Perch inline (Xcode ⌘R equivalent). Ctrl+C stops the app.
+# Build and launch Beacon inline (Xcode ⌘R equivalent). Ctrl+C stops the app.
 run:
     bash scripts/run.sh
 

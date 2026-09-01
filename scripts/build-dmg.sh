@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
-# build-dmg.sh — Professional DMG installer for Perch using create-dmg
+# build-dmg.sh — Professional DMG installer for Beacon using create-dmg
 #
 # Usage (from repo root):
-#   bash scripts/build-dmg.sh <version> <path/to/perch.app> <output_dir>
+#   bash scripts/build-dmg.sh <version> <path/to/Beacon.app> <output_dir>
 #
 # Dependency: brew install create-dmg
 
@@ -22,7 +22,7 @@ REPO_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
 
 BACKGROUND="${DMG_BACKGROUND:-$REPO_ROOT/assets/dmg/background.png}"
 STAGING="$REPO_ROOT/build/dmg-staging"
-OUTPUT_DMG="$OUTPUT_DIR/perch-${VERSION}.dmg"
+OUTPUT_DMG="$OUTPUT_DIR/beacon-${VERSION}.dmg"
 
 [[ -d "$APP_BUNDLE" ]] || { echo "Error: app bundle not found: $APP_BUNDLE" >&2; exit 1; }
 [[ -f "$BACKGROUND" ]] || { echo "Error: background not found: $BACKGROUND" >&2; exit 1; }
@@ -30,17 +30,17 @@ command -v create-dmg &>/dev/null || { echo "Error: install with: brew install c
 
 rm -rf "$STAGING"
 mkdir -p "$STAGING" "$OUTPUT_DIR"
-cp -R "$APP_BUNDLE" "$STAGING/perch.app"
+cp -R "$APP_BUNDLE" "$STAGING/Beacon.app"
 rm -f "$OUTPUT_DMG"
 
 create-dmg \
-    --volname "Perch" \
+    --volname "Beacon" \
     --background "$BACKGROUND" \
     --window-pos 200 120 \
     --window-size 660 400 \
     --icon-size 128 \
-    --icon "perch.app" 180 200 \
-    --hide-extension "perch.app" \
+    --icon "Beacon.app" 180 200 \
+    --hide-extension "Beacon.app" \
     --app-drop-link 480 200 \
     "$OUTPUT_DMG" \
     "$STAGING"

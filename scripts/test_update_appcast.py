@@ -27,7 +27,7 @@ def write_appcast(path: Path) -> None:
         """<?xml version=\"1.0\" encoding=\"utf-8\"?>
 <rss xmlns:sparkle=\"http://www.andymatuschak.org/xml-namespaces/sparkle\" version=\"2.0\">
   <channel>
-    <title>Perch</title>
+    <title>Beacon</title>
     <item><title>0.3.0</title><description>Keep this item intact</description>
       <enclosure url=\"https://example.test/old.dmg\" length=\"7\"
         sparkle:version=\"1\" sparkle:edSignature=\"old-signature\" />
@@ -47,7 +47,7 @@ def test_update_appcast_inserts_signed_stable_item_and_preserves_existing_item(t
         str(appcast),
         "0.4.0",
         "8",
-        "https://example.test/perch-0.4.0.dmg",
+        "https://example.test/beacon-0.4.0.dmg",
         "123456",
         "new-signature",
     )
@@ -74,7 +74,7 @@ def test_update_appcast_marks_beta_item_with_beta_channel(tmp_path):
         str(appcast),
         "0.4.0-beta.2",
         "9",
-        "https://example.test/perch-0.4.0-beta.2.dmg",
+        "https://example.test/beacon-0.4.0-beta.2.dmg",
         "234567",
         "beta-signature",
         "beta",
@@ -94,7 +94,7 @@ def test_update_appcast_rejects_an_empty_signature(tmp_path):
 
     with pytest.raises(ValueError, match="ed_signature must not be empty"):
         update_appcast.update_appcast(
-            str(appcast), "0.4.0", "8", "https://example.test/perch.dmg", "123", ""
+            str(appcast), "0.4.0", "8", "https://example.test/beacon.dmg", "123", ""
         )
 
 
@@ -106,7 +106,7 @@ def test_main_rejects_extra_arguments(monkeypatch, capsys):
             "update-appcast.py",
             "0.4.0",
             "8",
-            "https://example.test/perch.dmg",
+            "https://example.test/beacon.dmg",
             "123",
             "signature",
             "beta",

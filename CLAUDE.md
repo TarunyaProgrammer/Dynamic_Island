@@ -20,7 +20,7 @@
 - **UI Framework**: SwiftUI + AppKit (low-level floating window and level management)
 - **Build System**: Xcode 16+, `.xcodeproj` configuration
 - **Target Architectures**: Universal binary (Apple Silicon arm64 & Intel x86_64)
-- **Bundle ID**: `com.perch.perch`
+- **Bundle ID**: `com.beacon.beacon`
 
 ---
 
@@ -28,13 +28,13 @@
 
 ```bash
 # Open in Xcode
-open perch.xcodeproj
+open Beacon.xcodeproj
 
 # Build from Command Line (Debug)
-xcodebuild -scheme perch -configuration Debug build
+xcodebuild -scheme Beacon -configuration Debug build
 
 # Run Unit Tests
-xcodebuild -scheme perch -configuration Debug test
+xcodebuild -scheme Beacon -configuration Debug test
 
 # Fast Workflows with `just`
 just build     # Build Debug binary
@@ -72,7 +72,7 @@ Integration Layer (AppKit / Window Management)
 ```
 
 > **Integration Layer**:
-> `perch/Vendor/NookSurface/` handles window chrome, notch shape adapting, geometry, and hover animations. `perch/Island/NookBridge.swift` serves as the clean adapter bridging `NookSurface` with `AppState`.
+> `Beacon/Vendor/NookSurface/` handles window chrome, notch shape adapting, geometry, and hover animations. `Beacon/Island/NookBridge.swift` serves as the clean adapter bridging `NookSurface` with `AppState`.
 
 ---
 
@@ -80,13 +80,13 @@ Integration Layer (AppKit / Window Management)
 
 | Module | Path | Responsibility |
 |--------|------|----------------|
-| **App** | `perch/App/` | Application entrypoint, `AppDelegate`, menu bar status item, Sparkle updater |
-| **Core** | `perch/Core/` | `AppState`, `EventBus`, `KeychainHelper`, `PresetStore`, `RefreshScheduler`, `LoginItemManager` |
-| **Island** | `perch/Island/` | `IslandHost`, `NookBridge`, screen location, and surface geometry adaptation |
-| **Vendor** | `perch/Vendor/` | Vendored open-source modules (`NookSurface`). Any modifications are marked with `// Modified for Beacon:` |
-| **UI** | `perch/UI/` | SwiftUI views, card components, `DesignSystem`, and `SettingsView` |
-| **Features** | `perch/Features/` | Self-contained feature modules: `NowPlaying/`, `AIUsage/`, `Calendar/` |
-| **Providers** | `perch/Providers/` | AI telemetry providers: `Claude/`, `Codex/`, `OpenAI/`, `OpenRouter/` |
+| **App** | `Beacon/App/` | Application entrypoint, `AppDelegate`, menu bar status item, Sparkle updater |
+| **Core** | `Beacon/Core/` | `AppState`, `EventBus`, `KeychainHelper`, `PresetStore`, `RefreshScheduler`, `LoginItemManager` |
+| **Island** | `Beacon/Island/` | `IslandHost`, `NookBridge`, screen location, and surface geometry adaptation |
+| **Vendor** | `Beacon/Vendor/` | Vendored open-source modules (`NookSurface`). Any modifications are marked with `// Modified for Beacon:` |
+| **UI** | `Beacon/UI/` | SwiftUI views, card components, `DesignSystem`, and `SettingsView` |
+| **Features** | `Beacon/Features/` | Self-contained feature modules: `NowPlaying/`, `AIUsage/`, `Calendar/` |
+| **Providers** | `Beacon/Providers/` | AI telemetry providers: `Claude/`, `Codex/`, `OpenAI/`, `OpenRouter/` |
 
 ---
 
@@ -96,11 +96,11 @@ Integration Layer (AppKit / Window Management)
 Tabs in Beacon are **not** hardcoded feature toggles (e.g. Music vs. AI). They represent user-defined **widget layout presets**.
 
 ### Features Must Be Implemented as Widgets
-New features must conform to `PerchWidget` and be registered at startup:
+New features must conform to `BeaconWidget` and be registered at startup:
 
 ```swift
 // Pattern for adding new widget capabilities:
-nonisolated struct DevStatusWidget: PerchWidget {
+nonisolated struct DevStatusWidget: BeaconWidget {
     let id = "devStatus"
     let supportedSizes: Set<WidgetSize> = [.compact, .standard]
     func body(size: WidgetSize) -> AnyView {
@@ -116,10 +116,10 @@ appState.widgetRegistry.register(DevStatusWidget())
 
 | File | Purpose |
 |------|---------|
-| `perch/Core/PresetStore.swift` | Preset CRUD operations + `Defaults` persistence |
-| `perch/Core/WidgetLayout.swift` | `WidgetPlacement`, `PresetLayout`, and size constraints |
-| `perch/Core/WidgetRegistry.swift` | Dynamic widget registration and lookup |
-| `perch/Core/WidgetProtocol.swift` | `PerchWidget` protocol definitions |
+| `Beacon/Core/PresetStore.swift` | Preset CRUD operations + `Defaults` persistence |
+| `Beacon/Core/WidgetLayout.swift` | `WidgetPlacement`, `PresetLayout`, and size constraints |
+| `Beacon/Core/WidgetRegistry.swift` | Dynamic widget registration and lookup |
+| `Beacon/Core/WidgetProtocol.swift` | `BeaconWidget` protocol definitions |
 
 ---
 
@@ -174,7 +174,7 @@ appState.widgetRegistry.register(DevStatusWidget())
 | **Defaults** | Type-safe `UserDefaults` persistence | SPM |
 | **swift-log** | High-performance structured logging | SPM |
 | **Sparkle** | Automated updater framework | SPM |
-| **NookSurface** | Hardware notch geometry & smooth surface mechanics | Vendored (`perch/Vendor/NookSurface/`) |
+| **NookSurface** | Hardware notch geometry & smooth surface mechanics | Vendored (`Beacon/Vendor/NookSurface/`) |
 | **LyricsKit** | Synchronized lyrics parsing and search | SPM |
 | **CryptoSwift** | Cryptographic token operations | SPM |
 

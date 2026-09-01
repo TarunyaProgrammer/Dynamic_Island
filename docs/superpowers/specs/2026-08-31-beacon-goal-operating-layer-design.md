@@ -59,9 +59,9 @@ Instead of simply mutating an in-memory integer (`currentValue = 42`), Beacon wr
 - **Historical Velocity**: Calculates progress trajectory ("On track", "Behind by ~3 days") from actual event deltas rather than synthetic guess-work.
 
 ### 2.3 Strict Separation of Concerns
-- **Domain Layer (`perch/Core/Goals/`)**: Pure Swift models, commands, reducers, and validators. Zero AppKit/SwiftUI dependency.
-- **Persistence Layer (`perch/Infrastructure/Persistence/`)**: Local-first repository protocol with atomic file writes and JSON export/import.
-- **Surfaces Layer (`perch/Surfaces/`)**: Thin UI adapters (SwiftUI views, AppKit status item popovers, Dynamic Island surface cards) that observe `GoalStore` and dispatch `GoalCommand`s.
+- **Domain Layer (`Beacon/Core/Goals/`)**: Pure Swift models, commands, reducers, and validators. Zero AppKit/SwiftUI dependency.
+- **Persistence Layer (`beacon/Infrastructure/Persistence/`)**: Local-first repository protocol with atomic file writes and JSON export/import.
+- **Surfaces Layer (`beacon/Surfaces/`)**: Thin UI adapters (SwiftUI views, AppKit status item popovers, Dynamic Island surface cards) that observe `GoalStore` and dispatch `GoalCommand`s.
 
 ---
 
@@ -281,7 +281,7 @@ public protocol GoalRepositoryProtocol: Sendable {
 }
 ```
 
-- **File Storage**: Stored locally in `~/Library/Application Support/com.perch.perch/goals.json` and `events.json`.
+- **File Storage**: Stored locally in `~/Library/Application Support/com.beacon.beacon/goals.json` and `events.json`.
 - **Atomic Operations**: Safe disk writes using `FileManager.default.replaceItemAt` via temporary file swaps to prevent corruption during unexpected shutdowns.
 - **Zero Cloud Requirement**: 100% offline, zero account creation, zero tracking.
 
@@ -305,7 +305,7 @@ public protocol GoalRepositoryProtocol: Sendable {
 - [ ] Build floating `CommandPaletteWindowController` with quick command parser.
 
 ### Phase 4: Dynamic Island Surface Integration (v0.2)
-- [ ] Register `GoalWidget` conforming to `PerchWidget` into `WidgetRegistry`.
+- [ ] Register `GoalWidget` conforming to `BeaconWidget` into `WidgetRegistry`.
 - [ ] Render compact pill metrics (`◉ 4/7 goals • 68%`) and expanded island goal cards.
 
 ### Phase 5: Historical Analytics & Velocity Trajectory (v0.2+)

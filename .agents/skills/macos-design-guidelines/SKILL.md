@@ -1121,7 +1121,7 @@ Before shipping a Mac app, verify:
 
 ---
 
-## Perch macOS Design Rules
+## Beacon macOS Design Rules
 
 ### Dynamic Island UX Guidelines
 - compact -> expanded の遷移は `matchedGeometryEffect` で連続的にモーフィング

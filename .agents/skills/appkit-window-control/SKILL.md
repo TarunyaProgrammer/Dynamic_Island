@@ -1,6 +1,6 @@
 # AppKit Window Control
 
-macOS AppKitのNSWindow/NSPanel制御に関する実装ガイド。Perchの透明オーバーレイウィンドウ、level管理、Spaces対応、マウスイベント制御をカバーする。
+macOS AppKitのNSWindow/NSPanel制御に関する実装ガイド。Beaconの透明オーバーレイウィンドウ、level管理、Spaces対応、マウスイベント制御をカバーする。
 
 ## When to Use
 - NSWindow/NSPanelの作成・設定時
@@ -51,7 +51,7 @@ final class IslandWindow: NSWindow {
 |-------|----------|
 | `.normal` | 通常。他アプリの後ろに隠れる |
 | `.statusBar` | メニューバーと同じ。基本的にはこれ |
-| `.statusBar + 1` | メニューバーの上。Perchのデフォルト |
+| `.statusBar + 1` | メニューバーの上。Beaconのデフォルト |
 | `.statusBar + 8` | 最前面寄り。他アプリのオーバーレイと競合する可能性 |
 
 設定で変更可能にすること。`level`は`NSWindow.Level`型。
@@ -66,7 +66,7 @@ final class IslandWindow: NSWindow {
 
 ### フルスクリーン設定
 設定で「フルスクリーン時に表示」を切り替え可能にする。
-一部ユーザーはフルスクリーン時にPerchを非表示にしたい。
+一部ユーザーはフルスクリーン時にBeaconを非表示にしたい。
 
 ## Mouse Event Passthrough
 
@@ -111,7 +111,7 @@ NotificationCenter.default.addObserver(
 ```
 
 ## Xcode Project Notes
-- Perchは `PBXFileSystemSynchronizedRootGroup` を使用。ファイルシステム上でファイルを追加/移動すればXcodeが自動同期するため、pbxproj手動編集は不要
+- Beaconは `PBXFileSystemSynchronizedRootGroup` を使用。ファイルシステム上でファイルを追加/移動すればXcodeが自動同期するため、pbxproj手動編集は不要
 - SPMパッケージ依存の追加はXcode GUIから行うこと（CLIからのpbxproj編集は破損リスクが高い）
 - NSWindow/NSPanel サブクラスには `@MainActor` を明示すること（NSWindow自体が@MainActorだがプロジェクト規約として明示）
 

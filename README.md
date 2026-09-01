@@ -66,7 +66,7 @@ cd Dynamic_Island
 
 ### 2. Build and Run in Xcode
 ```bash
-open perch.xcodeproj
+open Beacon.xcodeproj
 ```
 
 ### 3. Command-Line Workflows

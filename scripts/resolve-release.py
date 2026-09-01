@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-resolve-release.py - Resolve Perch release metadata from version.env.
+resolve-release.py - Resolve Beacon release metadata from version.env.
 
 The script is intentionally strict: release workflows should fail when the
 release intent is ambiguous instead of publishing the wrong channel.

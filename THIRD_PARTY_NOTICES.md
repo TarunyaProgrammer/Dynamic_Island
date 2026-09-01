@@ -107,13 +107,13 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 - **Version**: 0.4.0
 - **License**: MIT License
 - **Copyright**: Copyright © 2026 Glendon Chin
-- **Vendored into**: `perch/Vendor/NookSurface/`
+- **Vendored into**: `Beacon/Vendor/NookSurface/`
 
 Unlike the other entries in this file, NookSurface is not resolved through SwiftPM.
-Its sources are copied into this repository so that Perch can adjust behaviour that
+Its sources are copied into this repository so that Beacon can adjust behaviour that
 the upstream package keeps internal — notably the synthetic notch width, which is a
-private constant with no public seam. Files that Perch has changed carry a
-`// Modified for Perch:` marker at the top; everything else is byte-identical to
+private constant with no public seam. Files that Beacon has changed carry a
+`// Modified for Beacon:` marker at the top; everything else is byte-identical to
 upstream 0.4.0.
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
@@ -145,17 +145,17 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 - **Version**: 0.4.0 (`NookScreenLocator.swift`)
 - **License**: Apache License 2.0
 - **Copyright**: Copyright © 2026 Glendon Chin
-- **Vendored into**: `perch/Island/ScreenLocator.swift`
+- **Vendored into**: `Beacon/Island/ScreenLocator.swift`
 
 Unlike NookSurface above, this is not a SwiftPM dependency: `NookScreenLocator` is a
 single Apache-2.0 file with no dependency on the rest of NookKit besides the small
-`NookDisplayPreference` value type, which Perch inlined and renamed
+`NookDisplayPreference` value type, which Beacon inlined and renamed
 `ScreenPreference` rather than pulling in as a second file. Renamed
 `NookScreenLocator` -> `ScreenLocator`; dropped `NookDisplayStore` (a
 `UserDefaults`-backed persistence layer built on a NookKit-only storage type) since
-Perch persists preferences through the `Defaults` package instead. See the
-`// Modified for Perch:` header comment in `ScreenLocator.swift` for the full list of
-changes. Perch's own root `LICENSE` is Apache-2.0, so this file's terms already match
+Beacon persists preferences through the `Defaults` package instead. See the
+`// Modified for Beacon:` header comment in `ScreenLocator.swift` for the full list of
+changes. Beacon's own root `LICENSE` is Apache-2.0, so this file's terms already match
 the project's license.
 
 Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with the License. You may obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0
