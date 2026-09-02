@@ -1,38 +1,45 @@
-/* apps/renderer/src/styles/tokens.css - Design System Tokens */
+/* apps/renderer/src/styles/tokens.css - Beacon Design System Tokens */
 
-:root {
-  /* Typography */
-  --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'SF Pro Display', sans-serif;
-  --font-mono: 'JetBrains Mono', SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+:root,
+[data-theme="dark"] {
+  /* Typography Hierarchy (Apple SF Pro & SF Mono) */
+  --font-sans: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'SF Pro Display', 'Inter', sans-serif;
+  --font-mono: 'SF Mono', SFMono-Regular, Menlo, Monaco, Consolas, monospace;
 
-  /* Pure Apple Monochrome Dark Palette */
-  --bg-app: #000000;
-  --bg-surface: #0a0a0c;
-  --bg-surface-elevated: #141418;
-  --bg-surface-hover: #1e1e24;
-  --bg-surface-active: #2a2a32;
-  --bg-glass: rgba(255, 255, 255, 0.04);
-  --bg-glass-active: rgba(255, 255, 255, 0.09);
+  /* Signature Atmospheric Dark Palette */
+  --bg-app: #0b0c10;
+  --bg-surface: #12141a;
+  --bg-surface-elevated: #191c24;
+  --bg-surface-hover: #222632;
+  --bg-surface-active: #2b3040;
+  --bg-glass: rgba(18, 20, 26, 0.75);
+  --bg-glass-active: rgba(255, 255, 255, 0.08);
 
-  /* Subtle Crisp Borders */
-  --border-subtle: rgba(255, 255, 255, 0.08);
+  /* Subtle Crisp Hairline Borders */
+  --border-subtle: rgba(255, 255, 255, 0.07);
   --border-glass: rgba(255, 255, 255, 0.12);
-  --border-focus: rgba(255, 255, 255, 0.4);
-  --border-accent: rgba(255, 255, 255, 0.2);
+  --border-focus: rgba(90, 200, 250, 0.5);
+  --border-accent: rgba(124, 108, 255, 0.35);
 
   /* Text Colors */
   --text-primary: #ffffff;
-  --text-secondary: #a1a1aa;
-  --text-muted: #52525b;
-  --text-inverse: #000000;
+  --text-secondary: #9496a1;
+  --text-muted: #585a66;
+  --text-inverse: #0b0c10;
 
-  /* Clean Neutral Accents */
-  --accent-primary: #ffffff;
-  --accent-primary-hover: #e4e4e7;
-  --accent-secondary: rgba(255, 255, 255, 0.12);
-  --accent-emerald: #10b981;
-  --accent-amber: #f59e0b;
-  --accent-rose: #ef4444;
+  /* Beacon Semantic Light-Based Accents */
+  --accent-beacon: #7c6cff;        /* Electric Blue-Violet */
+  --accent-beacon-hover: #9183ff;
+  --accent-cyan: #5ac8fa;          /* Soft Cyan Beam */
+  --accent-emerald: #10b981;       /* Restrained Completed Green */
+  --accent-amber: #f59e0b;         /* At-Risk Amber */
+  --accent-rose: #ef4444;          /* Overdue / Missed Red */
+  --accent-neutral: #3a3d4a;       /* Inactive Track */
+
+  /* Button Tokens */
+  --btn-primary-bg: #ffffff;
+  --btn-primary-text: #0b0c10;
+  --btn-primary-hover: #e4e6ec;
 
   /* Geometry & Radii */
   --radius-sm: 6px;
@@ -43,13 +50,56 @@
   --radius-full: 9999px;
 
   /* Elevation Shadows & Inset Highlights */
-  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.6);
-  --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.7);
-  --shadow-lg: 0 16px 40px rgba(0, 0, 0, 0.9);
-  --shadow-glass: 0 8px 32px 0 rgba(0, 0, 0, 0.7), inset 0 1px 0 0 rgba(255, 255, 255, 0.08);
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.5);
+  --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.6);
+  --shadow-lg: 0 16px 36px rgba(0, 0, 0, 0.8);
+  --shadow-glass: 0 8px 32px 0 rgba(0, 0, 0, 0.5), inset 0 1px 0 0 rgba(255, 255, 255, 0.08);
 
   /* Animation Easing */
   --ease-spring: cubic-bezier(0.16, 1, 0.3, 1);
-  --transition-fast: 140ms var(--ease-spring);
+  --transition-fast: 160ms var(--ease-spring);
   --transition-normal: 240ms var(--ease-spring);
+}
+
+[data-theme="light"] {
+  /* Crystalline Light Palette */
+  --bg-app: #f5f6f8;
+  --bg-surface: #ffffff;
+  --bg-surface-elevated: #eceef2;
+  --bg-surface-hover: #e3e6ed;
+  --bg-surface-active: #d7dbe4;
+  --bg-glass: rgba(255, 255, 255, 0.82);
+  --bg-glass-active: rgba(0, 0, 0, 0.06);
+
+  /* Hairline Borders */
+  --border-subtle: rgba(0, 0, 0, 0.08);
+  --border-glass: rgba(0, 0, 0, 0.12);
+  --border-focus: rgba(0, 122, 255, 0.5);
+  --border-accent: rgba(99, 85, 230, 0.3);
+
+  /* Text Colors */
+  --text-primary: #111318;
+  --text-secondary: #646876;
+  --text-muted: #9ba0ae;
+  --text-inverse: #ffffff;
+
+  /* Beacon Semantic Accents */
+  --accent-beacon: #6355e6;
+  --accent-beacon-hover: #5345d4;
+  --accent-cyan: #007aff;
+  --accent-emerald: #059669;
+  --accent-amber: #d97706;
+  --accent-rose: #dc2626;
+  --accent-neutral: #d5d8e2;
+
+  /* Button Tokens */
+  --btn-primary-bg: #111318;
+  --btn-primary-text: #ffffff;
+  --btn-primary-hover: #232733;
+
+  /* Elevation Shadows */
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.06);
+  --shadow-md: 0 4px 14px rgba(0, 0, 0, 0.08);
+  --shadow-lg: 0 12px 28px rgba(0, 0, 0, 0.12);
+  --shadow-glass: 0 8px 24px 0 rgba(0, 0, 0, 0.06), inset 0 1px 0 0 rgba(255, 255, 255, 0.8);
 }

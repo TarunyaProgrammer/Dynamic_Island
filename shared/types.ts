@@ -92,6 +92,12 @@ export interface GoalHealth {
   sessionsRemainingThisPeriod?: number;
   /** Days remaining until deadline */
   daysRemaining?: number;
+  /** 30-day consistency percentage (0-100) */
+  consistencyPercentage?: number;
+  /** Momentum change vs prior 30-day period (+/- %) */
+  momentumDelta?: number;
+  /** Descriptive trajectory tag e.g. 'Ahead of pace', 'On track', 'At risk' */
+  trajectoryLabel?: string;
 }
 
 // ─── Core Entities ───────────────────────────────────────────────────────────
@@ -212,6 +218,7 @@ export interface AppSettings {
   showInAllSpaces: boolean;
   globalShortcut: string;
   theme: 'system' | 'dark' | 'light';
+  soundMode?: 'silent' | 'subtle' | 'full';
 }
 
 export interface BeaconStats {
@@ -220,6 +227,13 @@ export interface BeaconStats {
   completedGoals: number;
   overallProgressFraction: number;
   todayIncrementsCount: number;
+  consistencyPercentage?: number;
+  momentumScore?: number;
+  momentumDeltaPercent?: number;
+  commitmentsKept?: {
+    completed: number;
+    total: number;
+  };
 }
 
 /* ==========================================================================

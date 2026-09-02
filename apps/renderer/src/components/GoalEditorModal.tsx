@@ -1,7 +1,7 @@
 // apps/renderer/src/components/GoalEditorModal.tsx
 import React, { useState, useEffect, useRef } from 'react';
 import { Goal, GoalDraft, GoalType, GoalUpdateDraft } from '@shared/types';
-import { X, Target, Calendar, Flame } from 'lucide-react';
+import { X, Target, Calendar, Sparkles } from 'lucide-react';
 import { ConfirmationModal } from './ConfirmationModal';
 import { useDesktopOverlay } from '../hooks/useDesktopOverlay';
 
@@ -593,11 +593,11 @@ export const GoalEditorModal: React.FC<GoalEditorModalProps> = ({
               type="checkbox"
               checked={trackStreak}
               onChange={(e) => setTrackStreak(e.target.checked)}
-              style={{ accentColor: '#f59e0b', width: '15px', height: '15px', cursor: 'pointer' }}
+              style={{ accentColor: 'var(--accent-beacon)', width: '15px', height: '15px', cursor: 'pointer' }}
             />
             <span style={{ fontSize: '12px', color: 'var(--text-secondary)', display: 'inline-flex', alignItems: 'center', gap: '5px' }}>
-              <Flame size={13} color="#f59e0b" />
-              Enable streak tracking for this goal
+              <Sparkles size={13} color="var(--accent-cyan)" />
+              Enable light streak tracking for this goal
             </span>
           </label>
 

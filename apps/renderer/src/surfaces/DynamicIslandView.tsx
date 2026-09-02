@@ -20,7 +20,7 @@ import {
   SkipForward,
   Music,
   Volume2,
-  Flame,
+  Sparkles,
 } from 'lucide-react';
 
 export const DynamicIslandView: React.FC = () => {
@@ -779,9 +779,9 @@ export const DynamicIslandView: React.FC = () => {
                 {goals.some((g) => (g.streakConfig?.currentStreak ?? 0) > 0) && (
                   <>
                     <span style={{ opacity: 0.4 }}>•</span>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '3px', color: '#f59e0b', fontWeight: 600 }}>
-                      <Flame size={11} color="#f59e0b" />
-                      <span>{Math.max(...goals.map((g) => g.streakConfig?.currentStreak ?? 0))}d streak</span>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '3px', color: '#5ac8fa', fontWeight: 600 }}>
+                      <Sparkles size={11} color="#5ac8fa" />
+                      <span>{Math.max(...goals.map((g) => g.streakConfig?.currentStreak ?? 0))}d light streak</span>
                     </div>
                   </>
                 )}

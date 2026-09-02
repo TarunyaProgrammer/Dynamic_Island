@@ -23,10 +23,16 @@ This skill defines the interaction ergonomics and design principles required for
    - On MacBooks with physical display notches, the Island seamlessly masks the camera housing with a 0-radius top border.
    - On external displays or non-notch Macs, it renders as a floating glass capsule with rounded borders (`border-radius: 20px`).
 
-3. **Dark Glassmorphic Aesthetics**:
-   - Backgrounds: Translucent dark glass (`rgba(18, 18, 24, 0.85)` + `backdrop-filter: blur(24px)`).
-   - Borders: 1px hairline subtle borders (`rgba(255, 255, 255, 0.08)`).
-   - Accents: Emerald (`#34d399`), Amber (`#fbbf24`), Rose (`#f43f5e`), Indigo (`#6366f1`).
+3. **Dual Atmospheric Dark & Crystalline Light Aesthetics**:
+   - Dark mode signature: `#0B0C10` app bg, `#12141A` surface, `#191C24` elevated (`backdrop-filter: blur(24px)`).
+   - Light mode crystalline: `#F5F6F8` app bg, `#FFFFFF` surface, `#ECEEF2` elevated.
+   - Borders: 1px hairline subtle borders (`var(--border-subtle)`).
+   - Accents: Electric Blue-Violet (`#7C6CFF`), Soft Cyan (`#5AC8FA`), Emerald (`#10B981`), Amber (`#F59E0B`), Rose (`#EF4444`).
+
+4. **Visual Metaphor — Light, Not Fire**:
+   - Beacon owns **Light**, not fire.
+   - Use luminous rays (`✦`), beams, and subtle 200–250ms optical halos (`• ╱│╲ ╱ │ ╲`).
+   - Never use fire emojis, arcade XP, or loud confetti.
 
 ---
 
@@ -43,8 +49,6 @@ This skill defines the interaction ergonomics and design principles required for
 ---
 
 ## Haptic Audio Feedback
-
-Audio feedback is subtle, soft, and non-intrusive (Web Audio API synthetic synthesizer):
-- **Click / Increment**: High-frequency short ping (`800Hz` $\rightarrow$ `1200Hz`, 40ms).
-- **Completion / Milestone**: Harmonic chime chord (`523Hz`, `659Hz`, `784Hz`, 300ms).
-- **Undo**: Descending low blip (`600Hz` $\rightarrow$ `300Hz`, 60ms).
+- **Default Mode**: **Silent by default** for normal clicks and increments.
+- **Three Modes**: `Silent` (completely quiet), `Subtle` (only milestone completions & timer finish), `Full` (tactile micro-pops).
+- **Completion Chime**: Soft harmonic sine chime chord resembling a warm lamp turning on (`528Hz` resonant base, 400ms soft decay). Never loud arcade beeps.

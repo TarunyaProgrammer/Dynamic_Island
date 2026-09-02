@@ -1,6 +1,30 @@
-// apps/renderer/src/utils/audio.ts - Zero-Dependency Web Audio Synthesizer
+// apps/renderer/src/utils/audio.ts - Restrained Beacon Ambient Light Audio Synthesizer
+
+export type SoundMode = 'silent' | 'subtle' | 'full';
+
 class SoundEngine {
   private ctx: AudioContext | null = null;
+  private mode: SoundMode = 'silent'; // OFF by default as required by Beacon design philosophy
+
+  constructor() {
+    if (typeof window !== 'undefined') {
+      const saved = localStorage.getItem('beacon_sound_mode') as SoundMode;
+      if (saved && ['silent', 'subtle', 'full'].includes(saved)) {
+        this.mode = saved;
+      }
+    }
+  }
+
+  public getSoundMode(): SoundMode {
+    return this.mode;
+  }
+
+  public setSoundMode(mode: SoundMode): void {
+    this.mode = mode;
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('beacon_sound_mode', mode);
+    }
+  }
 
   private getContext(): AudioContext | null {
     if (typeof window === 'undefined') return null;
@@ -17,58 +41,78 @@ class SoundEngine {
   }
 
   /**
-   * Ethereal multi-tone crystal bell chime for focus session completion
+   * Conceptually like a warm lamp turning on:
+   * A single soft harmonic crystal chime for meaningful events (goal completed, milestone reached).
+   * Active in 'subtle' and 'full' modes.
    */
-  playFocusChime(): void {
+  playGoalFanfare(): void {
+    if (this.mode === 'silent') return;
     const ctx = this.getContext();
     if (!ctx) return;
 
     const now = ctx.currentTime;
-    // Harmonic frequencies: E5, G#5, B5, E6 (E-major radiant chime)
-    const notes = [659.25, 830.61, 987.77, 1318.51];
+    // Luminous harmonic pair: 528Hz (Warm resonant base) and 1056Hz (Shimmer octave)
+    const tones = [528.0, 1056.0];
+
+    tones.forEach((freq, idx) => {
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(freq, now);
+
+      const peak = idx === 0 ? 0.16 : 0.05;
+      gain.gain.setValueAtTime(0.0001, now);
+      // Gentle 40ms attack
+      gain.gain.exponentialRampToValueAtTime(peak, now + 0.04);
+      // Soft 400ms decay
+      gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.45);
+
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+
+      osc.start(now);
+      osc.stop(now + 0.48);
+    });
+  }
+
+  /**
+   * Ethereal upward shimmer for focus timer completion
+   */
+  playFocusChime(): void {
+    if (this.mode === 'silent') return;
+    const ctx = this.getContext();
+    if (!ctx) return;
+
+    const now = ctx.currentTime;
+    const notes = [659.25, 830.61, 987.77];
 
     notes.forEach((freq, i) => {
-      const startTime = now + i * 0.12;
-
-      // Primary oscillator (pure warm sine)
+      const startTime = now + i * 0.09;
       const osc = ctx.createOscillator();
       const gain = ctx.createGain();
 
       osc.type = 'sine';
       osc.frequency.setValueAtTime(freq, startTime);
 
-      // Shimmer overtone (soft triangle)
-      const overtone = ctx.createOscillator();
-      const overtoneGain = ctx.createGain();
-      overtone.type = 'triangle';
-      overtone.frequency.setValueAtTime(freq * 2, startTime);
+      gain.gain.setValueAtTime(0.0001, startTime);
+      gain.gain.exponentialRampToValueAtTime(0.12, startTime + 0.03);
+      gain.gain.exponentialRampToValueAtTime(0.0001, startTime + 0.8);
 
-      // Amplitude Envelope
-      gain.gain.setValueAtTime(0.001, startTime);
-      gain.gain.exponentialRampToValueAtTime(0.22, startTime + 0.04);
-      gain.gain.exponentialRampToValueAtTime(0.0001, startTime + 1.8);
-
-      overtoneGain.gain.setValueAtTime(0.001, startTime);
-      overtoneGain.gain.exponentialRampToValueAtTime(0.06, startTime + 0.03);
-      overtoneGain.gain.exponentialRampToValueAtTime(0.0001, startTime + 1.2);
-
-      // Connect nodes
       osc.connect(gain);
-      overtone.connect(overtoneGain);
       gain.connect(ctx.destination);
-      overtoneGain.connect(ctx.destination);
 
       osc.start(startTime);
-      overtone.start(startTime);
-      osc.stop(startTime + 1.9);
-      overtone.stop(startTime + 1.3);
+      osc.stop(startTime + 0.85);
     });
   }
 
   /**
-   * Snappy tactile pop for milestone check and progress increments
+   * Snappy click/pop for normal increments.
+   * Only active in 'full' mode (Silent & Subtle keep normal clicks completely silent).
    */
   playMilestonePop(): void {
+    if (this.mode !== 'full') return;
     const ctx = this.getContext();
     if (!ctx) return;
 
@@ -77,75 +121,41 @@ class SoundEngine {
     const gain = ctx.createGain();
 
     osc.type = 'sine';
-    // Frequency pitch sweep from 440Hz up to 880Hz
     osc.frequency.setValueAtTime(440, now);
-    osc.frequency.exponentialRampToValueAtTime(880, now + 0.08);
-
-    gain.gain.setValueAtTime(0.25, now);
-    gain.gain.exponentialRampToValueAtTime(0.001, now + 0.12);
-
-    osc.connect(gain);
-    gain.connect(ctx.destination);
-
-    osc.start(now);
-    osc.stop(now + 0.13);
-  }
-
-  /**
-   * Celebratory crystal fanfare for goal completion
-   */
-  playGoalFanfare(): void {
-    const ctx = this.getContext();
-    if (!ctx) return;
-
-    const now = ctx.currentTime;
-    // Ascending victory arpeggio: C5 -> E5 -> G5 -> C6 -> E6
-    const chords = [523.25, 659.25, 783.99, 1046.50, 1318.51];
-
-    chords.forEach((freq, idx) => {
-      const startTime = now + idx * 0.08;
-      const osc = ctx.createOscillator();
-      const gain = ctx.createGain();
-
-      osc.type = idx === chords.length - 1 ? 'sine' : 'triangle';
-      osc.frequency.setValueAtTime(freq, startTime);
-
-      const peakVolume = idx === chords.length - 1 ? 0.28 : 0.18;
-      gain.gain.setValueAtTime(0.001, startTime);
-      gain.gain.exponentialRampToValueAtTime(peakVolume, startTime + 0.03);
-      gain.gain.exponentialRampToValueAtTime(0.0001, startTime + 1.5);
-
-      osc.connect(gain);
-      gain.connect(ctx.destination);
-
-      osc.start(startTime);
-      osc.stop(startTime + 1.6);
-    });
-  }
-
-  /**
-   * Subtle click for timer start / pause / resume
-   */
-  playTickSound(): void {
-    const ctx = this.getContext();
-    if (!ctx) return;
-
-    const now = ctx.currentTime;
-    const osc = ctx.createOscillator();
-    const gain = ctx.createGain();
-
-    osc.type = 'sine';
-    osc.frequency.setValueAtTime(800, now);
-    osc.frequency.exponentialRampToValueAtTime(400, now + 0.03);
+    osc.frequency.exponentialRampToValueAtTime(660, now + 0.04);
 
     gain.gain.setValueAtTime(0.08, now);
-    gain.gain.exponentialRampToValueAtTime(0.001, now + 0.035);
+    gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.05);
 
     osc.connect(gain);
     gain.connect(ctx.destination);
 
     osc.start(now);
-    osc.stop(now + 0.04);
+    osc.stop(now + 0.06);
+  }
+
+  /**
+   * Micro tick sound for timers. Active only in 'full' mode.
+   */
+  playTickSound(): void {
+    if (this.mode !== 'full') return;
+    const ctx = this.getContext();
+    if (!ctx) return;
+
+    const now = ctx.currentTime;
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+
+    osc.type = 'sine';
+    osc.frequency.setValueAtTime(600, now);
+    gain.gain.setValueAtTime(0.03, now);
+    gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.02);
+
+    osc.connect(gain);
+    gain.connect(ctx.destination);
+
+    osc.start(now);
+    osc.stop(now + 0.025);
   }
 }
 

@@ -5,7 +5,7 @@ import { GoalProgressRing } from './GoalProgressRing';
 import { QuickIncrementButton } from './QuickIncrementButton';
 import { MilestoneList } from './MilestoneList';
 import { useDesktopOverlay } from '../hooks/useDesktopOverlay';
-import { CheckCircle, ChevronDown, ChevronUp, MoreHorizontal, Archive, Trash2, Edit3, Calendar, Timer, Zap, Flame } from 'lucide-react';
+import { CheckCircle, ChevronDown, ChevronUp, MoreHorizontal, Archive, Trash2, Edit3, Calendar, Timer, Zap, Sparkles } from 'lucide-react';
 
 interface GoalCardProps {
   goal: Goal;
@@ -128,15 +128,15 @@ export const GoalCard: React.FC<GoalCardProps> = ({
                     gap: '3px',
                     fontSize: '10px',
                     fontWeight: 600,
-                    padding: '1px 5px',
+                    padding: '1px 6px',
                     borderRadius: 'var(--radius-sm)',
-                    backgroundColor: (goal.streakConfig.currentStreak ?? 0) > 0 ? 'rgba(245, 158, 11, 0.15)' : 'rgba(255, 255, 255, 0.06)',
-                    color: (goal.streakConfig.currentStreak ?? 0) > 0 ? '#f59e0b' : 'var(--text-muted)',
-                    border: `1px solid ${(goal.streakConfig.currentStreak ?? 0) > 0 ? 'rgba(245, 158, 11, 0.3)' : 'rgba(255, 255, 255, 0.08)'}`,
+                    backgroundColor: (goal.streakConfig.currentStreak ?? 0) > 0 ? 'rgba(90, 200, 250, 0.12)' : 'var(--bg-glass)',
+                    color: (goal.streakConfig.currentStreak ?? 0) > 0 ? 'var(--accent-cyan)' : 'var(--text-muted)',
+                    border: `1px solid ${(goal.streakConfig.currentStreak ?? 0) > 0 ? 'rgba(90, 200, 250, 0.28)' : 'var(--border-subtle)'}`,
                   }}
-                  title={`Current Streak: ${goal.streakConfig.currentStreak ?? 0} (Best: ${goal.streakConfig.bestStreak ?? 0})`}
+                  title={`Consistency: ${goal.health?.consistencyPercentage ?? 92}% · Light Streak: ${goal.streakConfig.currentStreak ?? 0} (Best: ${goal.streakConfig.bestStreak ?? 0})`}
                 >
-                  <Flame size={10} color={(goal.streakConfig.currentStreak ?? 0) > 0 ? '#f59e0b' : 'currentColor'} />
+                  <Sparkles size={10} color={(goal.streakConfig.currentStreak ?? 0) > 0 ? 'var(--accent-cyan)' : 'currentColor'} />
                   <span>{goal.streakConfig.currentStreak ?? 0} {goal.period === 'weekly' ? 'w' : 'd'}</span>
                 </span>
               )}
@@ -155,6 +155,42 @@ export const GoalCard: React.FC<GoalCardProps> = ({
                 </span>
               )}
             </div>
+
+            {/* Paradigm Texture: Habit Day Dots */}
+            {goal.paradigm === 'habit' && (
+              <div style={{ display: 'flex', alignItems: 'center', gap: '4px', marginTop: '2px' }}>
+                {Array.from({ length: Math.min(7, Math.max(goal.targetValue || 7, 5)) }).map((_, i) => {
+                  const isDone = i < goal.currentValue;
+                  return (
+                    <div
+                      key={i}
+                      style={{
+                        width: '6px',
+                        height: '6px',
+                        borderRadius: '50%',
+                        backgroundColor: isDone ? 'var(--accent-beacon)' : 'var(--accent-neutral)',
+                        boxShadow: isDone ? '0 0 5px rgba(124, 108, 255, 0.5)' : 'none',
+                        transition: 'all 0.15s ease',
+                      }}
+                      title={`Session ${i + 1}`}
+                    />
+                  );
+                })}
+              </div>
+            )}
+
+            {/* Paradigm Texture: Trajectory Comparison for Deadlines */}
+            {goal.health?.expectedProgress !== undefined && goal.deadline && (
+              <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '10px', marginTop: '2px' }}>
+                <div style={{ position: 'relative', width: '60px', height: '3px', backgroundColor: 'var(--accent-neutral)', borderRadius: '2px', overflow: 'hidden' }}>
+                  <div style={{ width: `${Math.min(100, fraction * 100)}%`, height: '100%', backgroundColor: 'var(--accent-cyan)' }} />
+                  <div style={{ position: 'absolute', left: `${Math.min(100, goal.health.expectedProgress * 100)}%`, top: 0, bottom: 0, width: '2px', backgroundColor: '#ffffff' }} />
+                </div>
+                <span style={{ color: goal.health.status === 'ahead' ? 'var(--accent-emerald)' : goal.health.status === 'at_risk' ? 'var(--accent-amber)' : 'var(--text-secondary)', fontWeight: 500 }}>
+                  {goal.health.trajectoryLabel || 'On track'}
+                </span>
+              </div>
+            )}
           </div>
         </div>
 

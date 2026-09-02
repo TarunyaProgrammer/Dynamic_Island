@@ -55,12 +55,22 @@ export class HealthCalculator {
     const velocityRatio = expectedProgress > 0 ? actualProgress / expectedProgress : 1;
 
     let status: GoalHealthStatus;
-    if (velocityRatio >= 1.05) status = 'ahead';
-    else if (velocityRatio >= 0.9) status = 'on_track';
-    else if (velocityRatio >= 0.75) status = 'at_risk';
-    else status = 'behind';
+    let trajectoryLabel = 'On track';
+    if (velocityRatio >= 1.05) {
+      status = 'ahead';
+      trajectoryLabel = `Ahead (+${Math.round((velocityRatio - 1) * 100)}%)`;
+    } else if (velocityRatio >= 0.9) {
+      status = 'on_track';
+      trajectoryLabel = 'On track';
+    } else if (velocityRatio >= 0.75) {
+      status = 'at_risk';
+      trajectoryLabel = 'Falling behind';
+    } else {
+      status = 'behind';
+      trajectoryLabel = 'At risk';
+    }
 
-    return { status, actualProgress, expectedProgress, velocityRatio, daysRemaining };
+    return { status, actualProgress, expectedProgress, velocityRatio, daysRemaining, trajectoryLabel };
   }
 
   // ─── Habit / Duration ────────────────────────────────────────────────────
@@ -148,6 +158,61 @@ export class HealthCalculator {
     }
 
     return { status: 'on_track', actualProgress, daysRemaining };
+  }
+
+  /**
+   * Calculates overall consistency % across recent check-in history.
+   * e.g., 27 completed days out of 30 = 90%.
+   */
+  static computeConsistency(checkIns: CheckIn[] = [], windowDays: number = 30, today: string = todayIso()): number {
+    if (checkIns.length === 0) return 100;
+
+    const now = new Date(`${today}T00:00:00`).getTime();
+    const windowStart = now - windowDays * 86400000;
+
+    const recent = checkIns.filter((c) => {
+      const t = new Date(`${c.date}T00:00:00`).getTime();
+      return t >= windowStart && t <= now;
+    });
+
+    if (recent.length === 0) return 100;
+
+    const completed = recent.filter((c) => c.state === 'completed').length;
+    return Math.round((completed / recent.length) * 100);
+  }
+
+  /**
+   * Computes a user's Momentum score (0-100) and delta vs previous window (+/- %).
+   * Compares the user's recent consistency to their prior 30-day baseline.
+   */
+  static computeMomentum(
+    checkIns: CheckIn[] = [],
+    windowDays: number = 30,
+    today: string = todayIso()
+  ): { score: number; deltaPercent: number } {
+    const currentConsistency = this.computeConsistency(checkIns, windowDays, today);
+
+    // Compute prior window
+    const now = new Date(`${today}T00:00:00`).getTime();
+    const priorEnd = now - windowDays * 86400000;
+    const priorStart = priorEnd - windowDays * 86400000;
+
+    const prior = checkIns.filter((c) => {
+      const t = new Date(`${c.date}T00:00:00`).getTime();
+      return t >= priorStart && t < priorEnd;
+    });
+
+    const priorConsistency =
+      prior.length > 0
+        ? Math.round((prior.filter((c) => c.state === 'completed').length / prior.length) * 100)
+        : currentConsistency;
+
+    const deltaPercent = currentConsistency - priorConsistency;
+
+    return {
+      score: Math.min(100, Math.max(0, currentConsistency)),
+      deltaPercent,
+    };
   }
 }
 

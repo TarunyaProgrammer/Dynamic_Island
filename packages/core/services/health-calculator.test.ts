@@ -103,3 +103,31 @@ describe('HealthCalculator — paused/completed', () => {
     expect(health.actualProgress).toBe(1);
   });
 });
+
+describe('HealthCalculator — consistency & momentum', () => {
+  it('computes consistency percentage correctly over recent check-ins', () => {
+    const checkIns = [
+      { id: '1', goalId: 'g1', date: '2024-01-20', state: 'completed' as const, value: 1, timestamp: '' },
+      { id: '2', goalId: 'g1', date: '2024-01-21', state: 'completed' as const, value: 1, timestamp: '' },
+      { id: '3', goalId: 'g1', date: '2024-01-22', state: 'missed' as const, value: 0, timestamp: '' },
+      { id: '4', goalId: 'g1', date: '2024-01-23', state: 'completed' as const, value: 1, timestamp: '' },
+    ];
+    // 3 completed out of 4 = 75%
+    const consistency = HealthCalculator.computeConsistency(checkIns, 30, '2024-01-25');
+    expect(consistency).toBe(75);
+  });
+
+  it('computes momentum score and positive delta when pace improves', () => {
+    // Current window (last 30 days): 2 completed out of 2 = 100%
+    // Prior window (30-60 days ago): 1 completed, 1 missed = 50%
+    const checkIns = [
+      { id: '1', goalId: 'g1', date: '2024-01-15', state: 'completed' as const, value: 1, timestamp: '' },
+      { id: '2', goalId: 'g1', date: '2024-01-10', state: 'completed' as const, value: 1, timestamp: '' },
+      { id: '3', goalId: 'g1', date: '2023-12-10', state: 'completed' as const, value: 1, timestamp: '' },
+      { id: '4', goalId: 'g1', date: '2023-12-05', state: 'missed' as const, value: 0, timestamp: '' },
+    ];
+    const momentum = HealthCalculator.computeMomentum(checkIns, 30, '2024-01-20');
+    expect(momentum.score).toBe(100);
+    expect(momentum.deltaPercent).toBe(50); // 100% - 50% = +50%
+  });
+});

@@ -78,25 +78,25 @@ input, textarea {
   box-shadow: var(--shadow-glass);
 }
 
-/* Primary Button (Clean Apple White Fill) */
+/* Primary Button */
 .btn-primary {
   display: inline-flex;
   align-items: center;
   justify-content: center;
   gap: 6px;
   padding: 6px 14px;
-  background: #ffffff;
-  color: #000000;
+  background: var(--btn-primary-bg);
+  color: var(--btn-primary-text);
   font-weight: 600;
   font-size: 12px;
   border-radius: var(--radius-md);
   cursor: pointer;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.4);
+  box-shadow: var(--shadow-sm);
   transition: all var(--transition-fast);
 }
 
 .btn-primary:hover {
-  background: #e4e4e7;
+  background: var(--btn-primary-hover);
   transform: translateY(-1px);
 }
 
@@ -104,14 +104,14 @@ input, textarea {
   transform: scale(0.97);
 }
 
-/* Secondary Button (Frosted Dark Glass) */
+/* Secondary Button */
 .btn-secondary {
   display: inline-flex;
   align-items: center;
   justify-content: center;
   gap: 6px;
   padding: 6px 12px;
-  background: rgba(255, 255, 255, 0.08);
+  background: var(--bg-glass);
   color: var(--text-primary);
   border: 1px solid var(--border-subtle);
   font-weight: 500;
@@ -122,7 +122,7 @@ input, textarea {
 }
 
 .btn-secondary:hover {
-  background: rgba(255, 255, 255, 0.14);
+  background: var(--bg-surface-hover);
 }
 
 .btn-secondary:active {
@@ -152,27 +152,40 @@ input, textarea {
 }
 
 /* ==========================================================================
-   Alive Animations & Micro-Interactions
+   Beacon Ambient Light Animations (Subtle, 150-250ms)
    ========================================================================== */
 
-@keyframes heartbeatGlow {
-  0%, 100% {
-    box-shadow: 0 0 16px rgba(168, 85, 247, 0.25), 0 10px 40px rgba(0, 0, 0, 0.95);
-    border-color: rgba(255, 255, 255, 0.12);
+@keyframes lightBeamPulse {
+  0% {
+    opacity: 0.5;
+    transform: scale(0.98);
   }
   50% {
-    box-shadow: 0 0 35px rgba(56, 189, 248, 0.45), 0 0 60px rgba(168, 85, 247, 0.35), 0 15px 50px rgba(0, 0, 0, 0.95);
-    border-color: rgba(168, 85, 247, 0.45);
+    opacity: 1;
+    transform: scale(1.02);
+    box-shadow: 0 0 14px rgba(90, 200, 250, 0.4), 0 0 20px rgba(124, 108, 255, 0.25);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
   }
 }
 
-@keyframes heartbeatSubtle {
+@keyframes lightGlowSubtle {
   0%, 100% {
-    box-shadow: 0 0 10px rgba(168, 85, 247, 0.15), 0 8px 30px rgba(0, 0, 0, 0.9);
+    box-shadow: 0 0 6px rgba(90, 200, 250, 0.12);
   }
   50% {
-    box-shadow: 0 0 24px rgba(168, 85, 247, 0.3), 0 0 35px rgba(56, 189, 248, 0.2), 0 10px 40px rgba(0, 0, 0, 0.95);
+    box-shadow: 0 0 16px rgba(90, 200, 250, 0.28), 0 0 22px rgba(124, 108, 255, 0.18);
   }
+}
+
+.light-pulse {
+  animation: lightBeamPulse 250ms var(--ease-spring) forwards;
+}
+
+.ambient-light-glow {
+  animation: lightGlowSubtle 3s ease-in-out infinite;
 }
 
 @keyframes celebrationPulse {

@@ -95,4 +95,37 @@ Beacon
 1. **Keep Core Pure**: Never import Electron, DOM, or React libraries inside `packages/core` or `packages/database`.
 2. **Context Isolation**: Always keep `contextIsolation: true` and `nodeIntegration: false`. Expose only minimal, strictly typed methods in `apps/preload/`.
 3. **Automated Testing**: Any domain logic or repository changes must be accompanied by Vitest unit tests in `packages/core/` and `packages/database/`.
-4. **Design Tokens**: Adhere to Apple Human Interface Guidelines and dark glassmorphic styling tokens in `apps/renderer/src/styles/tokens.css`.
+4. **Design Tokens**: Adhere to Apple Human Interface Guidelines and dual theme tokens in `apps/renderer/src/styles/tokens.css`.
+
+---
+
+## Product Personality & Design Invariants ("A Quiet Layer of Motivation")
+
+1. **Brand Positioning**:
+   - Never position Beacon as a "habit tracker with a Dynamic Island."
+   - Position it as: *"A quiet layer of motivation that stays with you."* — *"Your goals, always in sight."*
+   - Personality: **Calm + Alive + Rewarding + Precise**. Never hyperactive, neon, gamey, or notification-heavy.
+
+2. **Visual Metaphor — Light, Not Fire**:
+   - Beacon owns **Light**, not fire.
+   - Use luminous rays (`✦`), beams, and subtle 200–250ms optical halos (`• ╱│╲ ╱ │ ╲`).
+   - Never use fire emojis, arcade XP, cartoon characters, or full-screen confetti.
+
+3. **Dual Appearance System**:
+   - **Atmospheric Dark**: `#0B0C10` app bg, `#12141A` surface, `#191C24` elevated, with restrained electric blue-violet (`#7C6CFF`) and soft cyan (`#5AC8FA`) accents.
+   - **Crystalline Light**: `#F5F6F8` app bg, `#FFFFFF` surface, `#ECEEF2` elevated, with matching semantic accents.
+
+4. **Trajectory & Consistency Over Punitive Streaks**:
+   - Prioritize **Trajectory** (Expected vs. Actual velocity), **Consistency** (30-day percentage e.g. 91%), and **Momentum** (+12% vs prior self).
+   - Missing one day must never cause emotional collapse.
+
+5. **Goal Paradigm Textures**:
+   - Visually adapt each card to its tracking model:
+     - **Habit**: 7-day dot sequence (`● ● ● ○ ● ○ ○`)
+     - **Weekly Scheduled**: Weekday pills (`M T W T F S S`)
+     - **Duration**: Focused time gauge (`2h 40m`)
+     - **Milestones**: Connected timeline chain (`●────●────○`)
+
+6. **Restrained Audio Ergonomics**:
+   - Audio feedback is **OFF by default** (`silent` mode) for normal interactions.
+   - Meaningful events (goal completion, focus sprint complete) use a single warm harmonic crystal chime resembling a soft lamp turning on. Never arcade beeps.

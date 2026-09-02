@@ -291,12 +291,55 @@ export class SQLiteGoalRepository implements IGoalRepository {
       totalFraction /= activeList.length;
     }
 
+    // 30-day Consistency and Momentum
+    const thirtyDaysAgo = new Date(Date.now() - 30 * 86400000).toISOString().split('T')[0];
+    const sixtyDaysAgo = new Date(Date.now() - 60 * 86400000).toISOString().split('T')[0];
+
+    const recentCheckIns = this.db
+      .prepare('SELECT state, date FROM goal_checkins WHERE date >= ?')
+      .all(thirtyDaysAgo) as { state: string; date: string }[];
+
+    const priorCheckIns = this.db
+      .prepare('SELECT state, date FROM goal_checkins WHERE date >= ? AND date < ?')
+      .all(sixtyDaysAgo, thirtyDaysAgo) as { state: string; date: string }[];
+
+    const recentCompleted = recentCheckIns.filter((c) => c.state === 'completed').length;
+    const consistencyPercentage =
+      recentCheckIns.length > 0 ? Math.round((recentCompleted / recentCheckIns.length) * 100) : 100;
+
+    const priorCompleted = priorCheckIns.filter((c) => c.state === 'completed').length;
+    const priorConsistency =
+      priorCheckIns.length > 0 ? Math.round((priorCompleted / priorCheckIns.length) * 100) : consistencyPercentage;
+
+    const momentumDeltaPercent = consistencyPercentage - priorConsistency;
+    const momentumScore = Math.min(100, Math.max(0, consistencyPercentage));
+
+    // Weekly commitments kept
+    const now = new Date();
+    const dayOfWeek = (now.getDay() + 6) % 7; // Monday = 0
+    const monday = new Date(now.getFullYear(), now.getMonth(), now.getDate() - dayOfWeek);
+    const mondayIso = monday.toISOString().split('T')[0];
+
+    const weekCheckIns = this.db
+      .prepare('SELECT state FROM goal_checkins WHERE date >= ?')
+      .all(mondayIso) as { state: string }[];
+
+    const weekCompleted = weekCheckIns.filter((c) => c.state === 'completed').length;
+    const commitmentsKept = {
+      completed: weekCompleted,
+      total: Math.max(activeGoals, weekCheckIns.length),
+    };
+
     return {
       totalGoals,
       activeGoals,
       completedGoals,
       overallProgressFraction: totalFraction,
       todayIncrementsCount,
+      consistencyPercentage,
+      momentumScore,
+      momentumDeltaPercent,
+      commitmentsKept,
     };
   }
 

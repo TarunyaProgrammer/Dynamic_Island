@@ -7,10 +7,11 @@ import { GoalEditorModal } from '../components/GoalEditorModal';
 import { ActivityTimeline } from '../components/ActivityTimeline';
 import { GoalProgressRing } from '../components/GoalProgressRing';
 import { BeaconLogo } from '../components/BeaconLogo';
-import { ConfettiCanvas, triggerConfetti } from '../components/ConfettiCanvas';
+import { ConfettiCanvas } from '../components/ConfettiCanvas';
+import { triggerLightPulse } from '../components/LightBeamFeedback';
 import { ConfirmationModal } from '../components/ConfirmationModal';
 import { soundEffects } from '../utils/audio';
-import { Plus, Undo2, Redo2, Layers, CheckCircle2, Archive, Activity, Timer, Search, X } from 'lucide-react';
+import { Plus, Undo2, Redo2, Layers, CheckCircle2, Archive, Activity, Timer, Search, X, Sun, Moon } from 'lucide-react';
 import { FocusDashboardView } from '../components/FocusDashboardView';
 
 export const MainAppView: React.FC = () => {
@@ -20,6 +21,21 @@ export const MainAppView: React.FC = () => {
   const [isEditorOpen, setIsEditorOpen] = useState(false);
   const [editingGoal, setEditingGoal] = useState<Goal | null>(null);
   const [goalToDelete, setGoalToDelete] = useState<Goal | null>(null);
+  const [theme, setTheme] = useState<'dark' | 'light'>(() => {
+    if (typeof window !== 'undefined') {
+      return (localStorage.getItem('beacon_theme') as 'dark' | 'light') || 'dark';
+    }
+    return 'dark';
+  });
+
+  useEffect(() => {
+    document.documentElement.setAttribute('data-theme', theme);
+    localStorage.setItem('beacon_theme', theme);
+  }, [theme]);
+
+  const toggleTheme = () => {
+    setTheme((prev) => (prev === 'dark' ? 'light' : 'dark'));
+  };
 
   const searchInputRef = useRef<HTMLInputElement>(null);
 
@@ -106,26 +122,26 @@ export const MainAppView: React.FC = () => {
       await updateGoal(editingGoal.id, payload);
     } else {
       soundEffects.playGoalFanfare();
-      triggerConfetti({ spread: 'micro', count: 50 });
+      triggerLightPulse();
       await createGoal(payload as GoalDraft);
     }
   };
 
   const handleIncrement = (goalId: string, delta?: number) => {
     soundEffects.playMilestonePop();
-    triggerConfetti({ spread: 'micro', count: 18 });
+    triggerLightPulse();
     incrementProgress(goalId, delta);
   };
 
   const handleToggleMilestone = (goalId: string, milestoneId: string) => {
     soundEffects.playMilestonePop();
-    triggerConfetti({ spread: 'micro', count: 24 });
+    triggerLightPulse();
     toggleMilestone(goalId, milestoneId);
   };
 
   const handleCompleteGoal = (goalId: string) => {
     soundEffects.playGoalFanfare();
-    triggerConfetti({ spread: 'full', count: 120 });
+    triggerLightPulse('var(--accent-emerald, #10b981)');
     completeGoal(goalId);
   };
 
@@ -151,7 +167,8 @@ export const MainAppView: React.FC = () => {
         flexDirection: 'column',
         height: '100vh',
         width: '100vw',
-        backgroundColor: '#000000',
+        backgroundColor: 'var(--bg-app)',
+        color: 'var(--text-primary)',
         position: 'relative',
         overflow: 'hidden',
       }}
@@ -167,7 +184,7 @@ export const MainAppView: React.FC = () => {
           justifyContent: 'space-between',
           padding: '0 18px 0 84px', // Offset for macOS traffic light buttons
           borderBottom: '1px solid var(--border-subtle)',
-          backgroundColor: '#0a0a0c',
+          backgroundColor: 'var(--bg-surface)',
           position: 'relative',
           zIndex: 2,
         }}
@@ -176,10 +193,10 @@ export const MainAppView: React.FC = () => {
         <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
             <BeaconLogo size={18} />
-            <span style={{ fontSize: '13px', fontWeight: 700, letterSpacing: '-0.2px', color: '#ffffff' }}>Beacon</span>
+            <span style={{ fontSize: '13px', fontWeight: 700, letterSpacing: '-0.2px', color: 'var(--text-primary)' }}>Beacon</span>
           </div>
 
-          <div className="no-drag" style={{ display: 'flex', gap: '3px', backgroundColor: 'rgba(255, 255, 255, 0.05)', padding: '2px', borderRadius: 'var(--radius-md)', border: '1px solid var(--border-subtle)' }}>
+          <div className="no-drag" style={{ display: 'flex', gap: '3px', backgroundColor: 'var(--bg-glass-active)', padding: '2px', borderRadius: 'var(--radius-md)', border: '1px solid var(--border-subtle)' }}>
             <button
               onClick={() => setViewMode('goals')}
               style={{
@@ -187,8 +204,8 @@ export const MainAppView: React.FC = () => {
                 borderRadius: 'var(--radius-sm)',
                 fontSize: '11px',
                 fontWeight: 600,
-                backgroundColor: viewMode === 'goals' ? '#ffffff' : 'transparent',
-                color: viewMode === 'goals' ? '#000000' : 'var(--text-secondary)',
+                backgroundColor: viewMode === 'goals' ? 'var(--btn-primary-bg)' : 'transparent',
+                color: viewMode === 'goals' ? 'var(--btn-primary-text)' : 'var(--text-secondary)',
                 border: 'none',
                 cursor: 'pointer',
                 display: 'flex',
@@ -209,8 +226,8 @@ export const MainAppView: React.FC = () => {
                 borderRadius: 'var(--radius-sm)',
                 fontSize: '11px',
                 fontWeight: 600,
-                backgroundColor: viewMode === 'focus' ? '#ffffff' : 'transparent',
-                color: viewMode === 'focus' ? '#000000' : 'var(--text-secondary)',
+                backgroundColor: viewMode === 'focus' ? 'var(--btn-primary-bg)' : 'transparent',
+                color: viewMode === 'focus' ? 'var(--btn-primary-text)' : 'var(--text-secondary)',
                 border: 'none',
                 cursor: 'pointer',
                 display: 'flex',
@@ -227,6 +244,14 @@ export const MainAppView: React.FC = () => {
         </div>
 
         <div className="no-drag" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+          <button
+            onClick={toggleTheme}
+            className="btn-ghost"
+            title={`Switch to ${theme === 'dark' ? 'Light' : 'Dark'} mode`}
+            style={{ padding: '6px', borderRadius: 'var(--radius-sm)' }}
+          >
+            {theme === 'dark' ? <Sun size={14} /> : <Moon size={14} />}
+          </button>
           <button onClick={() => undo()} className="btn-ghost" title="Undo (⌘Z)">
             <Undo2 size={14} />
           </button>
@@ -256,6 +281,61 @@ export const MainAppView: React.FC = () => {
             gap: '14px',
           }}
         >
+          {/* Personal State Greeting: Calm, Informative Life State */}
+          <div
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              padding: '12px 18px',
+              backgroundColor: 'var(--bg-glass)',
+              backdropFilter: 'blur(20px)',
+              borderRadius: 'var(--radius-lg)',
+              border: '1px solid var(--border-subtle)',
+              boxShadow: 'var(--shadow-sm)',
+            }}
+          >
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '3px' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <span style={{ fontSize: '14px', fontWeight: 600, color: 'var(--text-primary)', letterSpacing: '-0.2px' }}>
+                  {new Date().getHours() < 12 ? 'Good morning.' : new Date().getHours() < 18 ? 'Good afternoon.' : 'Good evening.'}
+                </span>
+                <span style={{ fontSize: '12px', color: 'var(--text-secondary)' }}>
+                  You've kept {stats?.commitmentsKept?.completed ?? 0} of {stats?.commitmentsKept?.total ?? Math.max(1, goals.length)} commitments this week.
+                </span>
+              </div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '10px', fontSize: '11px', color: 'var(--text-muted)' }}>
+                <span>{Math.round((stats?.overallProgressFraction ?? 0) * 100)}% completed today</span>
+                <span>•</span>
+                <span>Consistency {stats?.consistencyPercentage ?? 92}%</span>
+                {stats?.momentumDeltaPercent !== undefined && stats.momentumDeltaPercent !== 0 && (
+                  <>
+                    <span>•</span>
+                    <span style={{ color: stats.momentumDeltaPercent > 0 ? 'var(--accent-emerald)' : 'var(--accent-amber)', fontWeight: 500 }}>
+                      Momentum {stats.momentumScore ?? 84} {stats.momentumDeltaPercent > 0 ? `↑ +${stats.momentumDeltaPercent}%` : `↓ ${stats.momentumDeltaPercent}%`} vs last month
+                    </span>
+                  </>
+                )}
+              </div>
+            </div>
+
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <div style={{ width: '80px', height: '4px', backgroundColor: 'var(--accent-neutral)', borderRadius: '2px', overflow: 'hidden' }}>
+                <div
+                  style={{
+                    width: `${Math.min(100, Math.round((stats?.overallProgressFraction ?? 0) * 100))}%`,
+                    height: '100%',
+                    backgroundColor: 'var(--accent-beacon)',
+                    borderRadius: '2px',
+                    transition: 'width 0.3s ease',
+                  }}
+                />
+              </div>
+              <span style={{ fontSize: '11px', fontWeight: 700, color: 'var(--text-primary)', minWidth: '32px', textAlign: 'right' }}>
+                {Math.round((stats?.overallProgressFraction ?? 0) * 100)}%
+              </span>
+            </div>
+          </div>
           {/* Tabs & Search Bar */}
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '12px' }}>
             <div style={{ display: 'flex', gap: '4px', backgroundColor: 'rgba(255, 255, 255, 0.04)', padding: '3px', borderRadius: 'var(--radius-md)', border: '1px solid var(--border-subtle)' }}>
