@@ -146,7 +146,9 @@ export const DynamicIslandView: React.FC = () => {
           backdropFilter: isExpanded ? 'blur(32px) saturate(190%)' : 'none',
           WebkitBackdropFilter: isExpanded ? 'blur(32px) saturate(190%)' : 'none',
           position: 'relative',
-          border: isExpanded ? '1px solid rgba(255, 255, 255, 0.12)' : '1px solid transparent',
+          borderLeft: isExpanded ? '1px solid rgba(255, 255, 255, 0.12)' : 'none',
+          borderRight: isExpanded ? '1px solid rgba(255, 255, 255, 0.12)' : 'none',
+          borderBottom: isExpanded ? '1px solid rgba(255, 255, 255, 0.12)' : 'none',
           borderTop: 'none',
           borderRadius: isExpanded ? '0 0 22px 22px' : '0 0 12px 12px',
           boxShadow: isExpanded
