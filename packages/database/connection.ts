@@ -7,6 +7,31 @@ import { SCHEMA_SQL, MIGRATION_SQL, INDEXES_SQL } from './schema';
 export class DatabaseConnection {
   private static instance: Database.Database | null = null;
 
+  private static getDatabaseOptions(): Database.Options {
+    const isElectron = Boolean((process as any).versions?.electron);
+    try {
+      const rootDir = process.cwd();
+      const candidates = isElectron
+        ? [
+            path.join(rootDir, 'build/native/better_sqlite3_electron.node'),
+            path.join(rootDir, 'node_modules/better-sqlite3/build/Release/better_sqlite3_electron.node'),
+          ]
+        : [
+            path.join(rootDir, 'build/native/better_sqlite3_node.node'),
+            path.join(rootDir, 'node_modules/better-sqlite3/build/Release/better_sqlite3_node.node'),
+          ];
+
+      for (const candidate of candidates) {
+        if (fs.existsSync(candidate)) {
+          return { nativeBinding: candidate };
+        }
+      }
+    } catch {
+      // fallback to default bindings
+    }
+    return {};
+  }
+
   static getDatabase(dbPath?: string): Database.Database {
     if (!DatabaseConnection.instance) {
       const targetPath = dbPath || DatabaseConnection.getDefaultDbPath();
@@ -15,7 +40,7 @@ export class DatabaseConnection {
         fs.mkdirSync(dir, { recursive: true });
       }
 
-      const db = new Database(targetPath);
+      const db = new Database(targetPath, DatabaseConnection.getDatabaseOptions());
       db.pragma('journal_mode = WAL');
       db.pragma('foreign_keys = ON');
       db.pragma('synchronous = NORMAL');
@@ -35,7 +60,7 @@ export class DatabaseConnection {
   }
 
   static initializeInMemory(): Database.Database {
-    const db = new Database(':memory:');
+    const db = new Database(':memory:', DatabaseConnection.getDatabaseOptions());
     db.pragma('foreign_keys = ON');
     db.exec(SCHEMA_SQL);
     DatabaseConnection.runMigrations(db);

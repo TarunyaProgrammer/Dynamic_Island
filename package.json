@@ -10,7 +10,8 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "package": "npm run build && electron-builder",
-    "package:dir": "npm run build && electron-builder --dir"
+    "package:dir": "npm run build && electron-builder --dir",
+    "postinstall": "node scripts/ensure-better-sqlite3.js"
   },
   "keywords": [
     "macos",
