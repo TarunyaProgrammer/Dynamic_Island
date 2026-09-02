@@ -47,6 +47,7 @@
   "build": {
     "appId": "com.beacon.beacon",
     "productName": "Beacon",
+    "icon": "assets/Beacon.png",
     "directories": {
       "output": "release"
     },
@@ -56,6 +57,7 @@
       "node_modules/better-sqlite3/**/*"
     ],
     "mac": {
+      "icon": "assets/icon.icns",
       "target": [
         {
           "target": "dmg",

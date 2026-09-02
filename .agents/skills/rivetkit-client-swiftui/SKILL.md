@@ -1,380 +1,78 @@
 ---
-name: "rivetkit-client-swiftui"
-description: "RivetKit SwiftUI client guidance. Use for SwiftUI apps that connect to Rivet Actors with RivetKitSwiftUI, @Actor, rivetKit view modifiers, and SwiftUI bindings."
+name: sqlite-domain-persistence
+description: >
+  Use when designing, migrating, or querying Beacon's SQLite database layer — covering
+  better-sqlite3 synchronous operations, WAL mode, foreign key cascades, schema versioning,
+  idempotent DDL migrations, and repository abstractions.
 ---
 
-# RivetKit SwiftUI Client
+# Beacon — SQLite Domain Persistence & Migrations
 
-Use this skill when building SwiftUI apps that connect to Rivet Actors with `RivetKitSwiftUI`.
+Beacon uses a local-first, zero-cloud SQLite architecture powered by `better-sqlite3`.
+Data is stored locally at `~/Library/Application Support/Beacon/beacon.sqlite`.
 
-## Version
+---
 
-RivetKit version: 2.3.0-rc.5
+## Connection & Pragma Configuration
 
-## Error Handling Policy
-
-- Prefer fail-fast behavior by default.
-- Avoid broad `do/catch` unless absolutely needed.
-- If a catch block is used, handle the error explicitly, at minimum by logging it.
-
-## Install
-
-Add the Swift package dependency and import `RivetKitSwiftUI`:
-
-```swift
-// Package.swift
-dependencies: [
-    .package(url: "https://github.com/rivet-dev/rivetkit-swift", from: "2.0.0")
-]
-
-targets: [
-    .target(
-        name: "MyApp",
-        dependencies: [
-            .product(name: "RivetKitSwiftUI", package: "rivetkit-swift")
-        ]
-    )
-]
+```ts
+// packages/database/connection.ts
+const db = new Database(targetPath);
+db.pragma('journal_mode = WAL');       // Write-Ahead Logging for high concurrency
+db.pragma('foreign_keys = ON');         // Enforce CASCADE on delete
+db.pragma('synchronous = NORMAL');      // Fast, safe write flushing
 ```
 
-`RivetKitSwiftUI` re-exports `RivetKitClient` and `SwiftUI`, so a single import covers both.
+---
 
-## Minimal Client
+## Safe Three-Stage Initialization Pattern
 
-```swift HelloWorldApp.swift
-import RivetKitSwiftUI
-import SwiftUI
+To prevent errors when starting against existing v1 databases:
 
-@main
-struct HelloWorldApp: App {
-    var body: some Scene {
-        WindowGroup {
-            ContentView()
-                .rivetKit(endpoint: "https://my-namespace:pk_...@api.rivet.dev")
-        }
-    }
+1. **Stage 1 (Base Schema)**: Create base tables (`CREATE TABLE IF NOT EXISTS`).
+2. **Stage 2 (Additive Migrations)**: Run `ALTER TABLE ... ADD COLUMN` inside try/catch blocks (ignoring duplicate column errors).
+3. **Stage 3 (Index Creation)**: Create composite and unique indexes after all columns are guaranteed to exist.
+
+```ts
+// packages/database/connection.ts
+db.exec(SCHEMA_SQL);
+DatabaseConnection.runMigrations(db);
+DatabaseConnection.createIndexes(db);
+```
+
+---
+
+## Repository Design Pattern
+
+All database queries must be encapsulated inside Repository classes under `packages/database/repository/`.
+Domain services (`packages/core/services/`) interact only with repository interfaces (`IGoalRepository`), keeping domain rules decoupled from SQL syntax:
+
+```ts
+// packages/database/repository/goal-repository.ts
+export class SQLiteGoalRepository implements IGoalRepository {
+  constructor(private db: Database.Database) {}
+
+  getGoalById(id: string): Goal | null {
+    const row = this.db.prepare('SELECT * FROM goals WHERE id = ?').get(id);
+    if (!row) return null;
+    return this.mapRowToGoal(row);
+  }
+
+  saveGoal(goal: Goal): void {
+    const stmt = this.db.prepare(`
+      INSERT INTO goals (id, name, description, paradigm, type, current_value, target_value, unit, default_increment, area, priority, period, start_date, deadline, status, schedule_config, streak_config, created_at, updated_at)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    `);
+    stmt.run(/* values */);
+  }
 }
 ```
 
-```swift ContentView.swift
-import RivetKitSwiftUI
-import SwiftUI
+---
 
-struct ContentView: View {
-    @Actor("counter", key: ["my-counter"]) private var counter
-    @State private var count = 0
+## Common Pitfalls
 
-    var body: some View {
-        VStack(spacing: 16) {
-            Text("\(count)")
-                .font(.system(size: 64, weight: .bold, design: .rounded))
-
-            Button("Increment") {
-                counter.send("increment", 1)
-            }
-            .disabled(!counter.isConnected)
-        }
-        .task {
-            count = (try? await counter.action("getCount")) ?? 0
-        }
-        .onActorEvent(counter, "newCount") { (newCount: Int) in
-            count = newCount
-        }
-    }
-}
-```
-
-## Actor Options
-
-The `@Actor` property wrapper always uses get-or-create semantics and accepts:
-
-- `name` (required)
-- `key` as `String` or `[String]` (required)
-- `params` (optional connection parameters)
-- `createWithInput` (optional creation input)
-- `createInRegion` (optional creation hint)
-- `enabled` (toggle connection lifecycle)
-
-```swift
-import RivetKitSwiftUI
-import SwiftUI
-
-struct ConnParams: Encodable {
-    let authToken: String
-}
-
-struct ChatView: View {
-    @Actor(
-        "chatRoom",
-        key: ["general"],
-        params: ConnParams(authToken: "jwt-token"),
-        enabled: true
-    ) private var chat
-
-    var body: some View {
-        Text("Chat: \(chat.connStatus.rawValue)")
-    }
-}
-```
-
-## Actions
-
-```swift
-import RivetKitSwiftUI
-import SwiftUI
-
-struct CounterView: View {
-    @Actor("counter", key: ["my-counter"]) private var counter
-    @State private var count = 0
-    @State private var name = ""
-
-    var body: some View {
-        VStack {
-            Text("Count: \(count)")
-            Text("Name: \(name)")
-
-            Button("Fetch") {
-                Task {
-                    count = try await counter.action("getCount")
-                    name = try await counter.action("rename", "new-name")
-                }
-            }
-
-            Button("Increment") {
-                counter.send("increment", 1)
-            }
-        }
-    }
-}
-```
-
-## Subscribing to Events
-
-```swift
-import RivetKitSwiftUI
-import SwiftUI
-
-struct GameView: View {
-    @Actor("game", key: ["game-1"]) private var game
-    @State private var count = 0
-    @State private var isGameOver = false
-
-    var body: some View {
-        VStack {
-            Text("Count: \(count)")
-            if isGameOver {
-                Text("Game Over!")
-            }
-        }
-        .onActorEvent(game, "newCount") { (newCount: Int) in
-            count = newCount
-        }
-        .onActorEvent(game, "gameOver") {
-            isGameOver = true
-        }
-    }
-}
-```
-
-## Async Event Streams
-
-```swift
-import RivetKitSwiftUI
-import SwiftUI
-
-struct ChatView: View {
-    @Actor("chatRoom", key: ["general"]) private var chat
-    @State private var messages: [String] = []
-
-    var body: some View {
-        List(messages, id: \.self) { message in
-            Text(message)
-        }
-        .task {
-            for await message in chat.events("message", as: String.self) {
-                messages.append(message)
-            }
-        }
-    }
-}
-```
-
-## Connection Status
-
-```swift
-import RivetKitSwiftUI
-import SwiftUI
-
-struct StatusView: View {
-    @Actor("counter", key: ["my-counter"]) private var counter
-    @State private var count = 0
-
-    var body: some View {
-        VStack {
-            Text("Status: \(counter.connStatus.rawValue)")
-
-            if counter.connStatus == .connected {
-                Text("Connected!")
-                    .foregroundStyle(.green)
-            }
-
-            Button("Fetch via Handle") {
-                Task {
-                    if let handle = counter.handle {
-                        count = try await handle.action("getCount", as: Int.self)
-                    }
-                }
-            }
-            .disabled(!counter.isConnected)
-        }
-    }
-}
-```
-
-## Error Handling
-
-```swift
-import RivetKitSwiftUI
-import SwiftUI
-
-struct UserView: View {
-    @Actor("user", key: ["user-123"]) private var user
-    @State private var errorMessage: String?
-    @State private var username = ""
-
-    var body: some View {
-        VStack {
-            TextField("Username", text: $username)
-
-            Button("Update Username") {
-                Task {
-                    do {
-                        let _: String = try await user.action("updateUsername", username)
-                    } catch let error as ActorError {
-                        errorMessage = "\(error.code): \(String(describing: error.metadata))"
-                    }
-                }
-            }
-
-            if let errorMessage {
-                Text(errorMessage)
-                    .foregroundStyle(.red)
-            }
-        }
-        .onActorError(user) { error in
-            errorMessage = "\(error.group).\(error.code): \(error.message)"
-        }
-    }
-}
-```
-
-## Concepts
-
-### Keys
-
-Keys uniquely identify actor instances. Use compound keys (arrays) for hierarchical addressing:
-
-```swift
-import RivetKitSwiftUI
-import SwiftUI
-
-struct OrgChatView: View {
-    @Actor("chatRoom", key: ["org-acme", "general"]) private var room
-
-    var body: some View {
-        Text("Room: \(room.connStatus.rawValue)")
-    }
-}
-```
-
-Don't build keys with string interpolation like `"org:\(userId)"` when `userId` contains user data. Use arrays instead to prevent key injection attacks.
-
-### Environment Configuration
-
-Call `.rivetKit(endpoint:)` or `.rivetKit(client:)` once at the root of your view tree:
-
-```swift
-// With endpoint string (recommended for most apps)
-@main
-struct MyApp: App {
-    var body: some Scene {
-        WindowGroup {
-            ContentView()
-                .rivetKit(endpoint: "https://my-namespace:pk_...@api.rivet.dev")
-        }
-    }
-}
-
-// With custom client (for advanced configuration)
-@main
-struct MyApp: App {
-    private let client = RivetKitClient(
-        config: try! ClientConfig(endpoint: "https://api.rivet.dev", token: "pk_...")
-    )
-
-    var body: some Scene {
-        WindowGroup {
-            ContentView()
-                .rivetKit(client: client)
-        }
-    }
-}
-```
-
-When using `.rivetKit(endpoint:)`, the client is created once and cached per endpoint. When using `.rivetKit(client:)`, store the client as a property on `App` (not inside `body`) since SwiftUI can call `body` multiple times.
-
-### Environment Variables
-
-`ClientConfig` reads optional values from environment variables:
-
-- `RIVET_NAMESPACE` - Namespace (can also be in endpoint URL)
-- `RIVET_TOKEN` - Authentication token (can also be in endpoint URL)
-- `RIVET_RUNNER` - Runner name (defaults to `"default"`)
-
-The endpoint is always required. There is no default endpoint.
-
-### Endpoint Format
-
-Endpoints support URL auth syntax:
-
-```
-https://namespace:token@api.rivet.dev
-```
-
-You can also pass the endpoint without auth and provide `RIVET_NAMESPACE` and `RIVET_TOKEN` separately. For serverless deployments, set the endpoint to your app's `/api/rivet` URL. See [Endpoints](/docs/general/endpoints#url-auth-syntax) for details.
-
-## API Reference
-
-### Property Wrapper
-- `@Actor(name, key:, params:, createWithInput:, createInRegion:, enabled:)` - SwiftUI property wrapper for actor connections
-
-### View Modifiers
-- `.rivetKit(endpoint:)` - Configure client with an endpoint URL (creates cached client)
-- `.rivetKit(client:)` - Configure client with a custom instance
-- `.onActorEvent(actor, event) { ... }` - Subscribe to actor events (supports 0–5 typed args)
-- `.onActorError(actor) { error in ... }` - Handle actor errors
-
-### ActorObservable
-- `actor.action(name, args..., as:)` - Async action call
-- `actor.send(name, args...)` - Fire-and-forget action
-- `actor.events(name, as:)` - AsyncStream of typed events
-- `actor.connStatus` - Current connection status
-- `actor.isConnected` - Whether connected
-- `actor.handle` - Underlying `ActorHandle` (optional)
-- `actor.connection` - Underlying `ActorConnection` (optional)
-- `actor.error` - Most recent error (optional)
-
-### Types
-- `ActorConnStatus` - Connection status enum (`.idle`, `.connecting`, `.connected`, `.disconnected`, `.disposed`)
-- `ActorError` - Typed actor errors with `group`, `code`, `message`, `metadata`
-
-## Need More Than the Client?
-
-If you need more about Rivet Actors, registries, or server-side RivetKit, add the main skill:
-
-```bash
-npx skills add rivet-dev/skills
-```
-
-Then use the `rivetkit` skill for backend guidance.
-
+1. **Never construct raw SQL strings with string concatenation**:
+   - Always use prepared statements (`db.prepare('... WHERE id = ?').run(id)`) to prevent SQL injection and ensure bytecode caching.
+2. **Handle JSON Serialization**:
+   - Complex configs (`schedule_config`, `streak_config`) must be safely stringified to JSON on write and parsed defensively on read with fallbacks.

@@ -1,44 +1,50 @@
-# Widget Preset System Skill
+---
+name: beacon-multi-paradigm-engine
+description: >
+  Use when creating, evaluating, or extending goal types, schedules, streaks, and health metrics
+  in Beacon — covering the 6 goal paradigms (Habit, Accumulative, Deadline, Milestone,
+  Duration, Avoidance), StreakEngine, and HealthCalculator.
+---
 
-## 絶対的ルール
+# Beacon — Multi-Paradigm Goal Engine
 
-Beacon の展開ビューのタブは「プリセット（レイアウト設定）の切り替え」であり、
-「機能の切り替え」ではない。
+Beacon separates Goal Definition from Tracking Method, Schedule, Progress Rules, Streaks, and Health.
+This skill documents how domain models in `packages/core/` evaluate and calculate progress across paradigms.
 
-## 新機能を追加するとき
+---
 
-1. `BeaconWidget` プロトコルを実装した `nonisolated struct` として機能を実装
-2. `AppDelegate.applicationDidFinishLaunching` で `appState.widgetRegistry.register(MyWidget())` を呼ぶ
-3. 新しいタブや `IslandPreset` case は **絶対に追加しない**
+## The 6 Goal Paradigms
 
-## ExpandedIslandView のパターン
+| Paradigm | Tracking Method | Schedule / Frequency | Completion / Health Criteria |
+|---|---|---|---|
+| **`habit`** | Check-in / Session count | Daily, Weekly (e.g. 5x/wk), Rest Days | Sessions logged vs required in current period |
+| **`accumulative`** | Numeric counter / units | Ongoing / Total | `currentValue / targetValue` percentage |
+| **`deadline`** | Target date + value | Due by timestamp | Target velocity vs actual pace (`ahead / on_track / at_risk / behind`) |
+| **`milestone`** | Ordered check-items | Sequential or weighted tasks | % of weighted milestones completed |
+| **`duration`** | Minutes / Hours focus | Daily/weekly time quota | Accumulated active focus minutes |
+| **`avoidance`** | Abstinence count | Daily sobriety/break streak | Continuous days without relapse check-in |
 
-```swift
-// 正しい: 動的レンダリング
-ForEach(appState.presetStore.activePreset?.widgets ?? []) { placement in
-    if let w = appState.widgetRegistry.widget(forId: placement.widgetId) {
-        w.body(size: placement.size)
-    }
-}
+---
 
-// 絶対にやってはいけない
-switch appState.activePreset {
-case .music: MusicView()
-case .ai: AIView()
-}
-```
+## Core Domain Services
 
-## AppState の正しい状態
+### 1. HabitEvaluator (`packages/core/services/habit-evaluator.ts`)
+- Calculates period boundaries (start and end of current week/day).
+- Determines if today is a scheduled rest day (`targetDaysPerWeek < 7`).
+- Generates 7-day dot grids for UI visualization.
 
-```swift
-// 正しい
-let presetStore = PresetStore()
-let widgetRegistry = WidgetRegistry()
+### 2. StreakEngine (`packages/core/services/streak-engine.ts`)
+- Evaluates streaks across `daily`, `scheduled`, and `period_threshold` modes.
+- Prevents breaking weekly streaks on planned rest days.
+- Preserves `bestStreak` records across resets.
 
-// 間違い（削除済み）
-var activePreset: IslandPreset = .music
-```
+### 3. HealthCalculator (`packages/core/services/health-calculator.ts`)
+- For deadlines: computes expected velocity based on elapsed time vs total time.
+- Returns enum: `'on_track' | 'ahead' | 'at_risk' | 'behind' | 'completed' | 'paused'`.
 
-## 設計仕様書
+---
 
-`docs/superpowers/specs/widget-preset-system-design.md` を参照。
+## Invariants
+
+1. **Pure Functions**: Evaluators and Calculators are pure, deterministic functions without side effects.
+2. **Immutable History**: Progress events and check-ins are append-only time series records.

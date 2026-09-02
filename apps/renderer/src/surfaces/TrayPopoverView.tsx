@@ -4,12 +4,23 @@ import { useGoals } from '../hooks/useGoals';
 import { GoalProgressRing } from '../components/GoalProgressRing';
 import { QuickIncrementButton } from '../components/QuickIncrementButton';
 import { GoalEditorModal } from '../components/GoalEditorModal';
-import { Plus, ExternalLink, Compass, CheckCircle2 } from 'lucide-react';
+import { BeaconLogo } from '../components/BeaconLogo';
+import { Plus, ExternalLink, CheckCircle2 } from 'lucide-react';
 import { GoalDraft, GoalUpdateDraft } from '@shared/types';
 
 export const TrayPopoverView: React.FC = () => {
   const { goals, stats, incrementProgress, toggleMilestone, createGoal, completeGoal } = useGoals('active');
   const [isEditorOpen, setIsEditorOpen] = useState(false);
+
+  React.useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape' && !isEditorOpen) {
+        window.beacon.windows.hidePopover();
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [isEditorOpen]);
 
   const handleOpenMain = () => {
     window.beacon.windows.toggleMain();
@@ -49,7 +60,7 @@ export const TrayPopoverView: React.FC = () => {
         }}
       >
         <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-          <Compass size={15} color="#ffffff" />
+          <BeaconLogo size={16} />
           <span style={{ fontSize: '12px', fontWeight: 700, color: '#ffffff' }}>Beacon Hub</span>
         </div>
 

@@ -1,10 +1,25 @@
 // packages/core/services/goal-service.ts - Central Domain Mutation Engine
 import { IGoalRepository } from '@database/repository/goal-repository';
-import { BeaconStats, Goal, GoalDraft, GoalStatus, GoalUpdateDraft, Milestone, ProgressEvent } from '@shared/types';
+import {
+  BeaconStats,
+  CheckIn,
+  CheckInState,
+  Goal,
+  GoalDraft,
+  GoalStatus,
+  GoalUpdateDraft,
+  Milestone,
+  ProgressEvent,
+  SkipReason,
+  StreakConfig,
+} from '@shared/types';
 import { GoalEntity } from '../models/goal';
 import { MilestoneEntity } from '../models/milestone';
 import { ProgressEventEntity } from '../models/progress-event';
 import { UndoManager } from '../history/undo-manager';
+import { StreakEngine } from './streak-engine';
+import { HealthCalculator } from './health-calculator';
+import { randomUUID } from 'crypto';
 
 export class GoalService {
   private undoManager: UndoManager;
@@ -33,11 +48,17 @@ export class GoalService {
   }
 
   listGoals(status?: GoalStatus): Goal[] {
-    return this.repository.getAllGoals(status);
+    const goals = this.repository.getAllGoals(status);
+    return goals.map((g) => ({
+      ...g,
+      health: HealthCalculator.compute(g, g.recentCheckIns ?? []),
+    }));
   }
 
   getGoal(id: string): Goal | null {
-    return this.repository.getGoalById(id);
+    const g = this.repository.getGoalById(id);
+    if (!g) return null;
+    return { ...g, health: HealthCalculator.compute(g, g.recentCheckIns ?? []) };
   }
 
   createGoal(draft: GoalDraft): Goal {
@@ -61,15 +82,21 @@ export class GoalService {
       ...existing,
       name: update.name !== undefined ? update.name.trim() : existing.name,
       description: update.description !== undefined ? update.description.trim() : existing.description,
+      paradigm: update.paradigm !== undefined ? update.paradigm : existing.paradigm,
       type: update.type !== undefined ? update.type : existing.type,
       targetValue: update.targetValue !== undefined ? Math.max(0, update.targetValue) : existing.targetValue,
       currentValue: update.currentValue !== undefined ? Math.max(0, update.currentValue) : existing.currentValue,
       unit: update.unit !== undefined ? update.unit.trim() : existing.unit,
       defaultIncrement: update.defaultIncrement !== undefined ? Math.max(0.1, update.defaultIncrement) : existing.defaultIncrement,
+      area: update.area !== undefined ? update.area : (update.category !== undefined ? update.category : existing.area),
+      priority: update.priority !== undefined ? update.priority : existing.priority,
+      period: update.period !== undefined ? update.period : existing.period,
+      scheduleConfig: update.scheduleConfig !== undefined ? update.scheduleConfig : existing.scheduleConfig,
+      streakConfig: update.streakConfig !== undefined ? { ...existing.streakConfig, ...update.streakConfig } as any : existing.streakConfig,
       startDate: update.startDate !== undefined ? update.startDate : existing.startDate,
       deadline: update.deadline !== undefined ? update.deadline : existing.deadline,
+      pausedUntil: update.pausedUntil !== undefined ? update.pausedUntil : existing.pausedUntil,
       status: update.status !== undefined ? update.status : existing.status,
-      category: update.category !== undefined ? update.category.trim() : existing.category,
       updatedAt: new Date().toISOString(),
     };
 
@@ -223,6 +250,81 @@ export class GoalService {
     if (!updated) throw new Error(`Goal not found: ${goalId}`);
     this.notify();
     return updated;
+  }
+
+  // ─── v2: Check-In API ───────────────────────────────────────────────────
+
+  /**
+   * Record a daily check-in for a habit/duration/avoidance goal.
+   * Automatically recalculates and persists streak after each check-in.
+   */
+  checkIn(
+    goalId: string,
+    state: CheckInState,
+    value = 1,
+    options: { skipReason?: SkipReason; note?: string; date?: string } = {}
+  ): { goal: Goal; checkIn: CheckIn } {
+    const goal = this.repository.getGoalById(goalId);
+    if (!goal) throw new Error(`Goal not found: ${goalId}`);
+
+    const today = options.date ?? new Date().toISOString().split('T')[0];
+    const checkIn: CheckIn = {
+      id: randomUUID(),
+      goalId,
+      date: today,
+      state,
+      value,
+      skipReason: options.skipReason,
+      note: options.note,
+      timestamp: new Date().toISOString(),
+    };
+
+    this.repository.saveCheckIn(checkIn);
+
+    // Recalculate streak
+    if (goal.streakConfig?.enabled) {
+      const allCheckIns = this.repository.getCheckIns(goalId);
+      const result = StreakEngine.calculate(
+        allCheckIns,
+        goal.streakConfig.type,
+        goal.period,
+        goal.scheduleConfig ?? {}
+      );
+      const newStreakConfig: StreakConfig = StreakEngine.mergeConfig(goal.streakConfig, result);
+
+      // For accumulative-style duration goals, update currentValue too
+      let currentValue = goal.currentValue;
+      if ((goal.paradigm === 'duration' || goal.paradigm === 'habit') && state === 'completed') {
+        currentValue += value;
+      }
+
+      const updatedGoal: Goal = {
+        ...goal,
+        currentValue,
+        streakConfig: newStreakConfig,
+        updatedAt: new Date().toISOString(),
+      };
+      this.repository.saveGoal(updatedGoal);
+      this.notify();
+      return { goal: updatedGoal, checkIn };
+    }
+
+    this.notify();
+    return { goal, checkIn };
+  }
+
+  getCheckIns(goalId: string, since?: string): CheckIn[] {
+    return this.repository.getCheckIns(goalId, since);
+  }
+
+  // ─── v2: Pause / Resume ─────────────────────────────────────────────────
+
+  pauseGoal(goalId: string, pausedUntil?: string): Goal {
+    return this.updateGoal(goalId, { status: 'paused', pausedUntil });
+  }
+
+  resumeGoal(goalId: string): Goal {
+    return this.updateGoal(goalId, { status: 'active', pausedUntil: undefined });
   }
 
   getHistory(goalId?: string, limit = 50): ProgressEvent[] {

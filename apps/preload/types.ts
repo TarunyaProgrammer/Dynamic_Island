@@ -81,6 +81,7 @@ export interface BeaconApi {
   onSettingsChanged: (callback: (settings: AppSettings) => void) => () => void;
   onActivitiesChanged: (callback: (stack: import('@shared/types').LiveActivity[]) => void) => () => void;
   onFocusTick: (callback: (state: import('@shared/types').FocusSessionState) => void) => () => void;
+  onFocusCompleted: (callback: (event: import('@shared/types').FocusCompletedEvent) => void) => () => void;
   onMediaChanged: (callback: (state: import('@shared/types').MediaActivityState) => void) => () => void;
 }
 

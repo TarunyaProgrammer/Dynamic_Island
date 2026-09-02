@@ -14,11 +14,12 @@ export class MainWindowController {
     }
 
     this.window = new BrowserWindow({
-      width: 960,
-      height: 680,
-      minWidth: 720,
-      minHeight: 520,
+      width: 1040,
+      height: 720,
+      minWidth: 880,
+      minHeight: 620,
       title: 'Beacon',
+      icon: path.join(app.getAppPath(), 'assets/Beacon.png'),
       titleBarStyle: 'hiddenInset',
       vibrancy: 'under-window',
       visualEffectState: 'active',
@@ -39,6 +40,14 @@ export class MainWindowController {
         query: { surface: 'main' },
       });
     }
+
+    // On macOS, closing the window hides it instead of destroying it
+    this.window.on('close', (e) => {
+      if (process.platform === 'darwin' && !(app as any).isQuitting) {
+        e.preventDefault();
+        this.window?.hide();
+      }
+    });
 
     this.window.once('ready-to-show', () => {
       this.window?.show();

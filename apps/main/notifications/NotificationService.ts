@@ -21,4 +21,16 @@ export class NotificationService {
       }).show();
     }
   }
+
+  static notifyFocusCompleted(goalName?: string, durationMinutes = 25): void {
+    if (Notification.isSupported()) {
+      new Notification({
+        title: 'Focus Sprint Complete! 🎉',
+        body: goalName
+          ? `Finished ${durationMinutes}m sprint for "${goalName}". Great work!`
+          : `Finished ${durationMinutes}m focus sprint! Time for a short break.`,
+        silent: false,
+      }).show();
+    }
+  }
 }

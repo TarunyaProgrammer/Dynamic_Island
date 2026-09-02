@@ -1,5 +1,5 @@
 // apps/main/index.ts - Electron Main Process Entrypoint
-import { app, BrowserWindow, session, powerMonitor } from 'electron';
+import { app, session, powerMonitor, nativeImage } from 'electron';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import { DatabaseConnection } from '@database/connection';
@@ -18,16 +18,18 @@ import { registerIpcHandlers } from './ipc/goalHandlers';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-// Check single instance lock
-const gotTheLock = app.requestSingleInstanceLock();
-if (!gotTheLock) {
-  app.quit();
-}
-
 // Development server URL or packaged paths
 const isDev = process.env.NODE_ENV !== 'production' && !app.isPackaged;
 const RENDERER_URL = process.env.VITE_DEV_SERVER_URL;
 const PRELOAD_PATH = path.join(__dirname, '../preload/index.js');
+
+// Enforce single instance in production, allow hot-reloading in dev
+if (!isDev) {
+  const gotTheLock = app.requestSingleInstanceLock();
+  if (!gotTheLock) {
+    app.quit();
+  }
+}
 
 class BeaconApp {
   private db = DatabaseConnection.getDatabase();
@@ -75,17 +77,19 @@ class BeaconApp {
     // Initialize Tray
     this.trayController.initialize();
 
-    // Register global shortcuts
+    // Register global shortcuts (⌘⇧B)
     const settings = this.settingsRepository.getSettings();
     this.shortcutManager.register(settings.globalShortcut);
 
     // Initialize Dynamic Island overlay
     this.islandWindow.createOrShow(PRELOAD_PATH, RENDERER_URL);
 
-    // Show main window initially in dev, or keep glanceable in background
-    if (isDev) {
-      this.mainWindow.createOrShow(PRELOAD_PATH, RENDERER_URL);
-    }
+    // Open Main Window
+    this.mainWindow.createOrShow(PRELOAD_PATH, RENDERER_URL);
+  }
+
+  showMainWindow(): void {
+    this.mainWindow.createOrShow(PRELOAD_PATH, RENDERER_URL);
   }
 
   cleanup(): void {
@@ -95,6 +99,14 @@ class BeaconApp {
 }
 
 let beaconApp: BeaconApp | null = null;
+
+app.on('before-quit', () => {
+  (app as any).isQuitting = true;
+});
+
+app.on('second-instance', () => {
+  beaconApp?.showMainWindow();
+});
 
 app.whenReady().then(async () => {
   // Security: Deny all unsolicited web permission requests (mic, camera, geolocation)
@@ -113,6 +125,22 @@ app.whenReady().then(async () => {
 
   // Dock icon visibility on macOS
   if (process.platform === 'darwin' && app.dock) {
+    try {
+      const candidatePaths = [
+        path.join(app.getAppPath(), 'assets/Beacon.png'),
+        path.join(__dirname, '../../assets/Beacon.png'),
+        path.resolve(process.cwd(), 'assets/Beacon.png'),
+      ];
+      for (const p of candidatePaths) {
+        const icon = nativeImage.createFromPath(p);
+        if (!icon.isEmpty()) {
+          app.dock.setIcon(icon);
+          break;
+        }
+      }
+    } catch {
+      // Graceful fallback if asset path isn't resolved
+    }
     app.dock.show();
   }
 
@@ -120,9 +148,7 @@ app.whenReady().then(async () => {
   await beaconApp.start();
 
   app.on('activate', () => {
-    if (BrowserWindow.getAllWindows().length === 0) {
-      beaconApp?.start();
-    }
+    beaconApp?.showMainWindow();
   });
 });
 

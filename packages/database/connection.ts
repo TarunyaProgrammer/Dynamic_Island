@@ -2,7 +2,7 @@
 import Database from 'better-sqlite3';
 import path from 'path';
 import fs from 'fs';
-import { SCHEMA_SQL } from './schema';
+import { SCHEMA_SQL, MIGRATION_SQL, INDEXES_SQL } from './schema';
 
 export class DatabaseConnection {
   private static instance: Database.Database | null = null;
@@ -20,8 +20,14 @@ export class DatabaseConnection {
       db.pragma('foreign_keys = ON');
       db.pragma('synchronous = NORMAL');
 
-      // Initialize schema
+      // Initialize base schema (CREATE TABLE IF NOT EXISTS — idempotent)
       db.exec(SCHEMA_SQL);
+
+      // Run additive ALTER TABLE migrations — ignore "duplicate column" on re-run
+      DatabaseConnection.runMigrations(db);
+
+      // Create indexes after columns are guaranteed to exist
+      DatabaseConnection.createIndexes(db);
 
       DatabaseConnection.instance = db;
     }
@@ -32,6 +38,8 @@ export class DatabaseConnection {
     const db = new Database(':memory:');
     db.pragma('foreign_keys = ON');
     db.exec(SCHEMA_SQL);
+    DatabaseConnection.runMigrations(db);
+    DatabaseConnection.createIndexes(db);
     DatabaseConnection.instance = db;
     return db;
   }
@@ -40,6 +48,26 @@ export class DatabaseConnection {
     if (DatabaseConnection.instance) {
       DatabaseConnection.instance.close();
       DatabaseConnection.instance = null;
+    }
+  }
+
+  private static runMigrations(db: Database.Database): void {
+    for (const sql of MIGRATION_SQL) {
+      try {
+        db.exec(sql);
+      } catch {
+        // "duplicate column name" — already migrated, safe to ignore
+      }
+    }
+  }
+
+  private static createIndexes(db: Database.Database): void {
+    for (const sql of INDEXES_SQL) {
+      try {
+        db.exec(sql);
+      } catch (err) {
+        console.warn('Index creation notice:', err);
+      }
     }
   }
 

@@ -109,6 +109,14 @@ const api: BeaconApi = {
     };
   },
 
+  onFocusCompleted: (callback: (event: any) => void) => {
+    const handler = (_: any, event: any) => callback(event);
+    ipcRenderer.on(IPC_CHANNELS.EVENT_FOCUS_COMPLETED, handler);
+    return () => {
+      ipcRenderer.removeListener(IPC_CHANNELS.EVENT_FOCUS_COMPLETED, handler);
+    };
+  },
+
   onMediaChanged: (callback: (state: any) => void) => {
     const handler = (_: any, state: any) => callback(state);
     ipcRenderer.on(IPC_CHANNELS.EVENT_MEDIA_CHANGED, handler);

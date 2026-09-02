@@ -2,6 +2,8 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Goal, GoalDraft, GoalType, GoalUpdateDraft } from '@shared/types';
 import { X, Target, Calendar } from 'lucide-react';
+import { ConfirmationModal } from './ConfirmationModal';
+import { useDesktopOverlay } from '../hooks/useDesktopOverlay';
 
 interface GoalEditorModalProps {
   goal?: Goal | null;
@@ -17,7 +19,7 @@ export const GoalEditorModal: React.FC<GoalEditorModalProps> = ({
   onSave,
 }) => {
   const [name, setName] = useState('');
-  const [category, setCategory] = useState('');
+  const [area, setArea] = useState('Personal');
   const [type, setType] = useState<GoalType>('numeric');
   const [targetValue, setTargetValue] = useState<string>('100');
   const [currentValue, setCurrentValue] = useState<string>('0');
@@ -27,25 +29,40 @@ export const GoalEditorModal: React.FC<GoalEditorModalProps> = ({
 
   const [isCalendarOpen, setIsCalendarOpen] = useState(false);
   const [calendarViewDate, setCalendarViewDate] = useState<Date>(() => new Date());
+  const [showDiscardConfirm, setShowDiscardConfirm] = useState(false);
+
+  const modalRef = useRef<HTMLDivElement>(null);
+  const nameInputRef = useRef<HTMLInputElement>(null);
   const calendarRef = useRef<HTMLDivElement>(null);
+
+  // Track initial state to detect unsaved changes
+  const initialDataRef = useRef({ name: '', targetValue: '100', currentValue: '0', unit: '', deadline: '' });
 
   useEffect(() => {
     if (goal) {
-      setName(goal.name);
-      setCategory(goal.category || '');
-      setType(goal.type);
-      setTargetValue(goal.targetValue.toString());
-      setCurrentValue(goal.currentValue.toString());
-      setUnit(goal.unit || '');
-      setDefaultIncrement((goal.defaultIncrement || 1).toString());
+      const gName = goal.name;
+      const gArea = goal.area || 'Personal';
+      const gType = goal.type;
+      const gTarget = goal.targetValue.toString();
+      const gCurrent = goal.currentValue.toString();
+      const gUnit = goal.unit || '';
+      const gInc = (goal.defaultIncrement || 1).toString();
       const dead = goal.deadline ? goal.deadline.split('T')[0] : '';
+
+      setName(gName);
+      setArea(gArea);
+      setType(gType);
+      setTargetValue(gTarget);
+      setCurrentValue(gCurrent);
+      setUnit(gUnit);
+      setDefaultIncrement(gInc);
       setDeadline(dead);
-      if (dead) {
-        setCalendarViewDate(new Date(dead));
-      }
+      if (dead) setCalendarViewDate(new Date(dead));
+
+      initialDataRef.current = { name: gName, targetValue: gTarget, currentValue: gCurrent, unit: gUnit, deadline: dead };
     } else {
       setName('');
-      setCategory('');
+      setArea('Personal');
       setType('numeric');
       setTargetValue('100');
       setCurrentValue('0');
@@ -53,19 +70,47 @@ export const GoalEditorModal: React.FC<GoalEditorModalProps> = ({
       setDefaultIncrement('1');
       setDeadline('');
       setCalendarViewDate(new Date());
+
+      initialDataRef.current = { name: '', targetValue: '100', currentValue: '0', unit: '', deadline: '' };
     }
+    setShowDiscardConfirm(false);
   }, [goal, isOpen]);
 
-  // Close calendar popover on outside click
+  const isDirty = () => {
+    return (
+      name !== initialDataRef.current.name ||
+      targetValue !== initialDataRef.current.targetValue ||
+      currentValue !== initialDataRef.current.currentValue ||
+      unit !== initialDataRef.current.unit ||
+      deadline !== initialDataRef.current.deadline
+    );
+  };
+
+  const handleAttemptClose = () => {
+    if (isDirty() && name.trim().length > 0) {
+      setShowDiscardConfirm(true);
+    } else {
+      onClose();
+    }
+  };
+
+  useDesktopOverlay({
+    isOpen,
+    onClose: handleAttemptClose,
+    containerRef: modalRef,
+    autoFocusRef: nameInputRef,
+    hasNestedOverlay: isCalendarOpen || showDiscardConfirm,
+  });
+
+  // Calendar popover click outside
   useEffect(() => {
+    if (!isCalendarOpen) return;
     const handleClickOutside = (e: MouseEvent) => {
       if (calendarRef.current && !calendarRef.current.contains(e.target as Node)) {
         setIsCalendarOpen(false);
       }
     };
-    if (isCalendarOpen) {
-      document.addEventListener('mousedown', handleClickOutside);
-    }
+    document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, [isCalendarOpen]);
 
@@ -78,7 +123,7 @@ export const GoalEditorModal: React.FC<GoalEditorModalProps> = ({
     onSave({
       name: name.trim(),
       type,
-      category: category.trim() || undefined,
+      area: area || 'Personal',
       currentValue: parseFloat(currentValue) || 0,
       targetValue: parseFloat(targetValue) || 1,
       unit: unit.trim() || undefined,
@@ -153,6 +198,7 @@ export const GoalEditorModal: React.FC<GoalEditorModalProps> = ({
       }}
     >
       <div
+        ref={modalRef}
         className="glass-panel"
         style={{
           width: '100%',
@@ -175,7 +221,7 @@ export const GoalEditorModal: React.FC<GoalEditorModalProps> = ({
             <Target size={18} color="#ffffff" />
             <h3 style={{ fontSize: '15px', fontWeight: 700, color: '#ffffff' }}>{goal ? 'Edit Goal' : 'Create New Goal'}</h3>
           </div>
-          <button onClick={onClose} className="btn-ghost" style={{ padding: '4px' }}>
+          <button type="button" onClick={handleAttemptClose} className="btn-ghost" style={{ padding: '4px' }}>
             <X size={16} />
           </button>
         </div>
@@ -185,6 +231,7 @@ export const GoalEditorModal: React.FC<GoalEditorModalProps> = ({
           <div style={{ display: 'flex', flexDirection: 'column', gap: '5px' }}>
             <label style={{ fontSize: '11px', color: 'var(--text-secondary)', fontWeight: 600 }}>Goal Name</label>
             <input
+              ref={nameInputRef}
               type="text"
               required
               autoFocus
@@ -231,12 +278,10 @@ export const GoalEditorModal: React.FC<GoalEditorModalProps> = ({
             </div>
 
             <div style={{ display: 'flex', flexDirection: 'column', gap: '5px' }}>
-              <label style={{ fontSize: '11px', color: 'var(--text-secondary)', fontWeight: 600 }}>Category (Optional)</label>
-              <input
-                type="text"
-                placeholder="e.g. Career, Health, OSS"
-                value={category}
-                onChange={(e) => setCategory(e.target.value)}
+              <label style={{ fontSize: '11px', color: 'var(--text-secondary)', fontWeight: 600 }}>Area</label>
+              <select
+                value={area}
+                onChange={(e) => setArea(e.target.value)}
                 style={{
                   width: '100%',
                   boxSizing: 'border-box',
@@ -247,7 +292,11 @@ export const GoalEditorModal: React.FC<GoalEditorModalProps> = ({
                   color: 'var(--text-primary)',
                   fontSize: '13px',
                 }}
-              />
+              >
+                {['Health', 'Learning', 'Career', 'Projects', 'Finance', 'Personal'].map((a) => (
+                  <option key={a} value={a}>{a}</option>
+                ))}
+              </select>
             </div>
           </div>
 
@@ -530,7 +579,7 @@ export const GoalEditorModal: React.FC<GoalEditorModalProps> = ({
 
           {/* Action Buttons */}
           <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '8px', marginTop: '10px' }}>
-            <button type="button" onClick={onClose} className="btn-ghost">
+            <button type="button" onClick={handleAttemptClose} className="btn-ghost">
               Cancel
             </button>
             <button type="submit" className="btn-primary">
@@ -539,6 +588,20 @@ export const GoalEditorModal: React.FC<GoalEditorModalProps> = ({
           </div>
         </form>
       </div>
+
+      <ConfirmationModal
+        isOpen={showDiscardConfirm}
+        title="Discard Unsaved Changes?"
+        message="You have unsaved changes in this goal editor. Are you sure you want to discard them?"
+        confirmLabel="Discard Changes"
+        cancelLabel="Keep Editing"
+        isDestructive={true}
+        onConfirm={() => {
+          setShowDiscardConfirm(false);
+          onClose();
+        }}
+        onCancel={() => setShowDiscardConfirm(false)}
+      />
     </div>
   );
 };

@@ -3,7 +3,8 @@ import React, { useState, useEffect } from 'react';
 import { Goal } from '@shared/types';
 import { useActivities } from '../hooks/useActivities';
 import { GoalProgressRing } from './GoalProgressRing';
-import { Play, Pause, Square, Plus, Compass, Flame, Clock, Zap, X } from 'lucide-react';
+import { soundEffects } from '../utils/audio';
+import { Play, Pause, Square, Plus, Target, Radio, Clock, Zap, X, CheckCircle2 } from 'lucide-react';
 
 interface FocusDashboardViewProps {
   goals: Goal[];
@@ -14,7 +15,16 @@ export const FocusDashboardView: React.FC<FocusDashboardViewProps> = ({
   goals,
   onOpenCreateGoal,
 }) => {
-  const { focusState, startFocus, pauseFocus, resumeFocus, stopFocus, extendFocus } = useActivities();
+  const {
+    focusState,
+    lastCompletedSession,
+    clearCompletedSession,
+    startFocus,
+    pauseFocus,
+    resumeFocus,
+    stopFocus,
+    extendFocus,
+  } = useActivities();
   const [selectedGoalId, setSelectedGoalId] = useState<string>('');
   const [selectedDuration, setSelectedDuration] = useState<number>(25);
 
@@ -26,6 +36,19 @@ export const FocusDashboardView: React.FC<FocusDashboardViewProps> = ({
       setSelectedGoalId(focusState.goalId || '');
     }
   }, [focusState.isActive, focusState.goalId]);
+
+  // Escape / Enter keyboard dismissal for completed session
+  useEffect(() => {
+    if (!lastCompletedSession) return;
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape' || e.key === 'Enter') {
+        e.preventDefault();
+        clearCompletedSession();
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [lastCompletedSession, clearCompletedSession]);
 
   const selectedGoal = selectedGoalId ? activeGoals.find((g) => g.id === selectedGoalId) : null;
 
@@ -75,8 +98,101 @@ export const FocusDashboardView: React.FC<FocusDashboardViewProps> = ({
           borderRadius: '24px',
           boxShadow: '0 20px 50px rgba(0, 0, 0, 0.9), inset 0 1px 0 rgba(255, 255, 255, 0.08)',
           position: 'relative',
+          overflow: 'hidden',
         }}
       >
+        {/* Celebration Overlay when a session just completed */}
+        {lastCompletedSession && (
+          <div
+            style={{
+              position: 'absolute',
+              inset: 0,
+              backgroundColor: 'rgba(10, 10, 12, 0.96)',
+              backdropFilter: 'blur(20px)',
+              zIndex: 10,
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              justifyContent: 'center',
+              padding: '32px',
+              textAlign: 'center',
+              animation: 'springCardIn 0.3s var(--ease-spring)',
+            }}
+          >
+            <div
+              style={{
+                width: '64px',
+                height: '64px',
+                borderRadius: '50%',
+                backgroundColor: 'rgba(52, 211, 153, 0.15)',
+                border: '1px solid rgba(52, 211, 153, 0.3)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                marginBottom: '16px',
+                boxShadow: '0 0 30px rgba(52, 211, 153, 0.35)',
+              }}
+            >
+              <CheckCircle2 size={28} color="#34d399" strokeWidth={1.5} />
+            </div>
+
+            <h3 style={{ fontSize: '22px', fontWeight: 800, color: '#ffffff', marginBottom: '8px', letterSpacing: '-0.3px' }}>
+              Sprint Complete
+            </h3>
+
+            <p style={{ fontSize: '14px', color: 'rgba(255, 255, 255, 0.7)', maxWidth: '340px', lineHeight: 1.5, marginBottom: '24px' }}>
+              {lastCompletedSession.goalName ? (
+                <>
+                  Logged <strong style={{ color: '#34d399' }}>+{lastCompletedSession.durationMinutes} mins</strong> toward{' '}
+                  <strong style={{ color: '#ffffff' }}>{lastCompletedSession.goalName}</strong>.
+                </>
+              ) : (
+                <>
+                  Awesome job! You finished a <strong style={{ color: '#34d399' }}>{lastCompletedSession.durationMinutes}-minute</strong> focus session.
+                </>
+              )}
+            </p>
+
+            <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap', justifyContent: 'center' }}>
+              <button
+                onClick={() => {
+                  soundEffects.playTickSound();
+                  clearCompletedSession();
+                  startFocus(5);
+                }}
+                className="btn-secondary"
+                style={{ padding: '9px 18px', fontSize: '13px', gap: '6px' }}
+              >
+                <span>Take 5m Break</span>
+              </button>
+
+              <button
+                onClick={() => {
+                  soundEffects.playTickSound();
+                  clearCompletedSession();
+                  startFocus(selectedDuration, selectedGoal?.id);
+                }}
+                className="btn-primary"
+                style={{ padding: '9px 20px', fontSize: '13px', gap: '6px' }}
+              >
+                <Play size={13} fill="#000000" />
+                <span>Next Sprint ({selectedDuration}m)</span>
+              </button>
+
+              <button
+                onClick={() => {
+                  soundEffects.playMilestonePop();
+                  clearCompletedSession();
+                }}
+                className="btn-ghost"
+                style={{ padding: '9px 16px', fontSize: '13px', backgroundColor: 'rgba(255, 255, 255, 0.06)' }}
+              >
+                <span>Done</span>
+              </button>
+            </div>
+          </div>
+        )}
+
         {/* Linked Goal / Independent Badge */}
         <div
           style={{
@@ -92,13 +208,13 @@ export const FocusDashboardView: React.FC<FocusDashboardViewProps> = ({
         >
           {selectedGoal ? (
             <>
-              <Compass size={14} color="#ffffff" />
+              <Target size={14} color="#ffffff" />
               <span style={{ fontSize: '13px', fontWeight: 600, color: '#ffffff' }}>
                 Goal: {selectedGoal.name}
               </span>
-              {selectedGoal.category && (
-                <span style={{ fontSize: '11px', color: 'rgba(255, 255, 255, 0.5)' }}>
-                  • {selectedGoal.category}
+              {selectedGoal.area && selectedGoal.area !== 'Personal' && (
+                <span style={{ color: 'var(--text-muted)', fontSize: '10px' }}>
+                  • {selectedGoal.area}
                 </span>
               )}
               {!focusState.isActive && (
@@ -314,7 +430,7 @@ export const FocusDashboardView: React.FC<FocusDashboardViewProps> = ({
         >
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '14px' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-              <Compass size={15} color="#ffffff" />
+              <Target size={15} color="#ffffff" />
               <span style={{ fontSize: '13px', fontWeight: 700, color: '#ffffff' }}>Timer Mode / Linked Goal</span>
             </div>
             <button onClick={onOpenCreateGoal} className="btn-ghost" style={{ padding: '2px 8px', fontSize: '11px', gap: '4px' }}>
@@ -457,7 +573,7 @@ export const FocusDashboardView: React.FC<FocusDashboardViewProps> = ({
             }}
           >
             <div style={{ display: 'flex', alignItems: 'center', gap: '6px', color: 'rgba(255, 255, 255, 0.5)', fontSize: '11px', fontWeight: 500 }}>
-              <Flame size={12} />
+              <Radio size={12} />
               <span>Dynamic Island</span>
             </div>
             <span style={{ fontSize: '18px', fontWeight: 800, color: '#ffffff' }}>

@@ -60,6 +60,7 @@ export const IPC_CHANNELS = {
   EVENT_SETTINGS_CHANGED: 'beacon:event:settings-changed',
   EVENT_ACTIVITIES_CHANGED: 'beacon:event:activities-changed',
   EVENT_FOCUS_TICK: 'beacon:event:focus-tick',
+  EVENT_FOCUS_COMPLETED: 'beacon:event:focus-completed',
   EVENT_MEDIA_CHANGED: 'beacon:event:media-changed',
 } as const;
 

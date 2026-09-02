@@ -1,10 +1,11 @@
 // apps/renderer/src/components/GoalCard.tsx
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { Goal } from '@shared/types';
 import { GoalProgressRing } from './GoalProgressRing';
 import { QuickIncrementButton } from './QuickIncrementButton';
 import { MilestoneList } from './MilestoneList';
-import { CheckCircle, ChevronDown, ChevronUp, MoreHorizontal, Archive, Trash2, Edit3, Calendar, Timer } from 'lucide-react';
+import { useDesktopOverlay } from '../hooks/useDesktopOverlay';
+import { CheckCircle, ChevronDown, ChevronUp, MoreHorizontal, Archive, Trash2, Edit3, Calendar, Timer, Zap } from 'lucide-react';
 
 interface GoalCardProps {
   goal: Goal;
@@ -33,12 +34,43 @@ export const GoalCard: React.FC<GoalCardProps> = ({
 }) => {
   const [expanded, setExpanded] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
+  const [contextMenuPos, setContextMenuPos] = useState<{ x: number; y: number } | null>(null);
+
+  const menuButtonRef = useRef<HTMLButtonElement>(null);
+  const menuContainerRef = useRef<HTMLDivElement>(null);
+  const contextMenuRef = useRef<HTMLDivElement>(null);
 
   const fraction = goal.targetValue > 0 ? Math.min(1.0, goal.currentValue / goal.targetValue) : 0;
   const isComplete = goal.status === 'completed' || (goal.targetValue > 0 && goal.currentValue >= goal.targetValue);
 
+  // 3-dot popover overlay
+  useDesktopOverlay({
+    isOpen: menuOpen,
+    onClose: () => setMenuOpen(false),
+    containerRef: menuContainerRef,
+    restoreFocusRef: menuButtonRef,
+  });
+
+  // Right-click context menu overlay
+  useDesktopOverlay({
+    isOpen: !!contextMenuPos,
+    onClose: () => setContextMenuPos(null),
+    containerRef: contextMenuRef,
+  });
+
+  const handleContextMenu = (e: React.MouseEvent) => {
+    e.preventDefault();
+    setMenuOpen(false);
+    setContextMenuPos({ x: e.clientX, y: e.clientY });
+  };
+
+  const handleFocusMode = () => {
+    window.location.hash = '#focus';
+  };
+
   return (
     <div
+      onContextMenu={handleContextMenu}
       style={{
         backgroundColor: 'rgba(255, 255, 255, 0.03)',
         backdropFilter: 'blur(12px)',
@@ -73,7 +105,7 @@ export const GoalCard: React.FC<GoalCardProps> = ({
               >
                 {goal.name}
               </span>
-              {goal.category && (
+              {goal.area && goal.area !== 'Personal' && (
                 <span
                   style={{
                     fontSize: '10px',
@@ -84,7 +116,7 @@ export const GoalCard: React.FC<GoalCardProps> = ({
                     fontWeight: 500,
                   }}
                 >
-                  {goal.category}
+                  {goal.area}
                 </span>
               )}
             </div>
@@ -98,34 +130,22 @@ export const GoalCard: React.FC<GoalCardProps> = ({
               {goal.deadline && (
                 <span style={{ display: 'inline-flex', alignItems: 'center', gap: '3px', color: 'var(--text-muted)' }}>
                   <Calendar size={10} />
-                  {new Date(goal.deadline).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}
+                  <span>{new Date(goal.deadline).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}</span>
                 </span>
               )}
             </div>
           </div>
         </div>
 
-        {/* Quick Action Button & Menu */}
+        {/* Quick Action & Controls */}
         <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
           {!isComplete && (
             <>
               <button
-                onClick={(e) => {
-                  e.stopPropagation();
-                  window.beacon?.focus?.start(25, goal.id);
-                }}
+                onClick={handleFocusMode}
                 className="btn-ghost"
-                title="Start 25m Focus Sprint on this goal"
-                style={{
-                  padding: '4px 8px',
-                  fontSize: '11px',
-                  fontWeight: 600,
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '4px',
-                  backgroundColor: 'rgba(255, 255, 255, 0.08)',
-                  color: '#ffffff',
-                }}
+                style={{ padding: '4px 8px', fontSize: '11px', gap: '4px', borderRadius: 'var(--radius-sm)', color: 'var(--text-secondary)' }}
+                title="Start 25m Focus Session on this goal"
               >
                 <Timer size={12} />
                 <span>Focus</span>
@@ -141,41 +161,65 @@ export const GoalCard: React.FC<GoalCardProps> = ({
 
           <div style={{ position: 'relative' }}>
             <button
+              ref={menuButtonRef}
               onClick={() => setMenuOpen(!menuOpen)}
               className="btn-ghost"
               style={{ padding: '4px', borderRadius: 'var(--radius-sm)' }}
+              aria-label="More actions"
             >
               <MoreHorizontal size={14} />
             </button>
 
             {menuOpen && (
-              <>
-                <div
-                  onClick={() => setMenuOpen(false)}
-                  style={{ position: 'fixed', inset: 0, zIndex: 40 }}
-                />
-                <div
-                  style={{
-                    position: 'absolute',
-                    top: '100%',
-                    right: 0,
-                    zIndex: 50,
-                    width: '130px',
-                    backgroundColor: 'rgba(28, 30, 39, 0.96)',
-                    backdropFilter: 'blur(20px)',
-                    border: '1px solid var(--border-subtle)',
-                    borderRadius: 'var(--radius-md)',
-                    padding: '4px',
-                    boxShadow: 'var(--shadow-lg)',
-                    display: 'flex',
-                    flexDirection: 'column',
-                    gap: '2px',
+              <div
+                ref={menuContainerRef}
+                style={{
+                  position: 'absolute',
+                  top: '100%',
+                  right: 0,
+                  zIndex: 50,
+                  width: '130px',
+                  backgroundColor: 'rgba(28, 30, 39, 0.98)',
+                  backdropFilter: 'blur(20px)',
+                  border: '1px solid var(--border-subtle)',
+                  borderRadius: 'var(--radius-md)',
+                  padding: '4px',
+                  boxShadow: 'var(--shadow-lg)',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  gap: '2px',
+                }}
+              >
+                <button
+                  onClick={() => {
+                    setMenuOpen(false);
+                    onEdit(goal);
                   }}
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '6px',
+                    padding: '6px 8px',
+                    fontSize: '11px',
+                    color: 'var(--text-primary)',
+                    borderRadius: '4px',
+                    border: 'none',
+                    backgroundColor: 'transparent',
+                    cursor: 'pointer',
+                    textAlign: 'left',
+                  }}
+                  onMouseEnter={(e) => ((e.currentTarget as HTMLElement).style.backgroundColor = 'var(--bg-glass-active)')}
+                  onMouseLeave={(e) => ((e.currentTarget as HTMLElement).style.backgroundColor = 'transparent')}
                 >
+                  <Edit3 size={12} />
+                  <span>Edit Goal</span>
+                </button>
+
+                {!isComplete && (
                   <button
                     onClick={() => {
                       setMenuOpen(false);
-                      onEdit(goal);
+                      onComplete(goal.id);
                     }}
                     style={{
                       display: 'flex',
@@ -183,90 +227,229 @@ export const GoalCard: React.FC<GoalCardProps> = ({
                       gap: '6px',
                       padding: '6px 8px',
                       fontSize: '11px',
-                      color: 'var(--text-primary)',
+                      color: 'var(--accent-emerald)',
                       borderRadius: '4px',
+                      border: 'none',
+                      backgroundColor: 'transparent',
                       cursor: 'pointer',
+                      textAlign: 'left',
                     }}
                     onMouseEnter={(e) => ((e.currentTarget as HTMLElement).style.backgroundColor = 'var(--bg-glass-active)')}
                     onMouseLeave={(e) => ((e.currentTarget as HTMLElement).style.backgroundColor = 'transparent')}
                   >
-                    <Edit3 size={12} />
-                    <span>Edit Goal</span>
+                    <CheckCircle size={12} />
+                    <span>Complete</span>
                   </button>
+                )}
 
-                  {!isComplete && (
-                    <button
-                      onClick={() => {
-                        setMenuOpen(false);
-                        onComplete(goal.id);
-                      }}
-                      style={{
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: '6px',
-                        padding: '6px 8px',
-                        fontSize: '11px',
-                        color: 'var(--accent-emerald)',
-                        borderRadius: '4px',
-                        cursor: 'pointer',
-                      }}
-                      onMouseEnter={(e) => ((e.currentTarget as HTMLElement).style.backgroundColor = 'var(--bg-glass-active)')}
-                      onMouseLeave={(e) => ((e.currentTarget as HTMLElement).style.backgroundColor = 'transparent')}
-                    >
-                      <CheckCircle size={12} />
-                      <span>Complete</span>
-                    </button>
-                  )}
+                <button
+                  onClick={() => {
+                    setMenuOpen(false);
+                    onArchive(goal.id);
+                  }}
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '6px',
+                    padding: '6px 8px',
+                    fontSize: '11px',
+                    color: 'var(--text-secondary)',
+                    borderRadius: '4px',
+                    border: 'none',
+                    backgroundColor: 'transparent',
+                    cursor: 'pointer',
+                    textAlign: 'left',
+                  }}
+                  onMouseEnter={(e) => ((e.currentTarget as HTMLElement).style.backgroundColor = 'var(--bg-glass-active)')}
+                  onMouseLeave={(e) => ((e.currentTarget as HTMLElement).style.backgroundColor = 'transparent')}
+                >
+                  <Archive size={12} />
+                  <span>Archive</span>
+                </button>
 
-                  <button
-                    onClick={() => {
-                      setMenuOpen(false);
-                      onArchive(goal.id);
-                    }}
-                    style={{
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: '6px',
-                      padding: '6px 8px',
-                      fontSize: '11px',
-                      color: 'var(--text-secondary)',
-                      borderRadius: '4px',
-                      cursor: 'pointer',
-                    }}
-                    onMouseEnter={(e) => ((e.currentTarget as HTMLElement).style.backgroundColor = 'var(--bg-glass-active)')}
-                    onMouseLeave={(e) => ((e.currentTarget as HTMLElement).style.backgroundColor = 'transparent')}
-                  >
-                    <Archive size={12} />
-                    <span>Archive</span>
-                  </button>
-
-                  <button
-                    onClick={() => {
-                      setMenuOpen(false);
-                      onDelete(goal.id);
-                    }}
-                    style={{
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: '6px',
-                      padding: '6px 8px',
-                      fontSize: '11px',
-                      color: 'var(--accent-rose)',
-                      borderRadius: '4px',
-                      cursor: 'pointer',
-                    }}
-                    onMouseEnter={(e) => ((e.currentTarget as HTMLElement).style.backgroundColor = 'var(--bg-glass-active)')}
-                    onMouseLeave={(e) => ((e.currentTarget as HTMLElement).style.backgroundColor = 'transparent')}
-                  >
-                    <Trash2 size={12} />
-                    <span>Delete</span>
-                  </button>
-                </div>
-              </>
+                <button
+                  onClick={() => {
+                    setMenuOpen(false);
+                    onDelete(goal.id);
+                  }}
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '6px',
+                    padding: '6px 8px',
+                    fontSize: '11px',
+                    color: 'var(--accent-rose)',
+                    borderRadius: '4px',
+                    border: 'none',
+                    backgroundColor: 'transparent',
+                    cursor: 'pointer',
+                    textAlign: 'left',
+                  }}
+                  onMouseEnter={(e) => ((e.currentTarget as HTMLElement).style.backgroundColor = 'var(--bg-glass-active)')}
+                  onMouseLeave={(e) => ((e.currentTarget as HTMLElement).style.backgroundColor = 'transparent')}
+                >
+                  <Trash2 size={12} />
+                  <span>Delete...</span>
+                </button>
+              </div>
             )}
           </div>
         </div>
       </div>
+
+      {/* Desktop Native Context Menu */}
+      {contextMenuPos && (
+        <div
+          ref={contextMenuRef}
+          style={{
+            position: 'fixed',
+            top: contextMenuPos.y,
+            left: contextMenuPos.x,
+            zIndex: 1000,
+            width: '150px',
+            backgroundColor: 'rgba(28, 30, 39, 0.98)',
+            backdropFilter: 'blur(20px)',
+            border: '1px solid var(--border-subtle)',
+            borderRadius: 'var(--radius-md)',
+            padding: '4px',
+            boxShadow: '0 12px 30px rgba(0, 0, 0, 0.85)',
+            display: 'flex',
+            flexDirection: 'column',
+            gap: '2px',
+          }}
+        >
+          {!isComplete && (
+            <button
+              onClick={() => {
+                setContextMenuPos(null);
+                onIncrement(goal.id);
+              }}
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '8px',
+                padding: '6px 10px',
+                fontSize: '12px',
+                color: 'var(--text-primary)',
+                borderRadius: '4px',
+                border: 'none',
+                backgroundColor: 'transparent',
+                cursor: 'pointer',
+                textAlign: 'left',
+              }}
+              onMouseEnter={(e) => ((e.currentTarget as HTMLElement).style.backgroundColor = 'var(--bg-glass-active)')}
+              onMouseLeave={(e) => ((e.currentTarget as HTMLElement).style.backgroundColor = 'transparent')}
+            >
+              <Zap size={13} color="var(--accent-emerald)" />
+              <span>Quick +{goal.defaultIncrement || 1}</span>
+            </button>
+          )}
+
+          <button
+            onClick={() => {
+              setContextMenuPos(null);
+              onEdit(goal);
+            }}
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '8px',
+              padding: '6px 10px',
+              fontSize: '12px',
+              color: 'var(--text-primary)',
+              borderRadius: '4px',
+              border: 'none',
+              backgroundColor: 'transparent',
+              cursor: 'pointer',
+              textAlign: 'left',
+            }}
+            onMouseEnter={(e) => ((e.currentTarget as HTMLElement).style.backgroundColor = 'var(--bg-glass-active)')}
+            onMouseLeave={(e) => ((e.currentTarget as HTMLElement).style.backgroundColor = 'transparent')}
+          >
+            <Edit3 size={13} />
+            <span>Edit Goal</span>
+          </button>
+
+          {!isComplete ? (
+            <button
+              onClick={() => {
+                setContextMenuPos(null);
+                onComplete(goal.id);
+              }}
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '8px',
+                padding: '6px 10px',
+                fontSize: '12px',
+                color: 'var(--accent-emerald)',
+                borderRadius: '4px',
+                border: 'none',
+                backgroundColor: 'transparent',
+                cursor: 'pointer',
+                textAlign: 'left',
+              }}
+              onMouseEnter={(e) => ((e.currentTarget as HTMLElement).style.backgroundColor = 'var(--bg-glass-active)')}
+              onMouseLeave={(e) => ((e.currentTarget as HTMLElement).style.backgroundColor = 'transparent')}
+            >
+              <CheckCircle size={13} />
+              <span>Mark Complete</span>
+            </button>
+          ) : null}
+
+          <button
+            onClick={() => {
+              setContextMenuPos(null);
+              onArchive(goal.id);
+            }}
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '8px',
+              padding: '6px 10px',
+              fontSize: '12px',
+              color: 'var(--text-secondary)',
+              borderRadius: '4px',
+              border: 'none',
+              backgroundColor: 'transparent',
+              cursor: 'pointer',
+              textAlign: 'left',
+            }}
+            onMouseEnter={(e) => ((e.currentTarget as HTMLElement).style.backgroundColor = 'var(--bg-glass-active)')}
+            onMouseLeave={(e) => ((e.currentTarget as HTMLElement).style.backgroundColor = 'transparent')}
+          >
+            <Archive size={13} />
+            <span>Archive</span>
+          </button>
+
+          <div style={{ height: '1px', backgroundColor: 'var(--border-subtle)', margin: '2px 0' }} />
+
+          <button
+            onClick={() => {
+              setContextMenuPos(null);
+              onDelete(goal.id);
+            }}
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '8px',
+              padding: '6px 10px',
+              fontSize: '12px',
+              color: 'var(--accent-rose)',
+              borderRadius: '4px',
+              border: 'none',
+              backgroundColor: 'transparent',
+              cursor: 'pointer',
+              textAlign: 'left',
+            }}
+            onMouseEnter={(e) => ((e.currentTarget as HTMLElement).style.backgroundColor = 'var(--bg-glass-active)')}
+            onMouseLeave={(e) => ((e.currentTarget as HTMLElement).style.backgroundColor = 'transparent')}
+          >
+            <Trash2 size={13} />
+            <span>Delete...</span>
+          </button>
+        </div>
+      )}
 
       {/* Accordion Toggle for Milestones */}
       {goal.milestones && goal.milestones.length > 0 && (
@@ -280,6 +463,8 @@ export const GoalCard: React.FC<GoalCardProps> = ({
               padding: '2px 0',
               fontSize: '11px',
               color: 'var(--text-muted)',
+              border: 'none',
+              backgroundColor: 'transparent',
               cursor: 'pointer',
             }}
           >

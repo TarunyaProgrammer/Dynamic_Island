@@ -1,5 +1,5 @@
 // packages/core/activities/focus-manager.ts - Goal-Linked Focus Session Engine
-import { FocusSessionState } from '@shared/types';
+import { FocusSessionState, FocusCompletedEvent } from '@shared/types';
 import { GoalService } from '../services/goal-service';
 import { ActivityEngine } from './activity-engine';
 
@@ -12,6 +12,7 @@ export class FocusSessionManager {
     isPaused: false,
   };
   private tickListeners: Set<(state: FocusSessionState) => void> = new Set();
+  private completionListeners: Set<(event: FocusCompletedEvent) => void> = new Set();
 
   constructor(
     private goalService: GoalService,
@@ -21,6 +22,11 @@ export class FocusSessionManager {
   subscribe(listener: (state: FocusSessionState) => void): () => void {
     this.tickListeners.add(listener);
     return () => this.tickListeners.delete(listener);
+  }
+
+  onComplete(listener: (event: FocusCompletedEvent) => void): () => void {
+    this.completionListeners.add(listener);
+    return () => this.completionListeners.delete(listener);
   }
 
   private notify(): void {
@@ -166,7 +172,25 @@ export class FocusSessionManager {
     } else {
       // Completed!
       const totalMins = Math.round(this.state.durationSeconds / 60);
+      const goalId = this.state.goalId;
+      const goalName = this.state.goalName;
+
       this.stop(true);
+
+      const completionEvent: FocusCompletedEvent = {
+        goalId,
+        goalName,
+        durationMinutes: totalMins,
+        timestamp: new Date().toISOString(),
+      };
+
+      for (const listener of this.completionListeners) {
+        try {
+          listener(completionEvent);
+        } catch (err) {
+          console.error('Error notifying focus completion listener:', err);
+        }
+      }
 
       // Push completion notification
       this.activityEngine.push(
@@ -174,8 +198,8 @@ export class FocusSessionManager {
           id: `beacon-focus-done-${Date.now()}`,
           type: 'focus',
           priority: 'critical',
-          title: 'Focus Sprint Complete!',
-          subtitle: `Logged +${totalMins}m to ${this.state.goalName || 'goal'}`,
+          title: 'Focus Sprint Complete! 🎉',
+          subtitle: `Logged +${totalMins}m to ${goalName || 'Focus Sprint'}`,
           progressFraction: 1,
           timestamp: new Date().toISOString(),
         },

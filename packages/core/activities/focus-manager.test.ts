@@ -34,6 +34,10 @@ class MockGoalRepository implements IGoalRepository {
   getProgressEvents(): any[] {
     return [];
   }
+  saveCheckIn(): void {}
+  getCheckIns(): any[] {
+    return [];
+  }
   getStats(): any {
     return {
       totalGoals: 0,
@@ -86,5 +90,29 @@ describe('FocusSessionManager', () => {
 
     focusManager.resume();
     expect(focusManager.getState().isPaused).toBe(false);
+  });
+
+  it('should emit completion event when timer finishes', () => {
+    const goal = goalService.createGoal({
+      name: 'Ship Version 1.0',
+      type: 'numeric',
+      targetValue: 100,
+    });
+
+    let completedEvent: any = null;
+    focusManager.onComplete((event) => {
+      completedEvent = event;
+    });
+
+    focusManager.start(1, goal.id); // 1 minute = 60s
+    expect(focusManager.getState().isActive).toBe(true);
+
+    // Fast-forward 61 seconds
+    vi.advanceTimersByTime(61 * 1000);
+
+    expect(completedEvent).not.toBeNull();
+    expect(completedEvent.goalName).toBe('Ship Version 1.0');
+    expect(completedEvent.durationMinutes).toBe(1);
+    expect(focusManager.getState().isActive).toBe(false);
   });
 });

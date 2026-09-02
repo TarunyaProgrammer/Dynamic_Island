@@ -1,7 +1,7 @@
 // apps/main/ipc/goalHandlers.ts - Central IPC Bridge Handlers
 import { BrowserWindow, app, ipcMain } from 'electron';
 import { IPC_CHANNELS } from '@shared/ipc-channels';
-import { AppSettings, GoalDraft, GoalStatus, GoalUpdateDraft, LiveActivity, FocusSessionState } from '@shared/types';
+import { AppSettings, GoalDraft, GoalStatus, GoalUpdateDraft, LiveActivity, FocusSessionState, FocusCompletedEvent } from '@shared/types';
 import { GoalService } from '@core/services/goal-service';
 import { SettingsRepository } from '@database/repository/settings-repository';
 import { ActivityEngine } from '@core/activities/activity-engine';
@@ -61,6 +61,15 @@ export function registerIpcHandlers(
     }
   };
 
+  const broadcastFocusCompleted = (event: FocusCompletedEvent) => {
+    NotificationService.notifyFocusCompleted(event.goalName, event.durationMinutes);
+    for (const win of BrowserWindow.getAllWindows()) {
+      if (!win.isDestroyed()) {
+        win.webContents.send(IPC_CHANNELS.EVENT_FOCUS_COMPLETED, event);
+      }
+    }
+  };
+
   const broadcastMediaChanged = (state: any) => {
     for (const win of BrowserWindow.getAllWindows()) {
       if (!win.isDestroyed()) {
@@ -72,6 +81,7 @@ export function registerIpcHandlers(
   goalService.subscribe(broadcastGoalsChanged);
   activityEngine.subscribe(broadcastActivitiesChanged);
   focusManager.subscribe(broadcastFocusTick);
+  focusManager.onComplete(broadcastFocusCompleted);
   mediaService.subscribe(broadcastMediaChanged);
 
   // Goal queries & mutations

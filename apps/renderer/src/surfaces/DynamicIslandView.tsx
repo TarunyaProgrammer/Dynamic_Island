@@ -5,8 +5,10 @@ import { useActivities } from '../hooks/useActivities';
 import { useMedia } from '../hooks/useMedia';
 import { GoalProgressRing } from '../components/GoalProgressRing';
 import { ProgressBar } from '../components/ProgressBar';
+import { BeaconLogo } from '../components/BeaconLogo';
+import { ConfettiCanvas } from '../components/ConfettiCanvas';
+import { soundEffects } from '../utils/audio';
 import {
-  Compass,
   ExternalLink,
   Minus,
   CheckCircle2,
@@ -133,23 +135,29 @@ export const DynamicIslandView: React.FC = () => {
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
     >
+      <ConfettiCanvas />
       {/* Notch Shell Container with Inverted Bezels (Calibrated for 14-inch MacBook Pro: 185x32pt) */}
       <div
+        className={focusState.isActive ? 'alive-heartbeat-active' : 'alive-heartbeat-idle'}
         style={{
           width: isExpanded ? '640px' : '240px',
           minHeight: isExpanded ? '146px' : '32px',
           maxHeight: isExpanded ? '160px' : '32px',
           backgroundColor: '#000000',
           position: 'relative',
-          border: isExpanded ? '1px solid rgba(255, 255, 255, 0.14)' : '1px solid transparent',
+          border: isExpanded ? '1px solid rgba(255, 255, 255, 0.16)' : '1px solid transparent',
           borderTop: 'none',
           borderRadius: isExpanded ? '0 0 22px 22px' : '0 0 12px 12px',
           boxShadow: isExpanded
-            ? '0 8px 24px rgba(0, 0, 0, 0.45), 0 0 0 1px rgba(255, 255, 255, 0.1)'
-            : 'none',
+            ? (focusState.isActive
+                ? '0 16px 50px rgba(0, 0, 0, 0.95), 0 0 45px rgba(168, 85, 247, 0.4), 0 0 20px rgba(56, 189, 248, 0.3)'
+                : '0 12px 36px rgba(0, 0, 0, 0.8), 0 0 20px rgba(168, 85, 247, 0.2)')
+            : (focusState.isActive
+                ? '0 6px 22px rgba(168, 85, 247, 0.5), 0 0 12px rgba(56, 189, 248, 0.35)'
+                : '0 4px 12px rgba(0, 0, 0, 0.6)'),
           display: 'flex',
           flexDirection: 'column',
-          transition: 'all 0.26s cubic-bezier(0.16, 1, 0.3, 1)',
+          transition: 'all 0.28s cubic-bezier(0.16, 1, 0.3, 1)',
           cursor: 'pointer',
           overflow: 'visible',
         }}
@@ -209,9 +217,10 @@ export const DynamicIslandView: React.FC = () => {
           {/* Left Wing / Activity Switcher Tabs */}
           <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
             <div
-              onClick={(e) => {
-                e.stopPropagation();
-                setActiveTab('goal');
+              onClick={() => {
+                if (isExpanded) {
+                  setActiveTab('goal');
+                }
               }}
               style={{
                 display: 'flex',
@@ -225,7 +234,7 @@ export const DynamicIslandView: React.FC = () => {
                 fontWeight: 600,
               }}
             >
-              <Compass size={12} />
+              <BeaconLogo size={13} />
               <span>{focusState.isActive ? 'Focus Sprint' : 'Beacon'}</span>
             </div>
 
@@ -309,7 +318,7 @@ export const DynamicIslandView: React.FC = () => {
           </div>
         </div>
 
-        {/* Expanded 3-Column NotchNook Body (Strictly Below Notch) */}
+        {/* Expanded 3-Column Beacon Dynamic Island Body (Strictly Below Notch) */}
         {isExpanded && (
           <div
             style={{
@@ -350,7 +359,7 @@ export const DynamicIslandView: React.FC = () => {
                     flexShrink: 0,
                   }}
                 >
-                  <Compass size={22} color="#ffffff" />
+                  <BeaconLogo size={28} />
                 </div>
 
                 {primaryGoal ? (
@@ -522,6 +531,7 @@ export const DynamicIslandView: React.FC = () => {
                       <button
                         onClick={(e) => {
                           e.stopPropagation();
+                          soundEffects.playTickSound();
                           startFocus(selectedDuration, selectedFocusGoalId || undefined);
                         }}
                         className="btn-ghost"
@@ -536,6 +546,7 @@ export const DynamicIslandView: React.FC = () => {
                         <button
                           onClick={(e) => {
                             e.stopPropagation();
+                            soundEffects.playTickSound();
                             resumeFocus();
                           }}
                           className="btn-ghost"
@@ -547,6 +558,7 @@ export const DynamicIslandView: React.FC = () => {
                         <button
                           onClick={(e) => {
                             e.stopPropagation();
+                            soundEffects.playTickSound();
                             pauseFocus();
                           }}
                           className="btn-ghost"
@@ -559,6 +571,7 @@ export const DynamicIslandView: React.FC = () => {
                       <button
                         onClick={(e) => {
                           e.stopPropagation();
+                          soundEffects.playMilestonePop();
                           extendFocus(5);
                         }}
                         className="btn-ghost"
@@ -571,6 +584,7 @@ export const DynamicIslandView: React.FC = () => {
                       <button
                         onClick={(e) => {
                           e.stopPropagation();
+                          soundEffects.playMilestonePop();
                           stopFocus(!!focusState.goalId);
                         }}
                         className="btn-ghost"

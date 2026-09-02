@@ -1,6 +1,7 @@
+// apps/renderer/src/surfaces/CommandPaletteView.tsx
 import React, { useState, useEffect, useRef } from 'react';
 import { useGoals } from '../hooks/useGoals';
-import { Search, Plus, Sparkles } from 'lucide-react';
+import { Search, Plus, Command, ArrowRight } from 'lucide-react';
 import { GoalProgressRing } from '../components/GoalProgressRing';
 
 export const CommandPaletteView: React.FC = () => {
@@ -9,19 +10,35 @@ export const CommandPaletteView: React.FC = () => {
   const [selectedIndex, setSelectedIndex] = useState(0);
   const inputRef = useRef<HTMLInputElement>(null);
 
+  // Auto-focus and reset state on window focus
   useEffect(() => {
+    const handleFocus = () => {
+      setQuery('');
+      setSelectedIndex(0);
+      inputRef.current?.focus();
+    };
+
+    window.addEventListener('focus', handleFocus);
+    // Initial mount focus
     inputRef.current?.focus();
+
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === 'Escape') {
+        e.preventDefault();
         window.beacon.windows.togglePalette();
       }
     };
     window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
+
+    return () => {
+      window.removeEventListener('focus', handleFocus);
+      window.removeEventListener('keydown', handleKeyDown);
+    };
   }, []);
 
   const filteredGoals = goals.filter((g) =>
-    g.name.toLowerCase().includes(query.toLowerCase())
+    g.name.toLowerCase().includes(query.toLowerCase()) ||
+    (g.area && g.area.toLowerCase().includes(query.toLowerCase()))
   );
 
   const handleExecute = async (goalId: string, delta?: number) => {
@@ -89,7 +106,7 @@ export const CommandPaletteView: React.FC = () => {
         <input
           ref={inputRef}
           type="text"
-          placeholder="Search goals, type '+1 [goal]' or 'new [name]'..."
+          placeholder="Type to search goals, '+1 [name]' or 'new [name]'..."
           value={query}
           onChange={(e) => {
             setQuery(e.target.value);
@@ -100,6 +117,9 @@ export const CommandPaletteView: React.FC = () => {
             flex: 1,
             fontSize: '14px',
             color: 'var(--text-primary)',
+            backgroundColor: 'transparent',
+            border: 'none',
+            outline: 'none',
           }}
         />
         <span style={{ fontSize: '11px', color: 'var(--text-muted)', backgroundColor: 'rgba(255,255,255,0.06)', padding: '2px 6px', borderRadius: '4px' }}>
@@ -113,13 +133,13 @@ export const CommandPaletteView: React.FC = () => {
           <div
             style={{
               padding: '10px 12px',
-              backgroundColor: 'rgba(99, 102, 241, 0.15)',
+              backgroundColor: 'rgba(52, 211, 153, 0.12)',
               borderRadius: 'var(--radius-md)',
-              border: '1px solid var(--border-accent)',
+              border: '1px solid rgba(52, 211, 153, 0.3)',
               display: 'flex',
               alignItems: 'center',
               gap: '8px',
-              color: '#818cf8',
+              color: 'var(--accent-emerald)',
               fontSize: '13px',
               fontWeight: 500,
             }}
@@ -131,7 +151,7 @@ export const CommandPaletteView: React.FC = () => {
 
         {filteredGoals.length === 0 && !query.trim().startsWith('new ') ? (
           <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', flex: 1, color: 'var(--text-muted)', gap: '6px' }}>
-            <Sparkles size={20} opacity={0.4} />
+            <Command size={20} opacity={0.4} />
             <span style={{ fontSize: '12px' }}>No matching goals found. Type "new [title]" to create one.</span>
           </div>
         ) : (
@@ -142,12 +162,13 @@ export const CommandPaletteView: React.FC = () => {
               <div
                 key={g.id}
                 onClick={() => handleExecute(g.id)}
+                onMouseEnter={() => setSelectedIndex(idx)}
                 style={{
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'space-between',
                   padding: '8px 12px',
-                  backgroundColor: isSelected ? 'rgba(99, 102, 241, 0.18)' : 'transparent',
+                  backgroundColor: isSelected ? 'rgba(255, 255, 255, 0.08)' : 'transparent',
                   borderRadius: 'var(--radius-md)',
                   cursor: 'pointer',
                   transition: 'all 0.1s ease',
@@ -156,9 +177,16 @@ export const CommandPaletteView: React.FC = () => {
                 <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
                   <GoalProgressRing progressFraction={fraction} size={26} strokeWidth={2.5} showText={false} />
                   <div style={{ display: 'flex', flexDirection: 'column' }}>
-                    <span style={{ fontSize: '13px', fontWeight: 600, color: 'var(--text-primary)' }}>
-                      {g.name}
-                    </span>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                      <span style={{ fontSize: '13px', fontWeight: 600, color: 'var(--text-primary)' }}>
+                        {g.name}
+                      </span>
+                      {g.area && g.area !== 'Personal' && (
+                        <span style={{ fontSize: '10px', color: 'var(--text-muted)', backgroundColor: 'rgba(255, 255, 255, 0.06)', padding: '1px 5px', borderRadius: '3px' }}>
+                          {g.area}
+                        </span>
+                      )}
+                    </div>
                     <span style={{ fontSize: '11px', color: 'var(--text-secondary)' }}>
                       {g.currentValue} / {g.targetValue} {g.unit || ''}
                     </span>
@@ -170,14 +198,15 @@ export const CommandPaletteView: React.FC = () => {
                     style={{
                       fontSize: '11px',
                       fontWeight: 600,
-                      color: 'var(--accent-primary)',
-                      backgroundColor: 'rgba(99, 102, 241, 0.15)',
+                      color: 'var(--accent-emerald)',
+                      backgroundColor: 'rgba(52, 211, 153, 0.15)',
                       padding: '2px 8px',
                       borderRadius: 'var(--radius-sm)',
                     }}
                   >
                     +{g.defaultIncrement || 1}
                   </span>
+                  {isSelected && <ArrowRight size={12} color="rgba(255, 255, 255, 0.5)" />}
                 </div>
               </div>
             );
@@ -200,7 +229,7 @@ export const CommandPaletteView: React.FC = () => {
       >
         <div style={{ display: 'flex', gap: '12px' }}>
           <span><kbd style={{ backgroundColor: 'rgba(255,255,255,0.08)', padding: '1px 4px', borderRadius: '3px' }}>↵</kbd> Increment</span>
-          <span><kbd style={{ backgroundColor: 'rgba(255,255,255,0.08)', padding: '1px 4px', borderRadius: '3px' }}>↑↓</kbd> Navigate</span>
+          <span><kbd style={{ backgroundColor: 'rgba(255,255,255,0.08)', padding: '1px 4px', borderRadius: '3px' }}>↑↓</kbd> Select</span>
         </div>
         <span>Beacon Command Engine</span>
       </div>

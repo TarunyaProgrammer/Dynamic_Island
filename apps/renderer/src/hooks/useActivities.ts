@@ -1,9 +1,12 @@
 // apps/renderer/src/hooks/useActivities.ts - React Hook for Live Activities & Focus
 import { useState, useEffect, useCallback } from 'react';
-import { FocusSessionState, LiveActivity } from '@shared/types';
+import { FocusSessionState, FocusCompletedEvent, LiveActivity } from '@shared/types';
+import { soundEffects } from '../utils/audio';
+import { triggerConfetti } from '../components/ConfettiCanvas';
 
 export function useActivities() {
   const [activities, setActivities] = useState<LiveActivity[]>([]);
+  const [lastCompletedSession, setLastCompletedSession] = useState<FocusCompletedEvent | null>(null);
   const [focusState, setFocusState] = useState<FocusSessionState>({
     durationSeconds: 25 * 60,
     remainingSeconds: 25 * 60,
@@ -37,9 +40,16 @@ export function useActivities() {
       setFocusState(state);
     });
 
+    const unsubCompleted = window.beacon?.onFocusCompleted?.((event) => {
+      setLastCompletedSession(event);
+      soundEffects.playFocusChime();
+      triggerConfetti({ spread: 'full', count: 110 });
+    });
+
     return () => {
       unsubActivities?.();
       unsubFocus?.();
+      unsubCompleted?.();
     };
   }, [loadInitialState]);
 
@@ -84,9 +94,15 @@ export function useActivities() {
     }
   }, []);
 
+  const clearCompletedSession = useCallback(() => {
+    setLastCompletedSession(null);
+  }, []);
+
   return {
     activities,
     focusState,
+    lastCompletedSession,
+    clearCompletedSession,
     startFocus,
     pauseFocus,
     resumeFocus,

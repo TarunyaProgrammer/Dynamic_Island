@@ -21,10 +21,14 @@ describe('SQLite Repositories', () => {
     const goal: Goal = {
       id: 'g-1',
       name: 'Test Goal',
+      paradigm: 'accumulative',
       type: 'numeric',
       currentValue: 10,
       targetValue: 100,
       defaultIncrement: 1,
+      area: 'Personal',
+      priority: 'normal',
+      period: 'total',
       startDate: new Date().toISOString(),
       status: 'active',
       milestones: [

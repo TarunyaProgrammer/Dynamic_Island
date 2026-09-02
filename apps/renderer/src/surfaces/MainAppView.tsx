@@ -1,12 +1,16 @@
 // apps/renderer/src/surfaces/MainAppView.tsx
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useGoals } from '../hooks/useGoals';
 import { Goal, GoalDraft, GoalStatus, GoalUpdateDraft } from '@shared/types';
 import { GoalCard } from '../components/GoalCard';
 import { GoalEditorModal } from '../components/GoalEditorModal';
 import { ActivityTimeline } from '../components/ActivityTimeline';
 import { GoalProgressRing } from '../components/GoalProgressRing';
-import { Plus, Undo2, Redo2, Layers, CheckCircle2, Archive, Activity, Compass, Timer } from 'lucide-react';
+import { BeaconLogo } from '../components/BeaconLogo';
+import { ConfettiCanvas, triggerConfetti } from '../components/ConfettiCanvas';
+import { ConfirmationModal } from '../components/ConfirmationModal';
+import { soundEffects } from '../utils/audio';
+import { Plus, Undo2, Redo2, Layers, CheckCircle2, Archive, Activity, Timer, Search, X } from 'lucide-react';
 import { FocusDashboardView } from '../components/FocusDashboardView';
 
 export const MainAppView: React.FC = () => {
@@ -15,6 +19,9 @@ export const MainAppView: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [isEditorOpen, setIsEditorOpen] = useState(false);
   const [editingGoal, setEditingGoal] = useState<Goal | null>(null);
+  const [goalToDelete, setGoalToDelete] = useState<Goal | null>(null);
+
+  const searchInputRef = useRef<HTMLInputElement>(null);
 
   const {
     goals,
@@ -34,10 +41,54 @@ export const MainAppView: React.FC = () => {
     redo,
   } = useGoals(activeTab === 'all' ? undefined : activeTab);
 
+  // Keyboard navigation & desktop global shortcuts
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      // Don't trigger if typing in an input/textarea
+      const isInputFocused =
+        document.activeElement instanceof HTMLInputElement ||
+        document.activeElement instanceof HTMLTextAreaElement ||
+        document.activeElement instanceof HTMLSelectElement;
+
+      // Escape key clears search if active
+      if (e.key === 'Escape' && searchQuery && !isEditorOpen && !goalToDelete) {
+        setSearchQuery('');
+        searchInputRef.current?.blur();
+        return;
+      }
+
+      if (e.metaKey || e.ctrlKey) {
+        if (e.key === 'n' || e.key === 'N') {
+          e.preventDefault();
+          handleOpenCreate();
+        } else if (e.key === 'f' || e.key === 'F') {
+          e.preventDefault();
+          searchInputRef.current?.focus();
+          searchInputRef.current?.select();
+        } else if (e.key === '1') {
+          e.preventDefault();
+          setViewMode('goals');
+        } else if (e.key === '2') {
+          e.preventDefault();
+          setViewMode('focus');
+        } else if (e.key === 'z' && !e.shiftKey && !isInputFocused) {
+          e.preventDefault();
+          undo();
+        } else if (e.key === 'z' && e.shiftKey && !isInputFocused) {
+          e.preventDefault();
+          redo();
+        }
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [searchQuery, isEditorOpen, goalToDelete, undo, redo]);
+
   const filteredGoals = goals.filter((g) => {
     if (!searchQuery.trim()) return true;
     const q = searchQuery.toLowerCase();
-    return g.name.toLowerCase().includes(q) || (g.category && g.category.toLowerCase().includes(q));
+    return g.name.toLowerCase().includes(q) || (g.area && g.area.toLowerCase().includes(q));
   });
 
   const handleOpenCreate = () => {
@@ -54,7 +105,42 @@ export const MainAppView: React.FC = () => {
     if (editingGoal) {
       await updateGoal(editingGoal.id, payload);
     } else {
+      soundEffects.playGoalFanfare();
+      triggerConfetti({ spread: 'micro', count: 50 });
       await createGoal(payload as GoalDraft);
+    }
+  };
+
+  const handleIncrement = (goalId: string, delta?: number) => {
+    soundEffects.playMilestonePop();
+    triggerConfetti({ spread: 'micro', count: 18 });
+    incrementProgress(goalId, delta);
+  };
+
+  const handleToggleMilestone = (goalId: string, milestoneId: string) => {
+    soundEffects.playMilestonePop();
+    triggerConfetti({ spread: 'micro', count: 24 });
+    toggleMilestone(goalId, milestoneId);
+  };
+
+  const handleCompleteGoal = (goalId: string) => {
+    soundEffects.playGoalFanfare();
+    triggerConfetti({ spread: 'full', count: 120 });
+    completeGoal(goalId);
+  };
+
+  const handlePromptDelete = (goalId: string) => {
+    const target = goals.find((g) => g.id === goalId);
+    if (target) {
+      setGoalToDelete(target);
+    }
+  };
+
+  const handleConfirmDelete = async () => {
+    if (goalToDelete) {
+      soundEffects.playTickSound();
+      await deleteGoal(goalToDelete.id);
+      setGoalToDelete(null);
     }
   };
 
@@ -70,6 +156,7 @@ export const MainAppView: React.FC = () => {
         overflow: 'hidden',
       }}
     >
+      <ConfettiCanvas />
       {/* Titlebar / Drag Region */}
       <div
         className="drag-region"
@@ -88,7 +175,7 @@ export const MainAppView: React.FC = () => {
         {/* Brand & View Switcher */}
         <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <Compass size={15} color="#ffffff" />
+            <BeaconLogo size={18} />
             <span style={{ fontSize: '13px', fontWeight: 700, letterSpacing: '-0.2px', color: '#ffffff' }}>Beacon</span>
           </div>
 
@@ -102,12 +189,14 @@ export const MainAppView: React.FC = () => {
                 fontWeight: 600,
                 backgroundColor: viewMode === 'goals' ? '#ffffff' : 'transparent',
                 color: viewMode === 'goals' ? '#000000' : 'var(--text-secondary)',
+                border: 'none',
                 cursor: 'pointer',
                 display: 'flex',
                 alignItems: 'center',
                 gap: '4px',
                 transition: 'all 0.15s ease',
               }}
+              title="Goals View (⌘1)"
             >
               <Layers size={11} />
               <span>Goals</span>
@@ -122,12 +211,14 @@ export const MainAppView: React.FC = () => {
                 fontWeight: 600,
                 backgroundColor: viewMode === 'focus' ? '#ffffff' : 'transparent',
                 color: viewMode === 'focus' ? '#000000' : 'var(--text-secondary)',
+                border: 'none',
                 cursor: 'pointer',
                 display: 'flex',
                 alignItems: 'center',
                 gap: '4px',
                 transition: 'all 0.15s ease',
               }}
+              title="Focus Mode (⌘2)"
             >
               <Timer size={11} />
               <span>Focus Mode</span>
@@ -142,7 +233,7 @@ export const MainAppView: React.FC = () => {
           <button onClick={() => redo()} className="btn-ghost" title="Redo (⌘⇧Z)">
             <Redo2 size={14} />
           </button>
-          <button onClick={handleOpenCreate} className="btn-primary" style={{ padding: '6px 14px', fontSize: '12px' }}>
+          <button onClick={handleOpenCreate} className="btn-primary" style={{ padding: '6px 14px', fontSize: '12px' }} title="New Goal (⌘N)">
             <Plus size={14} />
             <span>New Goal</span>
           </button>
@@ -177,6 +268,7 @@ export const MainAppView: React.FC = () => {
                   fontWeight: 600,
                   backgroundColor: activeTab === 'active' ? '#ffffff' : 'transparent',
                   color: activeTab === 'active' ? '#000000' : 'var(--text-secondary)',
+                  border: 'none',
                   cursor: 'pointer',
                   display: 'flex',
                   alignItems: 'center',
@@ -196,6 +288,7 @@ export const MainAppView: React.FC = () => {
                   fontWeight: 600,
                   backgroundColor: activeTab === 'completed' ? '#ffffff' : 'transparent',
                   color: activeTab === 'completed' ? '#000000' : 'var(--text-secondary)',
+                  border: 'none',
                   cursor: 'pointer',
                   display: 'flex',
                   alignItems: 'center',
@@ -215,6 +308,7 @@ export const MainAppView: React.FC = () => {
                   fontWeight: 600,
                   backgroundColor: activeTab === 'archived' ? '#ffffff' : 'transparent',
                   color: activeTab === 'archived' ? '#000000' : 'var(--text-secondary)',
+                  border: 'none',
                   cursor: 'pointer',
                   display: 'flex',
                   alignItems: 'center',
@@ -234,6 +328,7 @@ export const MainAppView: React.FC = () => {
                   fontWeight: 600,
                   backgroundColor: activeTab === 'all' ? '#ffffff' : 'transparent',
                   color: activeTab === 'all' ? '#000000' : 'var(--text-secondary)',
+                  border: 'none',
                   cursor: 'pointer',
                   transition: 'all 0.15s ease',
                 }}
@@ -242,21 +337,46 @@ export const MainAppView: React.FC = () => {
               </button>
             </div>
 
-            <input
-              type="text"
-              placeholder="Search goals or categories..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              style={{
-                width: '220px',
-                padding: '6px 12px',
-                backgroundColor: 'rgba(255, 255, 255, 0.04)',
-                border: '1px solid var(--border-subtle)',
-                borderRadius: 'var(--radius-md)',
-                color: 'var(--text-primary)',
-                fontSize: '12px',
-              }}
-            />
+            <div style={{ position: 'relative', width: '240px' }}>
+              <Search size={13} color="var(--text-muted)" style={{ position: 'absolute', left: '10px', top: '50%', transform: 'translateY(-50%)' }} />
+              <input
+                ref={searchInputRef}
+                type="text"
+                placeholder="Search goals... (⌘F)"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                style={{
+                  width: '100%',
+                  boxSizing: 'border-box',
+                  padding: '6px 28px 6px 30px',
+                  backgroundColor: 'rgba(255, 255, 255, 0.04)',
+                  border: '1px solid var(--border-subtle)',
+                  borderRadius: 'var(--radius-md)',
+                  color: 'var(--text-primary)',
+                  fontSize: '12px',
+                  outline: 'none',
+                }}
+              />
+              {searchQuery && (
+                <button
+                  onClick={() => setSearchQuery('')}
+                  style={{
+                    position: 'absolute',
+                    right: '8px',
+                    top: '50%',
+                    transform: 'translateY(-50%)',
+                    border: 'none',
+                    backgroundColor: 'transparent',
+                    color: 'var(--text-muted)',
+                    cursor: 'pointer',
+                    padding: '2px',
+                    display: 'flex',
+                  }}
+                >
+                  <X size={12} />
+                </button>
+              )}
+            </div>
           </div>
 
           {/* Goal Cards Grid */}
@@ -279,28 +399,35 @@ export const MainAppView: React.FC = () => {
               >
                 <Layers size={36} strokeWidth={1.2} opacity={0.3} />
                 <div style={{ textAlign: 'center' }}>
-                  <p style={{ fontSize: '14px', fontWeight: 500, color: 'var(--text-secondary)' }}>No goals found</p>
-                  <p style={{ fontSize: '12px', marginTop: '2px' }}>Create a goal to start tracking progress</p>
+                  <p style={{ fontSize: '14px', fontWeight: 500, color: 'var(--text-secondary)' }}>
+                    {searchQuery ? 'No matching goals found' : 'No goals found'}
+                  </p>
+                  <p style={{ fontSize: '12px', marginTop: '2px' }}>
+                    {searchQuery ? 'Press Escape to clear filter' : 'Create a goal to start tracking progress'}
+                  </p>
                 </div>
-                <button onClick={handleOpenCreate} className="btn-primary" style={{ padding: '6px 14px', fontSize: '12px' }}>
-                  <Plus size={14} />
-                  <span>Create First Goal</span>
-                </button>
+                {!searchQuery && (
+                  <button onClick={handleOpenCreate} className="btn-primary" style={{ padding: '6px 14px', fontSize: '12px' }}>
+                    <Plus size={14} />
+                    <span>Create First Goal</span>
+                  </button>
+                )}
               </div>
             ) : (
               filteredGoals.map((g) => (
-                <GoalCard
-                  key={g.id}
-                  goal={g}
-                  onIncrement={incrementProgress}
-                  onToggleMilestone={toggleMilestone}
-                  onAddMilestone={addMilestone}
-                  onDeleteMilestone={deleteMilestone}
-                  onComplete={completeGoal}
-                  onArchive={archiveGoal}
-                  onDelete={deleteGoal}
-                  onEdit={handleOpenEdit}
-                />
+                <div key={g.id} className="card-spring-enter">
+                  <GoalCard
+                    goal={g}
+                    onIncrement={handleIncrement}
+                    onToggleMilestone={handleToggleMilestone}
+                    onAddMilestone={addMilestone}
+                    onDeleteMilestone={deleteMilestone}
+                    onComplete={handleCompleteGoal}
+                    onArchive={archiveGoal}
+                    onDelete={handlePromptDelete}
+                    onEdit={handleOpenEdit}
+                  />
+                </div>
               ))
             )}
           </div>
@@ -362,6 +489,18 @@ export const MainAppView: React.FC = () => {
         isOpen={isEditorOpen}
         onClose={() => setIsEditorOpen(false)}
         onSave={handleSaveGoal}
+      />
+
+      {/* Destructive Deletion Confirmation Modal */}
+      <ConfirmationModal
+        isOpen={!!goalToDelete}
+        title="Delete Goal?"
+        message={goalToDelete ? `Are you sure you want to permanently delete "${goalToDelete.name}"? This action cannot be undone.` : ''}
+        confirmLabel="Delete Goal"
+        cancelLabel="Cancel"
+        isDestructive={true}
+        onConfirm={handleConfirmDelete}
+        onCancel={() => setGoalToDelete(null)}
       />
     </div>
   );

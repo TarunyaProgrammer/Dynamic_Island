@@ -3,7 +3,8 @@
 **Status**: Draft / Under Review  
 **Date**: 2026-08-31  
 **Author**: Tarunya K ([@TarunyaProgrammer](https://github.com/TarunyaProgrammer))  
-**Target Platform**: macOS 15.0+ (Sequoia), Swift 6, SwiftUI + AppKit  
+**Target Platform**: Electron 34+, TypeScript 5.8+, React 19, SQLite (WAL mode)  
+**Status**: Implemented / Active Architecture  
 
 ---
 
