@@ -138,23 +138,20 @@ export const DynamicIslandView: React.FC = () => {
       <ConfettiCanvas />
       {/* Notch Shell Container with Inverted Bezels (Calibrated for 14-inch MacBook Pro: 185x32pt) */}
       <div
-        className={focusState.isActive ? 'alive-heartbeat-active' : 'alive-heartbeat-idle'}
         style={{
           width: isExpanded ? '640px' : '240px',
           minHeight: isExpanded ? '146px' : '32px',
           maxHeight: isExpanded ? '160px' : '32px',
-          backgroundColor: '#000000',
+          backgroundColor: isExpanded ? 'rgba(10, 10, 14, 0.86)' : '#000000',
+          backdropFilter: isExpanded ? 'blur(32px) saturate(190%)' : 'none',
+          WebkitBackdropFilter: isExpanded ? 'blur(32px) saturate(190%)' : 'none',
           position: 'relative',
-          border: isExpanded ? '1px solid rgba(255, 255, 255, 0.16)' : '1px solid transparent',
+          border: isExpanded ? '1px solid rgba(255, 255, 255, 0.12)' : '1px solid transparent',
           borderTop: 'none',
           borderRadius: isExpanded ? '0 0 22px 22px' : '0 0 12px 12px',
           boxShadow: isExpanded
-            ? (focusState.isActive
-                ? '0 16px 50px rgba(0, 0, 0, 0.95), 0 0 45px rgba(168, 85, 247, 0.4), 0 0 20px rgba(56, 189, 248, 0.3)'
-                : '0 12px 36px rgba(0, 0, 0, 0.8), 0 0 20px rgba(168, 85, 247, 0.2)')
-            : (focusState.isActive
-                ? '0 6px 22px rgba(168, 85, 247, 0.5), 0 0 12px rgba(56, 189, 248, 0.35)'
-                : '0 4px 12px rgba(0, 0, 0, 0.6)'),
+            ? '0 10px 26px rgba(0, 0, 0, 0.28), 0 1px 3px rgba(0, 0, 0, 0.15)'
+            : '0 2px 6px rgba(0, 0, 0, 0.2)',
           display: 'flex',
           flexDirection: 'column',
           transition: 'all 0.28s cubic-bezier(0.16, 1, 0.3, 1)',
