@@ -35,10 +35,32 @@ export const IPC_CHANNELS = {
   WINDOW_TOGGLE_ISLAND: 'beacon:window:toggle-island',
   WINDOW_HIDE_POPOVER: 'beacon:window:hide-popover',
   APP_QUIT: 'beacon:app:quit',
+  ISLAND_SET_EXPANDED: 'beacon:island:set-expanded',
+
+  // Live Activities & Focus Sessions
+  ACTIVITIES_GET_STACK: 'beacon:activities:get-stack',
+  ACTIVITIES_PUSH: 'beacon:activities:push',
+  ACTIVITIES_DISMISS: 'beacon:activities:dismiss',
+  FOCUS_START: 'beacon:focus:start',
+  FOCUS_PAUSE: 'beacon:focus:pause',
+  FOCUS_RESUME: 'beacon:focus:resume',
+  FOCUS_STOP: 'beacon:focus:stop',
+  FOCUS_EXTEND: 'beacon:focus:extend',
+  FOCUS_GET_STATE: 'beacon:focus:get-state',
+
+  // macOS Media Controls
+  MEDIA_GET_STATE: 'beacon:media:get-state',
+  MEDIA_PLAY_PAUSE: 'beacon:media:play-pause',
+  MEDIA_NEXT: 'beacon:media:next',
+  MEDIA_PREVIOUS: 'beacon:media:previous',
+  MEDIA_SET_VOLUME: 'beacon:media:set-volume',
 
   // Broadcast Events (Main -> Renderer)
   EVENT_GOALS_CHANGED: 'beacon:event:goals-changed',
   EVENT_SETTINGS_CHANGED: 'beacon:event:settings-changed',
+  EVENT_ACTIVITIES_CHANGED: 'beacon:event:activities-changed',
+  EVENT_FOCUS_TICK: 'beacon:event:focus-tick',
+  EVENT_MEDIA_CHANGED: 'beacon:event:media-changed',
 } as const;
 
 export type IpcChannel = (typeof IPC_CHANNELS)[keyof typeof IPC_CHANNELS];

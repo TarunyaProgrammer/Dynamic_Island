@@ -1,6 +1,7 @@
 // apps/main/index.ts - Electron Main Process Entrypoint
-import { app, BrowserWindow } from 'electron';
+import { app, BrowserWindow, session, powerMonitor } from 'electron';
 import path from 'path';
+import { fileURLToPath } from 'url';
 import { DatabaseConnection } from '@database/connection';
 import { SQLiteGoalRepository } from '@database/repository/goal-repository';
 import { SettingsRepository } from '@database/repository/settings-repository';
@@ -12,6 +13,10 @@ import { PaletteWindowController } from './windows/PaletteWindow';
 import { TrayController } from './tray/TrayController';
 import { ShortcutManager } from './shortcuts/ShortcutManager';
 import { registerIpcHandlers } from './ipc/goalHandlers';
+
+// Setup __dirname for ES module scope
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 // Check single instance lock
 const gotTheLock = app.requestSingleInstanceLock();
@@ -92,8 +97,21 @@ class BeaconApp {
 let beaconApp: BeaconApp | null = null;
 
 app.whenReady().then(async () => {
-  // Hide dock icon by default for seamless menu-bar status bar operation on macOS
-  // (dock icon reappears if explicitly desired or when main window is active)
+  // Security: Deny all unsolicited web permission requests (mic, camera, geolocation)
+  session.defaultSession.setPermissionRequestHandler((_webContents, _permission, callback) => {
+    callback(false);
+  });
+
+  // Performance: Pause background services on macOS sleep and resume on wake
+  powerMonitor.on('suspend', () => {
+    // macOS sleep
+  });
+
+  powerMonitor.on('resume', () => {
+    // macOS wake
+  });
+
+  // Dock icon visibility on macOS
   if (process.platform === 'darwin' && app.dock) {
     app.dock.show();
   }

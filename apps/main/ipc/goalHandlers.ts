@@ -1,9 +1,12 @@
 // apps/main/ipc/goalHandlers.ts - Central IPC Bridge Handlers
 import { BrowserWindow, app, ipcMain } from 'electron';
 import { IPC_CHANNELS } from '@shared/ipc-channels';
-import { AppSettings, GoalDraft, GoalStatus, GoalUpdateDraft } from '@shared/types';
+import { AppSettings, GoalDraft, GoalStatus, GoalUpdateDraft, LiveActivity, FocusSessionState } from '@shared/types';
 import { GoalService } from '@core/services/goal-service';
 import { SettingsRepository } from '@database/repository/settings-repository';
+import { ActivityEngine } from '@core/activities/activity-engine';
+import { FocusSessionManager } from '@core/activities/focus-manager';
+import { MediaService } from '@core/services/media-service';
 import { NotificationService } from '../notifications/NotificationService';
 import { MainWindowController } from '../windows/MainWindow';
 import { PaletteWindowController } from '../windows/PaletteWindow';
@@ -20,6 +23,11 @@ export function registerIpcHandlers(
   preloadPath: string,
   rendererUrl?: string
 ): void {
+  // Initialize Activity Engine, Goal-Linked Focus Manager, and Media Service
+  const activityEngine = new ActivityEngine();
+  const focusManager = new FocusSessionManager(goalService, activityEngine);
+  const mediaService = new MediaService(activityEngine);
+
   // Broadcast helper
   const broadcastGoalsChanged = () => {
     for (const win of BrowserWindow.getAllWindows()) {
@@ -37,7 +45,34 @@ export function registerIpcHandlers(
     }
   };
 
+  const broadcastActivitiesChanged = (stack: LiveActivity[]) => {
+    for (const win of BrowserWindow.getAllWindows()) {
+      if (!win.isDestroyed()) {
+        win.webContents.send(IPC_CHANNELS.EVENT_ACTIVITIES_CHANGED, stack);
+      }
+    }
+  };
+
+  const broadcastFocusTick = (state: FocusSessionState) => {
+    for (const win of BrowserWindow.getAllWindows()) {
+      if (!win.isDestroyed()) {
+        win.webContents.send(IPC_CHANNELS.EVENT_FOCUS_TICK, state);
+      }
+    }
+  };
+
+  const broadcastMediaChanged = (state: any) => {
+    for (const win of BrowserWindow.getAllWindows()) {
+      if (!win.isDestroyed()) {
+        win.webContents.send(IPC_CHANNELS.EVENT_MEDIA_CHANGED, state);
+      }
+    }
+  };
+
   goalService.subscribe(broadcastGoalsChanged);
+  activityEngine.subscribe(broadcastActivitiesChanged);
+  focusManager.subscribe(broadcastFocusTick);
+  mediaService.subscribe(broadcastMediaChanged);
 
   // Goal queries & mutations
   ipcMain.handle(IPC_CHANNELS.GOALS_LIST, (_, status?: GoalStatus) => {
@@ -152,7 +187,70 @@ export function registerIpcHandlers(
     popoverWindow.hide();
   });
 
+  ipcMain.handle(IPC_CHANNELS.ISLAND_SET_EXPANDED, (_, expanded: boolean) => {
+    islandWindow.setExpanded(expanded);
+  });
+
   ipcMain.handle(IPC_CHANNELS.APP_QUIT, () => {
     app.quit();
+  });
+
+  // Live Activities & Priority Queue Engine
+  ipcMain.handle(IPC_CHANNELS.ACTIVITIES_GET_STACK, () => {
+    return activityEngine.getStack();
+  });
+
+  ipcMain.handle(IPC_CHANNELS.ACTIVITIES_PUSH, (_, activity: any, ttlMs?: number) => {
+    activityEngine.push(activity, ttlMs);
+  });
+
+  ipcMain.handle(IPC_CHANNELS.ACTIVITIES_DISMISS, (_, id: string) => {
+    return activityEngine.dismiss(id);
+  });
+
+  // Goal-Linked Focus Sessions
+  ipcMain.handle(IPC_CHANNELS.FOCUS_START, (_, durationMinutes?: number, goalId?: string) => {
+    return focusManager.start(durationMinutes, goalId);
+  });
+
+  ipcMain.handle(IPC_CHANNELS.FOCUS_PAUSE, () => {
+    return focusManager.pause();
+  });
+
+  ipcMain.handle(IPC_CHANNELS.FOCUS_RESUME, () => {
+    return focusManager.resume();
+  });
+
+  ipcMain.handle(IPC_CHANNELS.FOCUS_STOP, (_, commitProgress?: boolean) => {
+    return focusManager.stop(commitProgress);
+  });
+
+  ipcMain.handle(IPC_CHANNELS.FOCUS_EXTEND, (_, minutes?: number) => {
+    return focusManager.extend(minutes);
+  });
+
+  ipcMain.handle(IPC_CHANNELS.FOCUS_GET_STATE, () => {
+    return focusManager.getState();
+  });
+
+  // macOS Media Handlers
+  ipcMain.handle(IPC_CHANNELS.MEDIA_GET_STATE, () => {
+    return mediaService.getState();
+  });
+
+  ipcMain.handle(IPC_CHANNELS.MEDIA_PLAY_PAUSE, () => {
+    return mediaService.playPause();
+  });
+
+  ipcMain.handle(IPC_CHANNELS.MEDIA_NEXT, () => {
+    return mediaService.nextTrack();
+  });
+
+  ipcMain.handle(IPC_CHANNELS.MEDIA_PREVIOUS, () => {
+    return mediaService.previousTrack();
+  });
+
+  ipcMain.handle(IPC_CHANNELS.MEDIA_SET_VOLUME, (_, volume: number) => {
+    return mediaService.setVolume(volume);
   });
 }

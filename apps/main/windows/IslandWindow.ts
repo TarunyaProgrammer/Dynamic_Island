@@ -13,8 +13,8 @@ export class IslandWindowController {
     }
 
     const primary = screen.getPrimaryDisplay();
-    const width = 360;
-    const height = 180;
+    const width = 250;
+    const height = 34;
     const x = Math.round(primary.bounds.x + (primary.bounds.width - width) / 2);
     const y = primary.bounds.y;
 
@@ -61,6 +61,17 @@ export class IslandWindowController {
     });
 
     return this.window;
+  }
+
+  setExpanded(expanded: boolean): void {
+    if (!this.window || this.window.isDestroyed()) return;
+    const primary = screen.getPrimaryDisplay();
+    const width = expanded ? 660 : 250;
+    const height = expanded ? 180 : 34;
+    const x = Math.round(primary.bounds.x + (primary.bounds.width - width) / 2);
+    const y = primary.bounds.y;
+
+    this.window.setBounds({ x, y, width, height }, false);
   }
 
   reposition(): void {

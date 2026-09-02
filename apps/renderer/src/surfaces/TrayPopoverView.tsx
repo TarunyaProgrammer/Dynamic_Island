@@ -27,12 +27,12 @@ export const TrayPopoverView: React.FC = () => {
         flexDirection: 'column',
         height: '100vh',
         width: '100vw',
-        backgroundColor: 'rgba(18, 20, 26, 0.94)',
-        backdropFilter: 'blur(30px) saturate(180%)',
-        WebkitBackdropFilter: 'blur(30px) saturate(180%)',
-        border: '1px solid rgba(255, 255, 255, 0.1)',
+        backgroundColor: '#0a0a0c',
+        border: '1px solid rgba(255, 255, 255, 0.12)',
         borderRadius: '16px',
         overflow: 'hidden',
+        boxShadow: '0 20px 50px rgba(0, 0, 0, 0.95), inset 0 1px 0 rgba(255, 255, 255, 0.1)',
+        position: 'relative',
       }}
     >
       {/* Header */}
@@ -43,12 +43,14 @@ export const TrayPopoverView: React.FC = () => {
           alignItems: 'center',
           justifyContent: 'space-between',
           borderBottom: '1px solid var(--border-subtle)',
-          backgroundColor: 'rgba(255, 255, 255, 0.02)',
+          backgroundColor: '#121216',
+          position: 'relative',
+          zIndex: 1,
         }}
       >
         <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-          <Compass size={15} color="var(--accent-primary)" />
-          <span style={{ fontSize: '12px', fontWeight: 600 }}>Beacon Hub</span>
+          <Compass size={15} color="#ffffff" />
+          <span style={{ fontSize: '12px', fontWeight: 700, color: '#ffffff' }}>Beacon Hub</span>
         </div>
 
         <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>

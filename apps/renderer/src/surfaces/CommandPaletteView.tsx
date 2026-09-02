@@ -64,13 +64,12 @@ export const CommandPaletteView: React.FC = () => {
         flexDirection: 'column',
         height: '100vh',
         width: '100vw',
-        backgroundColor: 'rgba(20, 22, 30, 0.94)',
-        backdropFilter: 'blur(32px) saturate(190%)',
-        WebkitBackdropFilter: 'blur(32px) saturate(190%)',
+        backgroundColor: '#0a0a0c',
         border: '1px solid rgba(255, 255, 255, 0.12)',
-        borderRadius: '16px',
+        borderRadius: '18px',
         overflow: 'hidden',
-        boxShadow: '0 20px 50px rgba(0, 0, 0, 0.6)',
+        boxShadow: '0 24px 60px rgba(0, 0, 0, 0.95), inset 0 1px 0 rgba(255, 255, 255, 0.1)',
+        position: 'relative',
       }}
     >
       {/* Search Input Bar */}
@@ -79,12 +78,14 @@ export const CommandPaletteView: React.FC = () => {
           display: 'flex',
           alignItems: 'center',
           gap: '10px',
-          padding: '14px 18px',
+          padding: '16px 20px',
           borderBottom: '1px solid var(--border-subtle)',
-          backgroundColor: 'rgba(255, 255, 255, 0.02)',
+          backgroundColor: '#121216',
+          position: 'relative',
+          zIndex: 1,
         }}
       >
-        <Search size={18} color="var(--accent-primary)" />
+        <Search size={18} color="#ffffff" />
         <input
           ref={inputRef}
           type="text"

@@ -6,9 +6,11 @@ import { GoalCard } from '../components/GoalCard';
 import { GoalEditorModal } from '../components/GoalEditorModal';
 import { ActivityTimeline } from '../components/ActivityTimeline';
 import { GoalProgressRing } from '../components/GoalProgressRing';
-import { Plus, Undo2, Redo2, Layers, CheckCircle2, Archive, Activity, Compass } from 'lucide-react';
+import { Plus, Undo2, Redo2, Layers, CheckCircle2, Archive, Activity, Compass, Timer } from 'lucide-react';
+import { FocusDashboardView } from '../components/FocusDashboardView';
 
 export const MainAppView: React.FC = () => {
+  const [viewMode, setViewMode] = useState<'goals' | 'focus'>('goals');
   const [activeTab, setActiveTab] = useState<GoalStatus | 'all'>('active');
   const [searchQuery, setSearchQuery] = useState('');
   const [isEditorOpen, setIsEditorOpen] = useState(false);
@@ -63,27 +65,74 @@ export const MainAppView: React.FC = () => {
         flexDirection: 'column',
         height: '100vh',
         width: '100vw',
-        backgroundColor: 'var(--bg-app)',
-        backdropFilter: 'blur(40px)',
-        WebkitBackdropFilter: 'blur(40px)',
+        backgroundColor: '#000000',
+        position: 'relative',
+        overflow: 'hidden',
       }}
     >
       {/* Titlebar / Drag Region */}
       <div
         className="drag-region"
         style={{
-          height: '44px',
+          height: '46px',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'space-between',
-          padding: '0 16px 0 80px', // Offset for macOS traffic light buttons
+          padding: '0 18px 0 84px', // Offset for macOS traffic light buttons
           borderBottom: '1px solid var(--border-subtle)',
-          backgroundColor: 'rgba(255, 255, 255, 0.02)',
+          backgroundColor: '#0a0a0c',
+          position: 'relative',
+          zIndex: 2,
         }}
       >
-        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-          <Compass size={16} color="var(--accent-primary)" />
-          <span style={{ fontSize: '13px', fontWeight: 600, letterSpacing: '-0.2px' }}>Beacon</span>
+        {/* Brand & View Switcher */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <Compass size={15} color="#ffffff" />
+            <span style={{ fontSize: '13px', fontWeight: 700, letterSpacing: '-0.2px', color: '#ffffff' }}>Beacon</span>
+          </div>
+
+          <div className="no-drag" style={{ display: 'flex', gap: '3px', backgroundColor: 'rgba(255, 255, 255, 0.05)', padding: '2px', borderRadius: 'var(--radius-md)', border: '1px solid var(--border-subtle)' }}>
+            <button
+              onClick={() => setViewMode('goals')}
+              style={{
+                padding: '3px 10px',
+                borderRadius: 'var(--radius-sm)',
+                fontSize: '11px',
+                fontWeight: 600,
+                backgroundColor: viewMode === 'goals' ? '#ffffff' : 'transparent',
+                color: viewMode === 'goals' ? '#000000' : 'var(--text-secondary)',
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '4px',
+                transition: 'all 0.15s ease',
+              }}
+            >
+              <Layers size={11} />
+              <span>Goals</span>
+            </button>
+
+            <button
+              onClick={() => setViewMode('focus')}
+              style={{
+                padding: '3px 10px',
+                borderRadius: 'var(--radius-sm)',
+                fontSize: '11px',
+                fontWeight: 600,
+                backgroundColor: viewMode === 'focus' ? '#ffffff' : 'transparent',
+                color: viewMode === 'focus' ? '#000000' : 'var(--text-secondary)',
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '4px',
+                transition: 'all 0.15s ease',
+              }}
+            >
+              <Timer size={11} />
+              <span>Focus Mode</span>
+            </button>
+          </div>
         </div>
 
         <div className="no-drag" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
@@ -93,15 +142,18 @@ export const MainAppView: React.FC = () => {
           <button onClick={() => redo()} className="btn-ghost" title="Redo (⌘⇧Z)">
             <Redo2 size={14} />
           </button>
-          <button onClick={handleOpenCreate} className="btn-primary" style={{ padding: '5px 12px', fontSize: '12px' }}>
+          <button onClick={handleOpenCreate} className="btn-primary" style={{ padding: '6px 14px', fontSize: '12px' }}>
             <Plus size={14} />
             <span>New Goal</span>
           </button>
         </div>
       </div>
 
-      {/* Main Workspace Layout */}
-      <div style={{ display: 'flex', flex: 1, overflow: 'hidden' }}>
+      {/* Main Workspace: Goals View OR Focus Mode */}
+      {viewMode === 'focus' ? (
+        <FocusDashboardView goals={goals} onOpenCreateGoal={handleOpenCreate} />
+      ) : (
+        <div style={{ display: 'flex', flex: 1, overflow: 'hidden', position: 'relative', zIndex: 1 }}>
         {/* Goals Area */}
         <div
           style={{
@@ -115,20 +167,21 @@ export const MainAppView: React.FC = () => {
         >
           {/* Tabs & Search Bar */}
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '12px' }}>
-            <div style={{ display: 'flex', gap: '4px', backgroundColor: 'rgba(255, 255, 255, 0.04)', padding: '3px', borderRadius: 'var(--radius-md)' }}>
+            <div style={{ display: 'flex', gap: '4px', backgroundColor: 'rgba(255, 255, 255, 0.04)', padding: '3px', borderRadius: 'var(--radius-md)', border: '1px solid var(--border-subtle)' }}>
               <button
                 onClick={() => setActiveTab('active')}
                 style={{
-                  padding: '4px 10px',
+                  padding: '4px 12px',
                   borderRadius: 'var(--radius-sm)',
                   fontSize: '12px',
-                  fontWeight: 500,
-                  backgroundColor: activeTab === 'active' ? 'var(--accent-primary)' : 'transparent',
-                  color: activeTab === 'active' ? '#ffffff' : 'var(--text-secondary)',
+                  fontWeight: 600,
+                  backgroundColor: activeTab === 'active' ? '#ffffff' : 'transparent',
+                  color: activeTab === 'active' ? '#000000' : 'var(--text-secondary)',
                   cursor: 'pointer',
                   display: 'flex',
                   alignItems: 'center',
                   gap: '5px',
+                  transition: 'all 0.15s ease',
                 }}
               >
                 <Layers size={12} />
@@ -137,16 +190,17 @@ export const MainAppView: React.FC = () => {
               <button
                 onClick={() => setActiveTab('completed')}
                 style={{
-                  padding: '4px 10px',
+                  padding: '4px 12px',
                   borderRadius: 'var(--radius-sm)',
                   fontSize: '12px',
-                  fontWeight: 500,
-                  backgroundColor: activeTab === 'completed' ? 'var(--accent-primary)' : 'transparent',
-                  color: activeTab === 'completed' ? '#ffffff' : 'var(--text-secondary)',
+                  fontWeight: 600,
+                  backgroundColor: activeTab === 'completed' ? '#ffffff' : 'transparent',
+                  color: activeTab === 'completed' ? '#000000' : 'var(--text-secondary)',
                   cursor: 'pointer',
                   display: 'flex',
                   alignItems: 'center',
                   gap: '5px',
+                  transition: 'all 0.15s ease',
                 }}
               >
                 <CheckCircle2 size={12} />
@@ -155,16 +209,17 @@ export const MainAppView: React.FC = () => {
               <button
                 onClick={() => setActiveTab('archived')}
                 style={{
-                  padding: '4px 10px',
+                  padding: '4px 12px',
                   borderRadius: 'var(--radius-sm)',
                   fontSize: '12px',
-                  fontWeight: 500,
-                  backgroundColor: activeTab === 'archived' ? 'var(--accent-primary)' : 'transparent',
-                  color: activeTab === 'archived' ? '#ffffff' : 'var(--text-secondary)',
+                  fontWeight: 600,
+                  backgroundColor: activeTab === 'archived' ? '#ffffff' : 'transparent',
+                  color: activeTab === 'archived' ? '#000000' : 'var(--text-secondary)',
                   cursor: 'pointer',
                   display: 'flex',
                   alignItems: 'center',
                   gap: '5px',
+                  transition: 'all 0.15s ease',
                 }}
               >
                 <Archive size={12} />
@@ -173,13 +228,14 @@ export const MainAppView: React.FC = () => {
               <button
                 onClick={() => setActiveTab('all')}
                 style={{
-                  padding: '4px 10px',
+                  padding: '4px 12px',
                   borderRadius: 'var(--radius-sm)',
                   fontSize: '12px',
-                  fontWeight: 500,
-                  backgroundColor: activeTab === 'all' ? 'var(--accent-primary)' : 'transparent',
-                  color: activeTab === 'all' ? '#ffffff' : 'var(--text-secondary)',
+                  fontWeight: 600,
+                  backgroundColor: activeTab === 'all' ? '#ffffff' : 'transparent',
+                  color: activeTab === 'all' ? '#000000' : 'var(--text-secondary)',
                   cursor: 'pointer',
+                  transition: 'all 0.15s ease',
                 }}
               >
                 All
@@ -298,6 +354,7 @@ export const MainAppView: React.FC = () => {
           </div>
         </div>
       </div>
+      )}
 
       {/* Goal Creation / Edit Modal */}
       <GoalEditorModal

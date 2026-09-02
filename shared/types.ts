@@ -87,3 +87,41 @@ export interface BeaconStats {
   overallProgressFraction: number;
   todayIncrementsCount: number;
 }
+
+/* ==========================================================================
+   Live Activity Layer & Priority Stacking Models
+   ========================================================================== */
+
+export type ActivityPriority = 'critical' | 'high' | 'normal' | 'low';
+export type ActivityType = 'goal' | 'focus' | 'media' | 'timer' | 'system' | 'calendar';
+
+export interface LiveActivity {
+  id: string;
+  type: ActivityType;
+  priority: ActivityPriority;
+  title: string;
+  subtitle?: string;
+  progressFraction?: number;
+  iconName?: string;
+  metadata?: Record<string, any>;
+  timestamp: string;
+}
+
+export interface FocusSessionState {
+  goalId?: string;
+  goalName?: string;
+  durationSeconds: number;
+  remainingSeconds: number;
+  isActive: boolean;
+  isPaused: boolean;
+}
+
+export interface MediaActivityState {
+  title: string;
+  artist: string;
+  album?: string;
+  isPlaying: boolean;
+  progressSeconds: number;
+  durationSeconds: number;
+  volume?: number;
+}

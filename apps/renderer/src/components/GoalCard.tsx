@@ -4,7 +4,7 @@ import { Goal } from '@shared/types';
 import { GoalProgressRing } from './GoalProgressRing';
 import { QuickIncrementButton } from './QuickIncrementButton';
 import { MilestoneList } from './MilestoneList';
-import { CheckCircle, ChevronDown, ChevronUp, MoreHorizontal, Archive, Trash2, Edit3, Calendar } from 'lucide-react';
+import { CheckCircle, ChevronDown, ChevronUp, MoreHorizontal, Archive, Trash2, Edit3, Calendar, Timer } from 'lucide-react';
 
 interface GoalCardProps {
   goal: Goal;
@@ -108,11 +108,35 @@ export const GoalCard: React.FC<GoalCardProps> = ({
         {/* Quick Action Button & Menu */}
         <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
           {!isComplete && (
-            <QuickIncrementButton
-              amount={goal.defaultIncrement || 1}
-              unit={goal.unit}
-              onClick={() => onIncrement(goal.id)}
-            />
+            <>
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  window.beacon?.focus?.start(25, goal.id);
+                }}
+                className="btn-ghost"
+                title="Start 25m Focus Sprint on this goal"
+                style={{
+                  padding: '4px 8px',
+                  fontSize: '11px',
+                  fontWeight: 600,
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '4px',
+                  backgroundColor: 'rgba(255, 255, 255, 0.08)',
+                  color: '#ffffff',
+                }}
+              >
+                <Timer size={12} />
+                <span>Focus</span>
+              </button>
+
+              <QuickIncrementButton
+                amount={goal.defaultIncrement || 1}
+                unit={goal.unit}
+                onClick={() => onIncrement(goal.id)}
+              />
+            </>
           )}
 
           <div style={{ position: 'relative' }}>

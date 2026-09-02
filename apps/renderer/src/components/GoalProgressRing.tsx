@@ -14,7 +14,7 @@ export const GoalProgressRing: React.FC<GoalProgressRingProps> = ({
   size = 48,
   strokeWidth = 4,
   showText = true,
-  color = '#6366f1',
+  color = '#ffffff',
 }) => {
   const radius = (size - strokeWidth) / 2;
   const circumference = 2 * Math.PI * radius;
@@ -30,7 +30,7 @@ export const GoalProgressRing: React.FC<GoalProgressRingProps> = ({
           cx={size / 2}
           cy={size / 2}
           r={radius}
-          stroke="rgba(255, 255, 255, 0.1)"
+          stroke="rgba(255, 255, 255, 0.12)"
           strokeWidth={strokeWidth}
           fill="none"
         />
