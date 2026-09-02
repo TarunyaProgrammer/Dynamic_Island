@@ -1,4 +1,4 @@
-// packages/core/services/media-service.ts - Native macOS JXA Media Engine
+// packages/core/services/media-service.ts - Robust Multi-Source macOS Media Engine
 import { execFile } from 'child_process';
 import { promisify } from 'util';
 import { MediaActivityState } from '@shared/types';
@@ -52,7 +52,7 @@ export class MediaService {
     }
     if (this.isPausedBySystem) return;
 
-    // Fast 1000ms polling when playing for smooth scrub bar, 3000ms when idle
+    // 1000ms polling when active for smooth progress, 3000ms when idle
     const interval = delayMs ?? (this.currentState.isPlaying ? 1000 : 3000);
     this.pollTimeout = setTimeout(async () => {
       await this.fetchState();
@@ -153,13 +153,15 @@ export class MediaService {
         if (procs.includes("Google Chrome")) {
           try {
             const chrome = Application("Google Chrome");
-            for (const w of chrome.windows()) {
-              for (const t of w.tabs()) {
-                const url = t.url() || "";
+            const wins = chrome.windows();
+            for (let i = 0; i < wins.length; i++) {
+              const tabs = wins[i].tabs();
+              for (let j = 0; j < tabs.length; j++) {
+                const url = tabs[j].url() || "";
                 if (url.includes("youtube.com/watch") || url.includes("music.youtube") || url.includes("soundcloud") || url.includes("spotify.com") || url.includes("twitch.tv") || url.includes("netflix.com")) {
                   return JSON.stringify({
                     app: "Chrome",
-                    title: t.title() || "Web Media",
+                    title: tabs[j].title() || "Web Media",
                     artist: "Google Chrome",
                     isPlaying: true,
                     durationSeconds: 0,
@@ -176,13 +178,15 @@ export class MediaService {
         if (procs.includes("Safari")) {
           try {
             const safari = Application("Safari");
-            for (const w of safari.windows()) {
-              for (const t of w.tabs()) {
-                const url = t.url() || "";
+            const wins = safari.windows();
+            for (let i = 0; i < wins.length; i++) {
+              const tabs = wins[i].tabs();
+              for (let j = 0; j < tabs.length; j++) {
+                const url = tabs[j].url() || "";
                 if (url.includes("youtube.com/watch") || url.includes("music.youtube") || url.includes("soundcloud") || url.includes("spotify.com") || url.includes("twitch.tv") || url.includes("netflix.com")) {
                   return JSON.stringify({
                     app: "Safari",
-                    title: t.name() || "Web Media",
+                    title: tabs[j].name() || "Web Media",
                     artist: "Safari",
                     isPlaying: true,
                     durationSeconds: 0,
@@ -199,13 +203,15 @@ export class MediaService {
         if (procs.includes("Arc")) {
           try {
             const arc = Application("Arc");
-            for (const w of arc.windows()) {
-              for (const t of w.tabs()) {
-                const url = t.url() || "";
+            const wins = arc.windows();
+            for (let i = 0; i < wins.length; i++) {
+              const tabs = wins[i].tabs();
+              for (let j = 0; j < tabs.length; j++) {
+                const url = tabs[j].url() || "";
                 if (url.includes("youtube.com/watch") || url.includes("music.youtube") || url.includes("soundcloud") || url.includes("spotify.com") || url.includes("twitch.tv") || url.includes("netflix.com")) {
                   return JSON.stringify({
                     app: "Arc",
-                    title: t.title() || "Web Media",
+                    title: tabs[j].title() || "Web Media",
                     artist: "Arc Browser",
                     isPlaying: true,
                     durationSeconds: 0,
@@ -222,13 +228,15 @@ export class MediaService {
         if (procs.includes("Brave Browser")) {
           try {
             const brave = Application("Brave Browser");
-            for (const w of brave.windows()) {
-              for (const t of w.tabs()) {
-                const url = t.url() || "";
+            const wins = brave.windows();
+            for (let i = 0; i < wins.length; i++) {
+              const tabs = wins[i].tabs();
+              for (let j = 0; j < tabs.length; j++) {
+                const url = tabs[j].url() || "";
                 if (url.includes("youtube.com/watch") || url.includes("music.youtube") || url.includes("soundcloud") || url.includes("spotify.com") || url.includes("twitch.tv") || url.includes("netflix.com")) {
                   return JSON.stringify({
                     app: "Brave",
-                    title: t.title() || "Web Media",
+                    title: tabs[j].title() || "Web Media",
                     artist: "Brave Browser",
                     isPlaying: true,
                     durationSeconds: 0,
@@ -304,31 +312,77 @@ export class MediaService {
       function run() {
         const se = Application("System Events");
         const procs = se.applicationProcesses.name();
+
         if (procs.includes("Spotify")) {
-          Application("Spotify").playpause();
-          return "ok";
+          try {
+            Application("Spotify").playpause();
+            return "ok";
+          } catch(e) {}
         }
+
         if (procs.includes("Music")) {
-          Application("Music").playpause();
-          return "ok";
+          try {
+            Application("Music").playpause();
+            return "ok";
+          } catch(e) {}
         }
+
         if (procs.includes("Google Chrome")) {
-          const chrome = Application("Google Chrome");
-          for (const w of chrome.windows()) {
-            for (const t of w.tabs()) {
-              const url = t.url() || "";
-              if (url.includes("youtube.com") || url.includes("soundcloud.com") || url.includes("spotify.com")) {
-                t.execute({ javascript: "var v = document.querySelector('video') || document.querySelector('audio'); if (v) { v.paused ? v.play() : v.pause(); }" });
-                return "ok";
+          try {
+            const chrome = Application("Google Chrome");
+            const wins = chrome.windows();
+            for (let i = 0; i < wins.length; i++) {
+              const tabs = wins[i].tabs();
+              for (let j = 0; j < tabs.length; j++) {
+                const url = tabs[j].url() || "";
+                if (url.includes("youtube.com") || url.includes("soundcloud.com") || url.includes("spotify.com") || url.includes("netflix.com")) {
+                  try {
+                    tabs[j].execute({ javascript: "var v = document.querySelector('video') || document.querySelector('audio'); if (v) { v.paused ? v.play() : v.pause(); }" });
+                    return "ok";
+                  } catch(jsErr) {
+                    // Fallback if JS AppleEvents is disabled: focus tab and trigger YouTube playback shortcut 'k'
+                    wins[i].activeTabIndex = j + 1;
+                    chrome.activate();
+                    se.keystroke("k");
+                    return "ok";
+                  }
+                }
               }
             }
-          }
+          } catch(e) {}
         }
+
+        if (procs.includes("Safari")) {
+          try {
+            const safari = Application("Safari");
+            const wins = safari.windows();
+            for (let i = 0; i < wins.length; i++) {
+              const tabs = wins[i].tabs();
+              for (let j = 0; j < tabs.length; j++) {
+                const url = tabs[j].url() || "";
+                if (url.includes("youtube.com") || url.includes("soundcloud.com") || url.includes("spotify.com")) {
+                  try {
+                    safari.doJavaScript("var v = document.querySelector('video') || document.querySelector('audio'); if (v) { v.paused ? v.play() : v.pause(); }", { in: tabs[j] });
+                    return "ok";
+                  } catch(jsErr) {
+                    wins[i].currentTab = tabs[j];
+                    safari.activate();
+                    se.keystroke("k");
+                    return "ok";
+                  }
+                }
+              }
+            }
+          } catch(e) {}
+        }
+
         return "none";
       }
     `;
     try {
       await execFileAsync('osascript', ['-l', 'JavaScript', '-e', jxa], { timeout: 2500 });
+      this.currentState.isPlaying = !this.currentState.isPlaying;
+      this.notify();
       await new Promise((r) => setTimeout(r, 200));
       return await this.fetchState();
     } catch {
@@ -341,25 +395,47 @@ export class MediaService {
       function run() {
         const se = Application("System Events");
         const procs = se.applicationProcesses.name();
+
         if (procs.includes("Spotify")) {
-          Application("Spotify").nextTrack();
-          return "ok";
+          try {
+            Application("Spotify").nextTrack();
+            return "ok";
+          } catch(e) {}
         }
+
         if (procs.includes("Music")) {
-          Application("Music").nextTrack();
-          return "ok";
+          try {
+            Application("Music").nextTrack();
+            return "ok";
+          } catch(e) {}
         }
+
         if (procs.includes("Google Chrome")) {
-          const chrome = Application("Google Chrome");
-          for (const w of chrome.windows()) {
-            for (const t of w.tabs()) {
-              if ((t.url() || "").includes("youtube.com")) {
-                t.execute({ javascript: "var n = document.querySelector('.ytp-next-button'); if (n) n.click();" });
-                return "ok";
+          try {
+            const chrome = Application("Google Chrome");
+            const wins = chrome.windows();
+            for (let i = 0; i < wins.length; i++) {
+              const tabs = wins[i].tabs();
+              for (let j = 0; j < tabs.length; j++) {
+                const url = tabs[j].url() || "";
+                if (url.includes("youtube.com")) {
+                  try {
+                    tabs[j].execute({ javascript: "var n = document.querySelector('.ytp-next-button'); if (n) n.click();" });
+                    return "ok";
+                  } catch(jsErr) {
+                    wins[i].activeTabIndex = j + 1;
+                    chrome.activate();
+                    se.keyDown("shift");
+                    se.keystroke("n");
+                    se.keyUp("shift");
+                    return "ok";
+                  }
+                }
               }
             }
-          }
+          } catch(e) {}
         }
+
         return "none";
       }
     `;
@@ -377,14 +453,21 @@ export class MediaService {
       function run() {
         const se = Application("System Events");
         const procs = se.applicationProcesses.name();
+
         if (procs.includes("Spotify")) {
-          Application("Spotify").previousTrack();
-          return "ok";
+          try {
+            Application("Spotify").previousTrack();
+            return "ok";
+          } catch(e) {}
         }
+
         if (procs.includes("Music")) {
-          Application("Music").previousTrack();
-          return "ok";
+          try {
+            Application("Music").previousTrack();
+            return "ok";
+          } catch(e) {}
         }
+
         return "none";
       }
     `;
@@ -403,12 +486,19 @@ export class MediaService {
       function run() {
         const se = Application("System Events");
         const procs = se.applicationProcesses.name();
+
         if (procs.includes("Spotify")) {
-          Application("Spotify").soundVolume = ${clamped};
+          try {
+            Application("Spotify").soundVolume = ${clamped};
+          } catch(e) {}
         } else if (procs.includes("Music")) {
-          Application("Music").soundVolume = ${clamped};
+          try {
+            Application("Music").soundVolume = ${clamped};
+          } catch(e) {}
         }
-        se.setVolume(${clamped / 100});
+        try {
+          se.setVolume(${clamped / 100});
+        } catch(e) {}
       }
     `;
     try {
