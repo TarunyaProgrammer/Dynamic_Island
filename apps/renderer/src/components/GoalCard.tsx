@@ -5,7 +5,7 @@ import { GoalProgressRing } from './GoalProgressRing';
 import { QuickIncrementButton } from './QuickIncrementButton';
 import { MilestoneList } from './MilestoneList';
 import { useDesktopOverlay } from '../hooks/useDesktopOverlay';
-import { CheckCircle, ChevronDown, ChevronUp, MoreHorizontal, Archive, Trash2, Edit3, Calendar, Timer, Zap } from 'lucide-react';
+import { CheckCircle, ChevronDown, ChevronUp, MoreHorizontal, Archive, Trash2, Edit3, Calendar, Timer, Zap, Flame } from 'lucide-react';
 
 interface GoalCardProps {
   goal: Goal;
@@ -117,6 +117,27 @@ export const GoalCard: React.FC<GoalCardProps> = ({
                   }}
                 >
                   {goal.area}
+                </span>
+              )}
+
+              {goal.streakConfig?.enabled && (
+                <span
+                  style={{
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: '3px',
+                    fontSize: '10px',
+                    fontWeight: 600,
+                    padding: '1px 5px',
+                    borderRadius: 'var(--radius-sm)',
+                    backgroundColor: (goal.streakConfig.currentStreak ?? 0) > 0 ? 'rgba(245, 158, 11, 0.15)' : 'rgba(255, 255, 255, 0.06)',
+                    color: (goal.streakConfig.currentStreak ?? 0) > 0 ? '#f59e0b' : 'var(--text-muted)',
+                    border: `1px solid ${(goal.streakConfig.currentStreak ?? 0) > 0 ? 'rgba(245, 158, 11, 0.3)' : 'rgba(255, 255, 255, 0.08)'}`,
+                  }}
+                  title={`Current Streak: ${goal.streakConfig.currentStreak ?? 0} (Best: ${goal.streakConfig.bestStreak ?? 0})`}
+                >
+                  <Flame size={10} color={(goal.streakConfig.currentStreak ?? 0) > 0 ? '#f59e0b' : 'currentColor'} />
+                  <span>{goal.streakConfig.currentStreak ?? 0} {goal.period === 'weekly' ? 'w' : 'd'}</span>
                 </span>
               )}
             </div>

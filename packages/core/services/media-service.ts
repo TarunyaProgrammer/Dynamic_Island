@@ -18,7 +18,13 @@ export class MediaService {
   private pollTimeout: NodeJS.Timeout | null = null;
   private isPausedBySystem = false;
   private lastTrackKey = '';
+  private currentSource?: 'Spotify' | 'Music' | 'Chrome';
+  private chromeTarget?: { windowIndex: number; tabIndex: number };
   private listeners: Array<(state: MediaActivityState) => void> = [];
+
+  public get activeSource(): 'Spotify' | 'Music' | 'Chrome' | undefined {
+    return this.currentSource;
+  }
 
   constructor(private activityEngine?: ActivityEngine) {
     this.startPolling();
@@ -112,7 +118,7 @@ export class MediaService {
           try {
             const spotify = Application("Spotify");
             const state = spotify.playerState();
-            if (state === "playing" || state === "paused") {
+            if (state === "playing") {
               const track = spotify.currentTrack;
               return JSON.stringify({
                 app: "Spotify",
@@ -133,7 +139,7 @@ export class MediaService {
           try {
             const music = Application("Music");
             const state = music.playerState();
-            if (state === "playing" || state === "paused") {
+            if (state === "playing") {
               const track = music.currentTrack;
               return JSON.stringify({
                 app: "Music",
@@ -159,15 +165,11 @@ export class MediaService {
               for (let j = 0; j < tabs.length; j++) {
                 const url = tabs[j].url() || "";
                 if (url.includes("youtube.com/watch") || url.includes("music.youtube") || url.includes("soundcloud") || url.includes("spotify.com") || url.includes("twitch.tv") || url.includes("netflix.com")) {
-                  return JSON.stringify({
-                    app: "Chrome",
-                    title: tabs[j].title() || "Web Media",
-                    artist: "Google Chrome",
-                    isPlaying: true,
-                    durationSeconds: 0,
-                    progressSeconds: 0,
-                    volume: 50
-                  });
+                  const state = tabs[j].execute({ javascript: "(() => { const media = Array.from(document.querySelectorAll('video,audio')).find((item) => !item.paused && !item.ended && item.readyState > 2); return media ? JSON.stringify({ title: document.title, durationSeconds: Number.isFinite(media.duration) ? Math.round(media.duration) : 0, progressSeconds: Math.round(media.currentTime || 0), volume: Math.round((media.volume || 0) * 100) }) : ''; })()" });
+                  if (state) {
+                    const details = JSON.parse(state);
+                    return JSON.stringify({ app: "Chrome", title: details.title || tabs[j].title() || "Web Media", artist: "Google Chrome", isPlaying: true, durationSeconds: details.durationSeconds || 0, progressSeconds: details.progressSeconds || 0, volume: details.volume ?? 50, windowIndex: i, tabIndex: j });
+                  }
                 }
               }
             }
@@ -279,6 +281,11 @@ export class MediaService {
           volume: parsed.volume ?? 50,
         };
 
+        this.currentSource = parsed.app === 'Spotify' || parsed.app === 'Music' || parsed.app === 'Chrome' ? parsed.app : undefined;
+        this.chromeTarget = parsed.app === 'Chrome' && Number.isInteger(parsed.windowIndex) && Number.isInteger(parsed.tabIndex)
+          ? { windowIndex: parsed.windowIndex, tabIndex: parsed.tabIndex }
+          : undefined;
+
         const trackKey = `${parsed.app || ''}:${title}:${artist}`;
         if (trackKey !== this.lastTrackKey && newState.isPlaying && this.activityEngine) {
           this.lastTrackKey = trackKey;
@@ -313,14 +320,14 @@ export class MediaService {
         const se = Application("System Events");
         const procs = se.applicationProcesses.name();
 
-        if (procs.includes("Spotify")) {
+        if (this.currentSource === "Spotify" && procs.includes("Spotify")) {
           try {
             Application("Spotify").playpause();
             return "ok";
           } catch(e) {}
         }
 
-        if (procs.includes("Music")) {
+        if (this.currentSource === "Music" && procs.includes("Music")) {
           try {
             Application("Music").playpause();
             return "ok";
@@ -331,22 +338,13 @@ export class MediaService {
           try {
             const chrome = Application("Google Chrome");
             const wins = chrome.windows();
-            for (let i = 0; i < wins.length; i++) {
-              const tabs = wins[i].tabs();
-              for (let j = 0; j < tabs.length; j++) {
-                const url = tabs[j].url() || "";
-                if (url.includes("youtube.com") || url.includes("soundcloud.com") || url.includes("spotify.com") || url.includes("netflix.com")) {
-                  try {
-                    tabs[j].execute({ javascript: "var v = document.querySelector('video') || document.querySelector('audio'); if (v) { v.paused ? v.play() : v.pause(); }" });
-                    return "ok";
-                  } catch(jsErr) {
-                    // Fallback if JS AppleEvents is disabled: focus tab and trigger YouTube playback shortcut 'k'
-                    wins[i].activeTabIndex = j + 1;
-                    chrome.activate();
-                    se.keystroke("k");
-                    return "ok";
-                  }
-                }
+            const targetWindow = ${this.chromeTarget?.windowIndex ?? -1};
+            const targetTab = ${this.chromeTarget?.tabIndex ?? -1};
+            if (targetWindow >= 0 && targetTab >= 0 && wins[targetWindow]) {
+              const tab = wins[targetWindow].tabs()[targetTab];
+              if (tab) {
+                tab.execute({ javascript: "(() => { const media = Array.from(document.querySelectorAll('video,audio')).find((item) => !item.ended && item.readyState > 0); if (!media) throw new Error('No playable media'); return media.paused ? media.play() : media.pause(); })()" });
+                return "ok";
               }
             }
           } catch(e) {}
@@ -414,24 +412,12 @@ export class MediaService {
           try {
             const chrome = Application("Google Chrome");
             const wins = chrome.windows();
-            for (let i = 0; i < wins.length; i++) {
-              const tabs = wins[i].tabs();
-              for (let j = 0; j < tabs.length; j++) {
-                const url = tabs[j].url() || "";
-                if (url.includes("youtube.com")) {
-                  try {
-                    tabs[j].execute({ javascript: "var n = document.querySelector('.ytp-next-button'); if (n) n.click();" });
-                    return "ok";
-                  } catch(jsErr) {
-                    wins[i].activeTabIndex = j + 1;
-                    chrome.activate();
-                    se.keyDown("shift");
-                    se.keystroke("n");
-                    se.keyUp("shift");
-                    return "ok";
-                  }
-                }
-              }
+            const targetWindow = ${this.chromeTarget?.windowIndex ?? -1};
+            const targetTab = ${this.chromeTarget?.tabIndex ?? -1};
+            const tab = wins[targetWindow] && wins[targetWindow].tabs()[targetTab];
+            if (tab) {
+              tab.execute({ javascript: "(() => { const next = document.querySelector('.ytp-next-button'); if (!next) throw new Error('Next track is unsupported'); next.click(); })()" });
+              return "ok";
             }
           } catch(e) {}
         }
@@ -454,14 +440,14 @@ export class MediaService {
         const se = Application("System Events");
         const procs = se.applicationProcesses.name();
 
-        if (procs.includes("Spotify")) {
+        if (this.currentSource === "Spotify" && procs.includes("Spotify")) {
           try {
             Application("Spotify").previousTrack();
             return "ok";
           } catch(e) {}
         }
 
-        if (procs.includes("Music")) {
+        if (this.currentSource === "Music" && procs.includes("Music")) {
           try {
             Application("Music").previousTrack();
             return "ok";
@@ -487,13 +473,23 @@ export class MediaService {
         const se = Application("System Events");
         const procs = se.applicationProcesses.name();
 
-        if (procs.includes("Spotify")) {
+        if (this.currentSource === "Spotify" && procs.includes("Spotify")) {
           try {
             Application("Spotify").soundVolume = ${clamped};
           } catch(e) {}
-        } else if (procs.includes("Music")) {
+        } else if (this.currentSource === "Music" && procs.includes("Music")) {
           try {
             Application("Music").soundVolume = ${clamped};
+          } catch(e) {}
+        }
+        if (this.currentSource === "Chrome" && procs.includes("Google Chrome")) {
+          try {
+            const chrome = Application("Google Chrome");
+            const wins = chrome.windows();
+            const targetWindow = ${this.chromeTarget?.windowIndex ?? -1};
+            const targetTab = ${this.chromeTarget?.tabIndex ?? -1};
+            const tab = wins[targetWindow] && wins[targetWindow].tabs()[targetTab];
+            if (tab) tab.execute({ javascript: "(() => { const media = Array.from(document.querySelectorAll('video,audio')).find((item) => !item.ended && item.readyState > 0); if (!media) throw new Error('No playable media'); media.volume = ${clamped / 100}; return media.volume; })()" });
           } catch(e) {}
         }
         try {

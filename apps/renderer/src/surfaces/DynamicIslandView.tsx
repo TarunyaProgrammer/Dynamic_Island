@@ -20,6 +20,7 @@ import {
   SkipForward,
   Music,
   Volume2,
+  Flame,
 } from 'lucide-react';
 
 export const DynamicIslandView: React.FC = () => {
@@ -770,9 +771,20 @@ export const DynamicIslandView: React.FC = () => {
                 </div>
               </div>
 
-              <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '10px', color: 'rgba(255, 255, 255, 0.6)' }}>
-                <Calendar size={11} />
-                <span>{goals.length > 0 ? `${goals.length} active goals tracked` : 'Nothing for today'}</span>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '10px', color: 'rgba(255, 255, 255, 0.6)' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                  <Calendar size={11} />
+                  <span>{goals.length > 0 ? `${goals.length} active` : 'Nothing for today'}</span>
+                </div>
+                {goals.some((g) => (g.streakConfig?.currentStreak ?? 0) > 0) && (
+                  <>
+                    <span style={{ opacity: 0.4 }}>•</span>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '3px', color: '#f59e0b', fontWeight: 600 }}>
+                      <Flame size={11} color="#f59e0b" />
+                      <span>{Math.max(...goals.map((g) => g.streakConfig?.currentStreak ?? 0))}d streak</span>
+                    </div>
+                  </>
+                )}
               </div>
             </div>
 

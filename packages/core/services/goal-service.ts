@@ -156,10 +156,35 @@ export class GoalService {
       status = 'completed';
     }
 
+    // Auto-update streak when progress is recorded
+    let streakConfig = goal.streakConfig;
+    if (streakConfig?.enabled && next > prev) {
+      const today = new Date().toISOString().slice(0, 10);
+      const checkIn: CheckIn = {
+        id: randomUUID(),
+        goalId,
+        date: today,
+        state: 'completed',
+        value: inc,
+        note,
+        timestamp: new Date().toISOString(),
+      };
+      this.repository.saveCheckIn(checkIn);
+      const allCheckIns = this.repository.getCheckIns(goalId);
+      const result = StreakEngine.calculate(
+        allCheckIns,
+        streakConfig.type,
+        goal.period,
+        goal.scheduleConfig ?? {}
+      );
+      streakConfig = StreakEngine.mergeConfig(streakConfig, result);
+    }
+
     const updated: Goal = {
       ...goal,
       currentValue: next,
       status,
+      streakConfig,
       updatedAt: new Date().toISOString(),
     };
 
@@ -192,10 +217,35 @@ export class GoalService {
       status = 'completed';
     }
 
+    // Auto-update streak when progress advances
+    let streakConfig = goal.streakConfig;
+    if (streakConfig?.enabled && next > prev) {
+      const today = new Date().toISOString().slice(0, 10);
+      const checkIn: CheckIn = {
+        id: randomUUID(),
+        goalId,
+        date: today,
+        state: 'completed',
+        value: delta,
+        note,
+        timestamp: new Date().toISOString(),
+      };
+      this.repository.saveCheckIn(checkIn);
+      const allCheckIns = this.repository.getCheckIns(goalId);
+      const result = StreakEngine.calculate(
+        allCheckIns,
+        streakConfig.type,
+        goal.period,
+        goal.scheduleConfig ?? {}
+      );
+      streakConfig = StreakEngine.mergeConfig(streakConfig, result);
+    }
+
     const updated: Goal = {
       ...goal,
       currentValue: next,
       status,
+      streakConfig,
       updatedAt: new Date().toISOString(),
     };
 

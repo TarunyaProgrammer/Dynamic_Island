@@ -1,7 +1,7 @@
 // apps/renderer/src/components/GoalEditorModal.tsx
 import React, { useState, useEffect, useRef } from 'react';
 import { Goal, GoalDraft, GoalType, GoalUpdateDraft } from '@shared/types';
-import { X, Target, Calendar } from 'lucide-react';
+import { X, Target, Calendar, Flame } from 'lucide-react';
 import { ConfirmationModal } from './ConfirmationModal';
 import { useDesktopOverlay } from '../hooks/useDesktopOverlay';
 
@@ -26,6 +26,7 @@ export const GoalEditorModal: React.FC<GoalEditorModalProps> = ({
   const [unit, setUnit] = useState('');
   const [defaultIncrement, setDefaultIncrement] = useState<string>('1');
   const [deadline, setDeadline] = useState<string>('');
+  const [trackStreak, setTrackStreak] = useState(true);
 
   const [isCalendarOpen, setIsCalendarOpen] = useState(false);
   const [calendarViewDate, setCalendarViewDate] = useState<Date>(() => new Date());
@@ -48,6 +49,7 @@ export const GoalEditorModal: React.FC<GoalEditorModalProps> = ({
       const gUnit = goal.unit || '';
       const gInc = (goal.defaultIncrement || 1).toString();
       const dead = goal.deadline ? goal.deadline.split('T')[0] : '';
+      const hasStreak = goal.streakConfig ? goal.streakConfig.enabled : true;
 
       setName(gName);
       setArea(gArea);
@@ -57,6 +59,7 @@ export const GoalEditorModal: React.FC<GoalEditorModalProps> = ({
       setUnit(gUnit);
       setDefaultIncrement(gInc);
       setDeadline(dead);
+      setTrackStreak(hasStreak);
       if (dead) setCalendarViewDate(new Date(dead));
 
       initialDataRef.current = { name: gName, targetValue: gTarget, currentValue: gCurrent, unit: gUnit, deadline: dead };
@@ -69,6 +72,7 @@ export const GoalEditorModal: React.FC<GoalEditorModalProps> = ({
       setUnit('');
       setDefaultIncrement('1');
       setDeadline('');
+      setTrackStreak(true);
       setCalendarViewDate(new Date());
 
       initialDataRef.current = { name: '', targetValue: '100', currentValue: '0', unit: '', deadline: '' };
@@ -129,7 +133,13 @@ export const GoalEditorModal: React.FC<GoalEditorModalProps> = ({
       unit: unit.trim() || undefined,
       defaultIncrement: parseFloat(defaultIncrement) || 1,
       deadline: deadline || undefined,
-    });
+      streakConfig: {
+        enabled: trackStreak,
+        type: 'daily',
+        currentStreak: goal?.streakConfig?.currentStreak ?? 0,
+        bestStreak: goal?.streakConfig?.bestStreak ?? 0,
+      },
+    } as any);
     onClose();
   };
 
@@ -576,6 +586,20 @@ export const GoalEditorModal: React.FC<GoalEditorModalProps> = ({
               )}
             </div>
           </div>
+
+          {/* Streak Tracking Toggle */}
+          <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', userSelect: 'none', padding: '4px 0' }}>
+            <input
+              type="checkbox"
+              checked={trackStreak}
+              onChange={(e) => setTrackStreak(e.target.checked)}
+              style={{ accentColor: '#f59e0b', width: '15px', height: '15px', cursor: 'pointer' }}
+            />
+            <span style={{ fontSize: '12px', color: 'var(--text-secondary)', display: 'inline-flex', alignItems: 'center', gap: '5px' }}>
+              <Flame size={13} color="#f59e0b" />
+              Enable streak tracking for this goal
+            </span>
+          </label>
 
           {/* Action Buttons */}
           <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '8px', marginTop: '10px' }}>

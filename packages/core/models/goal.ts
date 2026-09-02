@@ -88,16 +88,13 @@ export class GoalEntity implements Goal {
       createdAt: now,
     }));
 
-    const streakConfig: StreakConfig | undefined =
-      paradigm === 'habit' || paradigm === 'duration' || paradigm === 'avoidance'
-        ? {
-            enabled: true,
-            type: draft.scheduleConfig?.scheduledDays ? 'scheduled' : 'period_threshold',
-            currentStreak: 0,
-            bestStreak: 0,
-            ...(draft.streakConfig ?? {}),
-          }
-        : undefined;
+    const streakConfig: StreakConfig = {
+      enabled: draft.streakConfig?.enabled ?? true,
+      type: draft.streakConfig?.type ?? (draft.scheduleConfig?.scheduledDays ? 'scheduled' : 'daily'),
+      currentStreak: draft.streakConfig?.currentStreak ?? 0,
+      bestStreak: draft.streakConfig?.bestStreak ?? 0,
+      ...(draft.streakConfig ?? {}),
+    };
 
     return new GoalEntity({
       id,
