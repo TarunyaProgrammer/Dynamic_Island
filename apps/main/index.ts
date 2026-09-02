@@ -1,5 +1,4 @@
-// apps/main/index.ts - Electron Main Process Entrypoint
-import { app, session, powerMonitor, nativeImage } from 'electron';
+import { app, session, powerMonitor, nativeImage, systemPreferences } from 'electron';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import { DatabaseConnection } from '@database/connection';
@@ -122,6 +121,15 @@ app.whenReady().then(async () => {
   powerMonitor.on('resume', () => {
     // macOS wake
   });
+
+  // Request macOS Accessibility permissions if needed
+  if (process.platform === 'darwin') {
+    try {
+      systemPreferences.isTrustedAccessibilityClient(true);
+    } catch {
+      // Non-blocking catch
+    }
+  }
 
   // Dock icon visibility on macOS
   if (process.platform === 'darwin' && app.dock) {

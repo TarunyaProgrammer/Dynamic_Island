@@ -75,7 +75,15 @@
         }
       ],
       "category": "public.app-category.productivity",
-      "darkModeSupport": true
+      "darkModeSupport": true,
+      "hardenedRuntime": true,
+      "gatekeeperAssess": false,
+      "entitlements": "build/entitlements.mac.plist",
+      "entitlementsInherit": "build/entitlements.mac.inherit.plist",
+      "extendInfo": {
+        "NSAppleEventsUsageDescription": "Beacon needs automation permission to detect currently playing tracks and provide media playback controls in the Dynamic Island.",
+        "NSSystemAdministrationUsageDescription": "Beacon needs permission to provide global keyboard shortcuts and ambient media controls."
+      }
     }
   }
 }
