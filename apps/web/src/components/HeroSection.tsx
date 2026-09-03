@@ -1,5 +1,5 @@
 import React from "react";
-import { ArrowRight, Download, Terminal, Shield, Cpu } from "lucide-react";
+import { Apple, Check, ArrowRight, Sparkles, Activity } from "lucide-react";
 
 interface HeroSectionProps {
   onOpenPricing: () => void;
@@ -12,117 +12,107 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ onOpenPricing, onDownl
     <section
       style={{
         position: "relative",
-        paddingTop: "60px",
-        paddingBottom: "50px",
-        borderBottom: "1px solid var(--border-hairline)",
+        paddingTop: "70px",
+        paddingBottom: "80px",
+        textAlign: "center",
+        overflow: "hidden",
       }}
     >
-      <div className="container">
-        <div style={{ maxWidth: "880px", margin: "0 auto", textAlign: "center" }}>
-          {/* Release Eyebrow */}
-          <div style={{ marginBottom: "20px" }}>
-            <div
-              style={{
-                display: "inline-flex",
-                alignItems: "center",
-                gap: "8px",
-                padding: "4px 12px",
-                borderRadius: "100px",
-                backgroundColor: "rgba(255, 255, 255, 0.04)",
-                border: "1px solid var(--border-hairline)",
-                fontSize: "12px",
-                fontFamily: "var(--font-mono)",
-                color: "var(--text-secondary)",
-              }}
-            >
-              <span style={{ width: "6px", height: "6px", borderRadius: "50%", backgroundColor: "var(--accent-solar)" }} />
-              <span style={{ color: "#ffffff", fontWeight: 600 }}>Beacon 1.0</span>
-              <span style={{ color: "var(--text-muted)" }}>•</span>
-              <span>Universal macOS DMG (Apple Silicon & Intel)</span>
-            </div>
+      <div className="container" style={{ position: "relative", zIndex: 5 }}>
+        {/* Wispr Flow Eyebrow */}
+        <div style={{ marginBottom: "20px" }}>
+          <span className="eyebrow-wispr">
+            BEACON DYNAMIC ISLAND FOR MACOS
+          </span>
+        </div>
+
+        {/* Master Headline (Garamond Editorial Serif + Italic Accent) */}
+        <h1
+          className="serif-headline"
+          style={{
+            fontSize: "clamp(46px, 7vw, 84px)",
+            maxWidth: "880px",
+            margin: "0 auto 24px auto",
+          }}
+        >
+          Don't break flow,<br />
+          <span className="serif-italic">just glance.</span>
+        </h1>
+
+        {/* Subtitle */}
+        <p
+          className="text-subhead"
+          style={{
+            maxWidth: "620px",
+            margin: "0 auto 36px auto",
+          }}
+        >
+          The zero-latency Dynamic Island for your Mac that turns your camera notch into an intentional peripheral HUD for active goals, habit streaks, and focus sprints.
+        </p>
+
+        {/* Wispr Flow Signature Lilac Pill CTA */}
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            gap: "12px",
+            flexWrap: "wrap",
+            marginBottom: "16px",
+          }}
+        >
+          <button
+            type="button"
+            onClick={onDownloadTrial}
+            className="btn-lilac"
+            style={{ padding: "14px 28px", fontSize: "15px", borderRadius: "10px" }}
+          >
+            <Apple size={17} />
+            <span>Get started on macOS</span>
+          </button>
+
+          <button
+            type="button"
+            onClick={onOpenPricing}
+            className="btn-white"
+            style={{ padding: "14px 24px", fontSize: "15px", borderRadius: "10px" }}
+          >
+            <span>Pioneer Lifetime ({currency === "INR" ? "₹2,499" : "$29"})</span>
+            <ArrowRight size={15} />
+          </button>
+        </div>
+
+        {/* Sub-CTA Compatibility Note */}
+        <span style={{ fontSize: "12px", color: "var(--text-muted)", display: "block", marginBottom: "40px" }}>
+          Available for macOS Sonoma, Sequoia & Monterey • Apple Silicon (M1–M4) & Intel
+        </span>
+
+        {/* Floating Wispr-Style Interactive Badges */}
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            gap: "16px",
+            flexWrap: "wrap",
+          }}
+        >
+          {/* Green Forest Badge (Like Wispr Flow's Removed Umm) */}
+          <div className="floating-forest-badge">
+            <Check size={15} strokeWidth={2.5} />
+            <span>Logged +10 LeetCode</span>
           </div>
 
-          {/* Headline */}
-          <h1
-            className="display-headline"
-            style={{
-              fontSize: "clamp(36px, 5.2vw, 68px)",
-              marginBottom: "20px",
-            }}
-          >
-            The Dynamic Island your Mac was missing.
-          </h1>
-
-          {/* Subtext (Human, Direct, Real) */}
-          <p
-            className="text-subhead"
-            style={{
-              maxWidth: "640px",
-              margin: "0 auto 36px auto",
-            }}
-          >
-            Glance at daily goals, tap to increment streaks, and run focus sprints right from the MacBook notch. 100% offline, zero accounts, and 0.1% idle CPU.
-          </p>
-
-          {/* Direct CTA Buttons */}
-          <div
-            style={{
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              gap: "12px",
-              flexWrap: "wrap",
-              marginBottom: "40px",
-            }}
-          >
-            <button
-              type="button"
-              onClick={onOpenPricing}
-              className="btn-primary"
-            >
-              <span>Get Pioneer Lifetime — {currency === "INR" ? "₹2,499" : "$29"}</span>
-              <ArrowRight size={15} />
-            </button>
-
-            <button
-              type="button"
-              onClick={onDownloadTrial}
-              className="btn-secondary"
-            >
-              <Download size={15} />
-              <span>Download Free DMG</span>
-            </button>
-          </div>
-
-          {/* Clean Technical Specs Strip */}
-          <div
-            style={{
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              gap: "24px",
-              flexWrap: "wrap",
-              fontSize: "12px",
-              color: "var(--text-muted)",
-              fontFamily: "var(--font-mono)",
-              paddingTop: "20px",
-              borderTop: "1px solid var(--border-hairline)",
-            }}
-          >
-            <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
-              <Cpu size={14} color="var(--accent-solar)" />
-              <span>0.1% CPU Idle</span>
+          {/* White Waveform / Streak Pill */}
+          <div className="floating-waveform-badge">
+            <div style={{ display: "flex", alignItems: "center", gap: "3px" }}>
+              <span style={{ width: "3px", height: "12px", backgroundColor: "var(--text-ink)", borderRadius: "2px" }} />
+              <span style={{ width: "3px", height: "18px", backgroundColor: "var(--accent-solar)", borderRadius: "2px" }} />
+              <span style={{ width: "3px", height: "8px", backgroundColor: "var(--text-ink)", borderRadius: "2px" }} />
+              <span style={{ width: "3px", height: "15px", backgroundColor: "var(--text-ink)", borderRadius: "2px" }} />
+              <span style={{ width: "3px", height: "10px", backgroundColor: "var(--accent-solar)", borderRadius: "2px" }} />
             </div>
-            <span style={{ opacity: 0.3 }}>|</span>
-            <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
-              <Shield size={14} color="#ededed" />
-              <span>100% Local SQLite WAL</span>
-            </div>
-            <span style={{ opacity: 0.3 }}>|</span>
-            <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
-              <Terminal size={14} color="#ededed" />
-              <span>⌘⇧B Global Hotkey</span>
-            </div>
+            <span style={{ fontSize: "13px", fontWeight: 700 }}>14-day Deep Work Streak</span>
           </div>
         </div>
       </div>

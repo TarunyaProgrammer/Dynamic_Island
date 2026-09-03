@@ -11,6 +11,7 @@ import { PricingSection } from "./components/PricingSection";
 import { FounderLetter } from "./components/FounderLetter";
 import { FAQSection } from "./components/FAQSection";
 import { Footer } from "./components/Footer";
+import { BeaconSpiritCompanion } from "./components/BeaconSpiritCompanion";
 import { RazorpayModal } from "./components/RazorpayModal";
 import { LicenseSuccessModal } from "./components/LicenseSuccessModal";
 import { PricingPlan, LicenseReceipt } from "./types";
@@ -77,7 +78,7 @@ export const App: React.FC = () => {
   };
 
   return (
-    <div style={{ minHeight: "100vh", backgroundColor: "var(--bg-black)", color: "var(--text-primary)", position: "relative" }}>
+    <div style={{ minHeight: "100vh", backgroundColor: "var(--bg-canvas)", color: "var(--text-ink)", position: "relative" }}>
       {/* Navigation */}
       <Navbar
         currency={currency}
@@ -92,13 +93,13 @@ export const App: React.FC = () => {
         currency={currency}
       />
 
-      {/* Interactive Dynamic Island Hardware Simulator */}
+      {/* Interactive Dynamic Island Hardware Simulator (with dark theater enclosure) */}
       <IslandSimulator />
 
-      {/* Real macOS Screenshots Gallery */}
+      {/* Real macOS Screenshots on Photorealistic MacBook Retina Displays */}
       <AppScreenshotsGallery />
 
-      {/* 6 Behavioral Goal Paradigms & OS Integration */}
+      {/* 6 Behavioral Goal Paradigms (Editorial Cards) */}
       <FeatureGrid />
 
       {/* Beacon Spirit AI Companion Showcase */}
@@ -124,6 +125,9 @@ export const App: React.FC = () => {
 
       {/* Footer */}
       <Footer />
+
+      {/* Floating Scroll-Reactive Spirit Mascot Companion */}
+      <BeaconSpiritCompanion />
 
       {/* Razorpay Checkout Modal */}
       <RazorpayModal

@@ -1,45 +1,48 @@
 :root {
-  /* Surface Palette: Pure OLED & Precision Hardware Slate */
-  --bg-black: #08090c;
-  --bg-surface: #0e1017;
-  --bg-surface-elevated: #141722;
-  --bg-card: rgba(255, 255, 255, 0.025);
-  --bg-card-hover: rgba(255, 255, 255, 0.045);
+  /* Wispr Flow Exact Editorial Palette */
+  --bg-canvas: #FAF8EE;          /* Wispr Flow exact warm alabaster / ivory cream */
+  --bg-canvas-subtle: #F3F1E4;   /* Soft warm stone */
+  --bg-surface: #FFFFFF;         /* Crisp pure card white */
+  --bg-surface-elevated: #FFFFFF;
+  --bg-dark-section: #0B0D13;    /* Hardware obsidian section */
 
-  /* Single Disciplined Accent: Solar Amber */
-  --accent-solar: #ff7a00;
-  --accent-solar-hover: #ff8c1f;
-  --accent-solar-subtle: rgba(255, 122, 0, 0.12);
-  --accent-solar-border: rgba(255, 122, 0, 0.35);
+  /* Wispr Flow Editorial Ink Typography */
+  --text-ink: #191A19;           /* Deep soft charcoal ink */
+  --text-body: #4A4E46;          /* Readable warm slate */
+  --text-muted: #72766E;         /* Gentle editorial stone */
+  --text-subtle: #9EA29A;
 
-  /* Functional Status Accents (Used strictly in context, not as background smog) */
-  --accent-emerald: #10b981;
-  --accent-cyan: #38bdf8;
-  --accent-purple: #c084fc;
+  /* Wispr Flow Accents */
+  --accent-forest: #0D523F;      /* Deep British Racing Forest Emerald (Wispr Tag) */
+  --accent-forest-hover: #093E30;
+  --accent-forest-text: #FFFFFF;
 
-  /* Restrained Neutral Typography */
-  --text-primary: #ededed;
-  --text-secondary: #9496a1;
-  --text-muted: #5e616f;
-  --text-subtle: #3a3d4a;
+  --accent-lilac: #ECE6FC;       /* Wispr Flow Signature Button Lilac */
+  --accent-lilac-hover: #E0D6F9;
+  --accent-lilac-text: #191A19;
 
-  /* Precision Hardware Borders & Lines */
-  --border-hairline: rgba(255, 255, 255, 0.08);
-  --border-hairline-bright: rgba(255, 255, 255, 0.16);
-  --border-hairline-card: rgba(255, 255, 255, 0.06);
+  --accent-solar: #D97706;       /* Warm Horological Amber Flame */
+  --accent-solar-hover: #B45309;
+  --accent-solar-subtle: rgba(217, 119, 6, 0.1);
+
+  /* Hairlines & Borders */
+  --border-subtle: rgba(25, 26, 25, 0.08);
+  --border-strong: rgba(25, 26, 25, 0.14);
+  --border-card: rgba(25, 26, 25, 0.06);
+
+  /* Shadows (Natural, Non-Synthetic) */
+  --shadow-sm: 0 1px 2px rgba(25, 26, 25, 0.04);
+  --shadow-card: 0 4px 24px rgba(25, 26, 25, 0.06), 0 1px 3px rgba(25, 26, 25, 0.03);
+  --shadow-btn: 0 2px 8px rgba(25, 26, 25, 0.08);
+
+  /* Typography Stacks */
+  --font-serif: "EB Garamond", Garamond, Georgia, serif;
+  --font-sans: "Figtree", "Plus Jakarta Sans", -apple-system, sans-serif;
+  --font-mono: "JetBrains Mono", Menlo, monospace;
 
   /* Radii */
   --radius-pill: 100px;
-  --radius-lg: 20px;
-  --radius-md: 14px;
-  --radius-sm: 8px;
-
-  /* Typography Stacks */
-  --font-display: "Plus Jakarta Sans", -apple-system, BlinkMacSystemFont, sans-serif;
-  --font-body: "Plus Jakarta Sans", -apple-system, BlinkMacSystemFont, sans-serif;
-  --font-mono: "Geist Mono", "JetBrains Mono", Menlo, monospace;
-
-  /* Restrained Elevation */
-  --shadow-hud: 0 30px 80px rgba(0, 0, 0, 0.85);
-  --shadow-btn: 0 4px 16px rgba(255, 122, 0, 0.25);
+  --radius-xl: 20px;
+  --radius-lg: 14px;
+  --radius-md: 8px;
 }

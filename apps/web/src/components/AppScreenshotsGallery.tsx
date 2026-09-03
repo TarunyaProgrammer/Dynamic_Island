@@ -1,134 +1,150 @@
 import React, { useState } from "react";
-import { LayoutDashboard, Sparkles, Terminal, AppWindow, ArrowRight } from "lucide-react";
+import { 
+  LayoutDashboard, 
+  AppWindow, 
+  Terminal, 
+  Sparkles,
+  ChevronRight,
+  ExternalLink
+} from "lucide-react";
+
+interface AppSurface {
+  id: string;
+  name: string;
+  title: string;
+  description: string;
+  icon: React.ComponentType<{ size?: number; color?: string }>;
+  image: string;
+  highlights: string[];
+}
 
 export const AppScreenshotsGallery: React.FC = () => {
-  const tabs = [
+  const surfaces: AppSurface[] = [
     {
       id: "dashboard",
-      label: "Main Dashboard",
+      name: "Main Dashboard",
+      title: "Obsidian Command Center on MacBook Pro",
+      description: "Manage long-term commitments, deep work velocity, and weekly pacing from an ultra-clean dark dashboard.",
       icon: LayoutDashboard,
-      image: "/assets/dashboard-clean.png",
-      title: "Full Command Center",
-      description: "Manage commitments, deep work velocity, and weekly rhythm from a clutter-free obsidian dashboard.",
-      callouts: ["6 Goal Paradigms", "Deep Work Waveform", "Weekly Momentum Pacing"],
+      image: "/assets/macbook-dashboard-mockup.jpg",
+      highlights: ["6 Goal Paradigms", "Weekly Rhythm Spline", "Compounding Momentum"],
     },
     {
-      id: "island",
-      label: "Hardware Dynamic Island",
+      id: "notch",
+      name: "Hardware Dynamic Island",
+      title: "MacBook Camera Notch HUD",
+      description: "Snaps directly to the Apple MacBook display camera notch. Expands smoothly with native spring physics when hovered.",
       icon: AppWindow,
-      image: "/assets/notch-island-clean.png",
-      title: "Zero-Distance Notch HUD",
-      description: "Snaps seamlessly beneath your MacBook camera notch. Hover or tap to reveal active timers and progress rings.",
-      callouts: ["Apple Notch Integration", "Interactive Quick Increments", "7-Day Calendar Strip"],
+      image: "/assets/macbook-notch-mockup.jpg",
+      highlights: ["Zero Pixel Waste", "Live Goal Counter", "Focus Sprint Integration"],
     },
     {
-      id: "hub",
-      label: "Menu Bar Hub",
+      id: "menubar",
+      name: "Menu Bar Hub",
+      title: "macOS System Tray Popover",
+      description: "Instant access to all active goals and fast-log buttons right from the macOS top status bar.",
       icon: AppWindow,
-      image: "/assets/menubar-hub-clean.png",
-      title: "Instant Menu Bar Popover",
-      description: "One click from your macOS menu bar gives you instant glanceability without losing your focus state.",
-      callouts: ["0ms Display Latency", "Quick Progress Logging", "Status At A Glance"],
+      image: "/assets/macbook-menubar-mockup.jpg",
+      highlights: ["One-Click Quick Log", "Global Habit Overview", "Active Streaks Strip"],
     },
     {
       id: "command",
-      label: "Command Engine",
+      name: "Command Engine",
+      title: "Spotlight / Raycast Keyboard HUD",
+      description: "Hit ⌘⇧B anywhere in macOS. Type '+10 LeetCode' to increment progress without ever lifting your hands from the keyboard.",
       icon: Terminal,
-      image: "/assets/command-engine-clean.png",
-      title: "Spotlight-Speed Input",
-      description: "Summon the command palette from anywhere with keyboard shortcuts to query or update any habit instantly.",
-      callouts: ["Fuzzy Search", "Keyboard-First Ergonomics", "Natural Language Commands"],
+      image: "/assets/macbook-command-mockup.jpg",
+      highlights: ["⌘⇧B Global Hotkey", "Natural Language Parse", "0ms Activation"],
     },
     {
       id: "spirit",
-      label: "Spirit AI Companion",
+      name: "Spirit AI Companion",
+      title: "Private Offline Gemini Intelligence",
+      description: "Ask for goal adjustments, psychological re-framing, or sprint encouragement. 100% private to your Mac.",
       icon: Sparkles,
       image: "/assets/spirit-companion-clean.png",
-      title: "Autonomous Spirit Engine",
-      description: "Speak directly to Beacon Spirit powered by Google Gemini with sub-second latency and natural speech pacing.",
-      callouts: ["Sub-second Latency (~930ms)", "Action Spells", "Word-by-Word Streaming"],
+      highlights: ["On-Device Gemini AI", "Psychological Coaching", "Context Aware"],
     },
   ];
 
-  const [activeTab, setActiveTab] = useState(0);
-  const current = tabs[activeTab];
+  const [activeTab, setActiveTab] = useState<string>("dashboard");
+  const activeSurface = surfaces.find((s) => s.id === activeTab) || surfaces[0];
 
   return (
-    <section id="gallery" style={{ padding: "80px 0", position: "relative" }}>
+    <section id="gallery" style={{ padding: "80px 0" }}>
       <div className="container">
+        {/* Section Header */}
         <div style={{ textAlign: "center", marginBottom: "40px" }}>
-          <span style={{ fontSize: "12px", color: "var(--accent-solar)", fontWeight: 700, letterSpacing: "0.08em", textTransform: "uppercase" }}>
+          <span className="eyebrow-wispr" style={{ display: "block", marginBottom: "12px" }}>
             SEE BEACON IN ACTION
           </span>
           <h2
+            className="serif-headline"
             style={{
-              fontFamily: "var(--font-display)",
-              fontSize: "clamp(28px, 4vw, 44px)",
-              fontWeight: 800,
-              letterSpacing: "-0.03em",
-              marginTop: "8px",
+              fontSize: "clamp(30px, 4.5vw, 48px)",
+              marginBottom: "12px",
             }}
           >
-            Crafted Exclusively for macOS
+            Crafted exclusively for macOS.<br />
+            <span className="serif-italic">On your actual MacBook.</span>
           </h2>
-          <p style={{ color: "var(--text-secondary)", fontSize: "16px", maxWidth: "620px", margin: "10px auto 0 auto" }}>
-            Every surface is tailored to look and feel like an authentic, first-party Apple experience.
+          <p className="text-subhead" style={{ fontSize: "16px", maxWidth: "600px", margin: "0 auto" }}>
+            Every surface is tailored to look and feel like an authentic, first-party Apple experience on Liquid Retina displays.
           </p>
         </div>
 
-        {/* Gallery Tabs Switcher */}
+        {/* Tab Buttons */}
         <div
           style={{
             display: "flex",
             justifyContent: "center",
             gap: "8px",
             flexWrap: "wrap",
-            marginBottom: "32px",
+            marginBottom: "36px",
           }}
         >
-          {tabs.map((t, idx) => {
-            const Icon = t.icon;
-            const isActive = activeTab === idx;
+          {surfaces.map((s) => {
+            const Icon = s.icon;
+            const isActive = s.id === activeTab;
             return (
               <button
-                key={t.id}
+                key={s.id}
                 type="button"
-                onClick={() => setActiveTab(idx)}
+                onClick={() => setActiveTab(s.id)}
                 style={{
                   display: "inline-flex",
                   alignItems: "center",
                   gap: "8px",
                   padding: "10px 18px",
                   borderRadius: "12px",
-                  backgroundColor: isActive ? "rgba(255, 122, 0, 0.2)" : "rgba(255, 255, 255, 0.04)",
-                  border: "1px solid",
-                  borderColor: isActive ? "var(--accent-solar)" : "rgba(255, 255, 255, 0.08)",
-                  color: isActive ? "#ffffff" : "var(--text-secondary)",
+                  backgroundColor: isActive ? "var(--accent-forest)" : "#FFFFFF",
+                  border: isActive ? "1px solid var(--accent-forest)" : "1px solid var(--border-subtle)",
+                  color: isActive ? "#FFFFFF" : "var(--text-body)",
                   fontSize: "13px",
                   fontWeight: 600,
                   cursor: "pointer",
-                  transition: "all 0.2s ease",
+                  transition: "all 0.18s ease",
+                  boxShadow: isActive ? "0 4px 14px rgba(13, 82, 63, 0.25)" : "var(--shadow-sm)",
                 }}
               >
-                <Icon size={15} color={isActive ? "var(--accent-solar)" : "currentColor"} />
-                <span>{t.label}</span>
+                <Icon size={15} color={isActive ? "#FFFFFF" : "var(--text-muted)"} />
+                <span>{s.name}</span>
               </button>
             );
           })}
         </div>
 
-        {/* Active Screenshot Display Frame */}
+        {/* Active Surface Showcase Card */}
         <div
-          className="glass-panel"
           style={{
-            padding: "20px",
+            backgroundColor: "#FFFFFF",
             borderRadius: "24px",
-            backgroundColor: "#0d0f16",
-            boxShadow: "0 32px 80px rgba(0,0,0,0.8), 0 0 32px rgba(255,122,0,0.15)",
-            border: "1px solid rgba(255, 255, 255, 0.12)",
+            padding: "24px",
+            border: "1px solid var(--border-subtle)",
+            boxShadow: "var(--shadow-card)",
           }}
         >
-          {/* Header Description */}
+          {/* Top Bar of Card */}
           <div
             style={{
               display: "flex",
@@ -136,55 +152,57 @@ export const AppScreenshotsGallery: React.FC = () => {
               alignItems: "center",
               flexWrap: "wrap",
               gap: "16px",
-              padding: "12px 16px 20px 16px",
-              borderBottom: "1px solid rgba(255, 255, 255, 0.08)",
-              marginBottom: "16px",
+              padding: "8px 12px 20px 12px",
+              borderBottom: "1px solid var(--border-subtle)",
+              marginBottom: "20px",
             }}
           >
             <div>
-              <h3 style={{ fontSize: "20px", fontWeight: 800, color: "#ffffff", marginBottom: "4px" }}>
-                {current.title}
+              <h3 style={{ fontSize: "20px", fontWeight: 800, color: "var(--text-ink)", marginBottom: "4px" }}>
+                {activeSurface.title}
               </h3>
-              <p style={{ fontSize: "14px", color: "var(--text-secondary)" }}>
-                {current.description}
+              <p style={{ fontSize: "14px", color: "var(--text-body)" }}>
+                {activeSurface.description}
               </p>
             </div>
 
             <div style={{ display: "flex", gap: "8px", flexWrap: "wrap" }}>
-              {current.callouts.map((c, i) => (
+              {activeSurface.highlights.map((h, i) => (
                 <span
                   key={i}
                   style={{
                     fontSize: "11px",
                     fontWeight: 700,
-                    padding: "4px 10px",
-                    borderRadius: "6px",
-                    backgroundColor: "rgba(255, 122, 0, 0.12)",
-                    color: "var(--accent-solar)",
-                    border: "1px solid rgba(255, 122, 0, 0.25)",
+                    padding: "5px 12px",
+                    borderRadius: "100px",
+                    backgroundColor: "var(--bg-canvas-subtle)",
+                    color: "var(--accent-forest)",
+                    border: "1px solid var(--border-subtle)",
                   }}
                 >
-                  ✓ {c}
+                  ✓ {h}
                 </span>
               ))}
             </div>
           </div>
 
-          {/* Screenshot Image Frame */}
+          {/* Photorealistic MacBook Screen Frame */}
           <div
             style={{
               borderRadius: "16px",
               overflow: "hidden",
-              backgroundColor: "#07080b",
-              border: "1px solid rgba(255, 255, 255, 0.06)",
+              backgroundColor: "#0B0D13",
+              border: "1px solid var(--border-subtle)",
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
+              boxShadow: "0 12px 40px rgba(25, 26, 25, 0.08)",
             }}
           >
             <img
-              src={current.image}
-              alt={current.title}
+              src={activeSurface.image}
+              alt={activeSurface.title}
+              loading="lazy"
               style={{
                 width: "100%",
                 height: "auto",
@@ -192,7 +210,6 @@ export const AppScreenshotsGallery: React.FC = () => {
                 objectFit: "contain",
                 display: "block",
               }}
-              loading="lazy"
             />
           </div>
         </div>

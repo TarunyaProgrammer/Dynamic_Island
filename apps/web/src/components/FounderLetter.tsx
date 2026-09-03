@@ -1,56 +1,37 @@
 import React from "react";
-import { ShieldCheck, HeartHandshake, CheckCircle2, Lock, ArrowUpRight } from "lucide-react";
+import { CheckCircle2, ArrowUpRight } from "lucide-react";
 
 export const FounderLetter: React.FC = () => {
   return (
     <section
       style={{
         padding: "100px 0",
-        borderBottom: "1px solid var(--border-hairline)",
-        backgroundColor: "#07080b",
+        backgroundColor: "var(--bg-canvas)",
       }}
     >
-      <div className="container" style={{ maxWidth: "820px" }}>
-        {/* Section Pill */}
+      <div className="container" style={{ maxWidth: "800px" }}>
+        {/* Section Header */}
         <div style={{ textAlign: "center", marginBottom: "36px" }}>
-          <span
-            style={{
-              display: "inline-flex",
-              alignItems: "center",
-              gap: "6px",
-              fontSize: "11px",
-              fontFamily: "var(--font-mono)",
-              color: "var(--text-muted)",
-              textTransform: "uppercase",
-              letterSpacing: "0.15em",
-              padding: "4px 12px",
-              borderRadius: "100px",
-              backgroundColor: "rgba(255, 255, 255, 0.04)",
-              border: "1px solid var(--border-hairline)",
-            }}
-          >
+          <span className="eyebrow-wispr">
             THE BEACON MANIFESTO
           </span>
         </div>
 
-        {/* Letter Container (Classic Editorial Paper / Obsidian Board) */}
+        {/* Paper Container */}
         <div
           style={{
-            backgroundColor: "rgba(18, 20, 28, 0.5)",
-            border: "1px solid var(--border-hairline-bright)",
-            borderRadius: "16px",
-            padding: "clamp(32px, 5vw, 56px)",
-            boxShadow: "0 24px 60px rgba(0, 0, 0, 0.6)",
+            backgroundColor: "#FFFFFF",
+            border: "1px solid var(--border-subtle)",
+            borderRadius: "24px",
+            padding: "clamp(32px, 6vw, 60px)",
+            boxShadow: "var(--shadow-card)",
           }}
         >
           <h2
+            className="serif-headline"
             style={{
-              fontFamily: "var(--font-display)",
-              fontSize: "clamp(24px, 3.2vw, 36px)",
-              fontWeight: 800,
-              color: "#ffffff",
-              letterSpacing: "-0.03em",
-              lineHeight: 1.25,
+              fontSize: "clamp(28px, 4vw, 42px)",
+              color: "var(--text-ink)",
               marginBottom: "28px",
             }}
           >
@@ -59,24 +40,24 @@ export const FounderLetter: React.FC = () => {
 
           <div
             style={{
-              fontSize: "15px",
+              fontSize: "16px",
               lineHeight: 1.8,
-              color: "var(--text-secondary)",
+              color: "var(--text-body)",
               display: "flex",
               flexDirection: "column",
               gap: "20px",
             }}
           >
             <p>
-              Like you, I love my Mac. I bought an Apple Silicon machine because it represents the highest standard of industrial design, responsiveness, and hardware battery efficiency on earth.
+              Like you, I love my Mac. I bought an Apple Silicon machine because it represents the highest standard of industrial design, quiet power, and battery efficiency on earth.
             </p>
 
             <p>
-              Over the last few years, software took a wrong turn. Everything became a monthly rent: $15 a month for a calendar, $12 a month for a to-do list, $20 a month for a timer. Worse, these apps started chewing 15% of your CPU in the background, forcing mandatory cloud logins, and storing your private daily ambitions on someone else's server.
+              Over the last few years, productivity software took a wrong turn. Everything became a monthly rent: $15 a month for a calendar, $12 a month for a to-do list, $20 a month for a timer. Worse, these apps started chewing 15% of your CPU in the background, forcing mandatory cloud logins, and storing your private daily ambitions on someone else's server.
             </p>
 
             <p>
-              <strong style={{ color: "#ffffff" }}>We built Beacon on an older, better philosophy:</strong> The timeless tradition of classic Mac software like Things, BBEdit, and Panic's Transmit.
+              <strong style={{ color: "var(--text-ink)" }}>We built Beacon on an older, better philosophy:</strong> The timeless tradition of classic Mac software like Things, BBEdit, and Panic's Transmit.
             </p>
 
             {/* 3 Core Commitments */}
@@ -84,46 +65,45 @@ export const FounderLetter: React.FC = () => {
               style={{
                 display: "flex",
                 flexDirection: "column",
-                gap: "12px",
+                gap: "14px",
                 margin: "16px 0",
-                padding: "20px",
-                borderRadius: "12px",
-                backgroundColor: "rgba(0, 0, 0, 0.35)",
-                border: "1px solid var(--border-hairline)",
+                padding: "24px",
+                borderRadius: "16px",
+                backgroundColor: "var(--bg-canvas-subtle)",
               }}
             >
-              <div style={{ display: "flex", gap: "10px", alignItems: "flex-start" }}>
-                <CheckCircle2 size={18} color="var(--accent-solar)" style={{ flexShrink: 0, marginTop: "2px" }} />
+              <div style={{ display: "flex", gap: "12px", alignItems: "flex-start" }}>
+                <CheckCircle2 size={19} color="var(--accent-forest)" style={{ flexShrink: 0, marginTop: "2px" }} />
                 <div>
-                  <strong style={{ color: "#ffffff", display: "block", fontSize: "14px" }}>
+                  <strong style={{ color: "var(--text-ink)", display: "block", fontSize: "15px" }}>
                     Pay Once, Own It Forever
                   </strong>
-                  <span style={{ fontSize: "13px", color: "var(--text-muted)" }}>
+                  <span style={{ fontSize: "14px", color: "var(--text-body)" }}>
                     No recurring credit card charges. When you buy Beacon, your license key is permanent. It runs on all your personal Macs.
                   </span>
                 </div>
               </div>
 
-              <div style={{ display: "flex", gap: "10px", alignItems: "flex-start" }}>
-                <CheckCircle2 size={18} color="var(--accent-solar)" style={{ flexShrink: 0, marginTop: "2px" }} />
+              <div style={{ display: "flex", gap: "12px", alignItems: "flex-start" }}>
+                <CheckCircle2 size={19} color="var(--accent-forest)" style={{ flexShrink: 0, marginTop: "2px" }} />
                 <div>
-                  <strong style={{ color: "#ffffff", display: "block", fontSize: "14px" }}>
+                  <strong style={{ color: "var(--text-ink)", display: "block", fontSize: "15px" }}>
                     Zero Cloud Lock-in & 100% Local Storage
                   </strong>
-                  <span style={{ fontSize: "13px", color: "var(--text-muted)" }}>
+                  <span style={{ fontSize: "14px", color: "var(--text-body)" }}>
                     Your goals, notes, and habits live in a local SQLite file on your physical Mac. If your Wi-Fi dies, or if our servers vanish tomorrow, your Beacon keeps running forever.
                   </span>
                 </div>
               </div>
 
-              <div style={{ display: "flex", gap: "10px", alignItems: "flex-start" }}>
-                <CheckCircle2 size={18} color="var(--accent-solar)" style={{ flexShrink: 0, marginTop: "2px" }} />
+              <div style={{ display: "flex", gap: "12px", alignItems: "flex-start" }}>
+                <CheckCircle2 size={19} color="var(--accent-forest)" style={{ flexShrink: 0, marginTop: "2px" }} />
                 <div>
-                  <strong style={{ color: "#ffffff", display: "block", fontSize: "14px" }}>
+                  <strong style={{ color: "var(--text-ink)", display: "block", fontSize: "15px" }}>
                     30-Day "No Questions Asked" Full Refund
                   </strong>
-                  <span style={{ fontSize: "13px", color: "var(--text-muted)" }}>
-                    If Beacon doesn't earn its permanent place on your MacBook notch within 30 days, send me a single email and I will refund 100% of your money.
+                  <span style={{ fontSize: "14px", color: "var(--text-body)" }}>
+                    If Beacon doesn't earn its permanent place on your MacBook notch within 30 days, send me an email and I will refund 100% of your money.
                   </span>
                 </div>
               </div>
@@ -134,9 +114,9 @@ export const FounderLetter: React.FC = () => {
             </p>
 
             {/* Founder Sign-off */}
-            <div style={{ marginTop: "20px", paddingTop: "20px", borderTop: "1px solid var(--border-hairline)", display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: "16px" }}>
+            <div style={{ marginTop: "24px", paddingTop: "24px", borderTop: "1px solid var(--border-subtle)", display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: "16px" }}>
               <div>
-                <span style={{ fontFamily: "var(--font-display)", fontWeight: 800, fontSize: "17px", color: "#ffffff", display: "block" }}>
+                <span style={{ fontFamily: "var(--font-serif)", fontStyle: "italic", fontSize: "22px", color: "var(--text-ink)", display: "block" }}>
                   Tarunya Kesharwani
                 </span>
                 <span style={{ fontSize: "12px", color: "var(--text-muted)", fontFamily: "var(--font-mono)" }}>
@@ -154,16 +134,17 @@ export const FounderLetter: React.FC = () => {
                     alignItems: "center",
                     gap: "4px",
                     fontSize: "12px",
-                    color: "var(--text-secondary)",
+                    color: "var(--text-body)",
                     textDecoration: "none",
-                    padding: "4px 10px",
-                    borderRadius: "6px",
-                    backgroundColor: "rgba(255, 255, 255, 0.05)",
-                    border: "1px solid var(--border-hairline)",
+                    padding: "6px 12px",
+                    borderRadius: "8px",
+                    backgroundColor: "var(--bg-canvas-subtle)",
+                    border: "1px solid var(--border-subtle)",
+                    fontWeight: 600,
                   }}
                 >
                   <span>GitHub @tarunyaprogrammer</span>
-                  <ArrowUpRight size={12} />
+                  <ArrowUpRight size={13} />
                 </a>
 
                 <a
@@ -175,16 +156,17 @@ export const FounderLetter: React.FC = () => {
                     alignItems: "center",
                     gap: "4px",
                     fontSize: "12px",
-                    color: "var(--text-secondary)",
+                    color: "var(--text-body)",
                     textDecoration: "none",
-                    padding: "4px 10px",
-                    borderRadius: "6px",
-                    backgroundColor: "rgba(255, 255, 255, 0.05)",
-                    border: "1px solid var(--border-hairline)",
+                    padding: "6px 12px",
+                    borderRadius: "8px",
+                    backgroundColor: "var(--bg-canvas-subtle)",
+                    border: "1px solid var(--border-subtle)",
+                    fontWeight: 600,
                   }}
                 >
                   <span>LinkedIn</span>
-                  <ArrowUpRight size={12} />
+                  <ArrowUpRight size={13} />
                 </a>
               </div>
             </div>
