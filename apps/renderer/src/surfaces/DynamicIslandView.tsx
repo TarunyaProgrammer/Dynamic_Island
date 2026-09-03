@@ -1,13 +1,14 @@
 // apps/renderer/src/surfaces/DynamicIslandView.tsx
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { useGoals } from '../hooks/useGoals';
 import { useActivities } from '../hooks/useActivities';
 import { useMedia } from '../hooks/useMedia';
 import { GoalProgressRing } from '../components/GoalProgressRing';
 import { ProgressBar } from '../components/ProgressBar';
-import { BeaconLogo } from '../components/BeaconLogo';
+import { BeaconCompanion } from '../components/BeaconCompanion';
 import { ConfettiCanvas } from '../components/ConfettiCanvas';
 import { soundEffects } from '../utils/audio';
+import { useCompanion } from '../hooks/useCompanion';
 import {
   ExternalLink,
   Minus,
@@ -27,6 +28,7 @@ export const DynamicIslandView: React.FC = () => {
   const { goals, stats, incrementProgress, completeGoal } = useGoals('active');
   const { focusState, startFocus, pauseFocus, resumeFocus, stopFocus, extendFocus } = useActivities();
   const { mediaState, playPause, nextTrack, previousTrack, setVolume } = useMedia();
+  const { state: companionState, message: companionMessage, celebrate } = useCompanion('island');
   const [isExpanded, setIsExpanded] = useState(false);
   const [activeTab, setActiveTab] = useState<'goal' | 'focus' | 'media'>('goal');
   
@@ -58,6 +60,18 @@ export const DynamicIslandView: React.FC = () => {
       ? (focusState.durationSeconds - focusState.remainingSeconds) / focusState.durationSeconds
       : 0;
 
+  const handlePrimaryProgress = useCallback(async (delta: number) => {
+    if (!primaryGoal) return;
+    await incrementProgress(primaryGoal.id, delta);
+    celebrate(delta > 0 ? 'Progress logged' : 'Progress adjusted');
+  }, [celebrate, incrementProgress, primaryGoal]);
+
+  const handleCompletePrimaryGoal = useCallback(async () => {
+    if (!primaryGoal) return;
+    const completedGoal = await completeGoal(primaryGoal.id);
+    celebrate(`${completedGoal.name} completed`);
+  }, [celebrate, completeGoal, primaryGoal]);
+
   // Keyboard navigation & quick shortcuts
   React.useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -79,9 +93,9 @@ export const DynamicIslandView: React.FC = () => {
         e.preventDefault();
         playPause();
       } else if ((e.key === '+' || e.key === '=') && primaryGoal) {
-        incrementProgress(primaryGoal.id, primaryGoal.defaultIncrement || 1);
+        void handlePrimaryProgress(primaryGoal.defaultIncrement || 1);
       } else if (e.key === '-' && primaryGoal) {
-        incrementProgress(primaryGoal.id, -(primaryGoal.defaultIncrement || 1));
+        void handlePrimaryProgress(-(primaryGoal.defaultIncrement || 1));
       } else if (e.key === 'Escape') {
         setIsExpanded(false);
         window.beacon?.windows?.setIslandExpanded?.(false);
@@ -90,7 +104,7 @@ export const DynamicIslandView: React.FC = () => {
 
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [isExpanded, activeTab, focusState, primaryGoal, incrementProgress, startFocus, pauseFocus, resumeFocus, playPause]);
+  }, [activeTab, focusState, handlePrimaryProgress, isExpanded, playPause, primaryGoal, resumeFocus, startFocus, pauseFocus]);
 
   const resetCollapseTimer = () => {
     if (collapseTimer.current) {
@@ -248,7 +262,7 @@ export const DynamicIslandView: React.FC = () => {
               }}
               title="Goals View"
             >
-              <BeaconLogo size={13} />
+              <BeaconCompanion state={companionState} size="tiny" label={companionMessage} />
               <span>{focusState.isActive ? 'Focus Sprint' : 'Beacon'}</span>
             </button>
 
@@ -381,7 +395,7 @@ export const DynamicIslandView: React.FC = () => {
               >
                 <div
                   style={{
-                    width: '42px',
+                    width: '56px',
                     height: '42px',
                     borderRadius: '12px',
                     backgroundColor: 'rgba(255, 255, 255, 0.08)',
@@ -392,7 +406,7 @@ export const DynamicIslandView: React.FC = () => {
                     flexShrink: 0,
                   }}
                 >
-                  <BeaconLogo size={24} />
+                  <BeaconCompanion state={companionState} size="compact" label={companionMessage} />
                 </div>
 
                 {primaryGoal ? (
@@ -422,7 +436,7 @@ export const DynamicIslandView: React.FC = () => {
                         type="button"
                         onClick={(e) => {
                           e.stopPropagation();
-                          incrementProgress(primaryGoal.id, -(primaryGoal.defaultIncrement || 1));
+                          void handlePrimaryProgress(-(primaryGoal.defaultIncrement || 1));
                         }}
                         className="btn-ghost"
                         style={{ padding: '2px 5px', fontSize: '9px', backgroundColor: 'rgba(255, 255, 255, 0.08)' }}
@@ -433,7 +447,7 @@ export const DynamicIslandView: React.FC = () => {
                         type="button"
                         onClick={(e) => {
                           e.stopPropagation();
-                          incrementProgress(primaryGoal.id, primaryGoal.defaultIncrement || 1);
+                          void handlePrimaryProgress(primaryGoal.defaultIncrement || 1);
                         }}
                         className="btn-ghost"
                         style={{ padding: '2px 7px', fontSize: '9px', fontWeight: 600, backgroundColor: 'rgba(255, 255, 255, 0.14)', color: '#ffffff' }}
@@ -444,7 +458,7 @@ export const DynamicIslandView: React.FC = () => {
                         type="button"
                         onClick={(e) => {
                           e.stopPropagation();
-                          completeGoal(primaryGoal.id);
+                          void handleCompletePrimaryGoal();
                         }}
                         className="btn-ghost"
                         style={{ padding: '2px 5px', fontSize: '9px', backgroundColor: 'rgba(255, 255, 255, 0.08)' }}
@@ -921,4 +935,3 @@ export const DynamicIslandView: React.FC = () => {
     </div>
   );
 };
-
