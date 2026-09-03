@@ -1,5 +1,5 @@
 import React from "react";
-import { Check, Shield, ArrowRight, ShieldCheck, Key, Laptop, Apple } from "lucide-react";
+import { Check, Shield, ArrowRight, ShieldCheck, Key, Laptop, Apple, ArrowUpRight } from "lucide-react";
 
 interface PricingSectionProps {
   onSelectPlan: () => void;
@@ -37,18 +37,43 @@ export const PricingSection: React.FC<PricingSectionProps> = ({ onSelectPlan, cu
             border: "2px solid var(--accent-obsidian)",
             boxShadow: "0 16px 44px rgba(15, 17, 23, 0.1), 0 0 24px rgba(217, 119, 6, 0.08)",
             padding: "clamp(32px, 5vw, 44px)",
+            position: "relative",
           }}
         >
-          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "20px" }}>
-            <span style={{ fontSize: "12px", fontWeight: 800, textTransform: "uppercase", letterSpacing: "0.12em", color: "var(--accent-solar)" }}>
+          {/* Card Top Row: Edition on Left, Interactive Discount Pill on Right */}
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: "10px", marginBottom: "20px" }}>
+            <span style={{ fontSize: "12px", fontWeight: 800, textTransform: "uppercase", letterSpacing: "0.12em", color: "var(--text-amber-contrast)" }}>
               Pioneer Lifetime Edition
             </span>
-            <span style={{ fontSize: "12px", color: "var(--text-muted)", fontFamily: "var(--font-mono)" }}>
-              macOS 12+ (Universal)
-            </span>
+
+            {/* Student & Indie Builder Discount Link to Founder's Twitter */}
+            <a
+              href="https://x.com/tarunyaprogram"
+              target="_blank"
+              rel="noopener noreferrer"
+              style={{
+                display: "inline-flex",
+                alignItems: "center",
+                gap: "5px",
+                padding: "4px 10px",
+                borderRadius: "100px",
+                backgroundColor: "rgba(15, 17, 23, 0.04)",
+                border: "1px solid var(--border-subtle)",
+                color: "var(--text-ink)",
+                fontSize: "11px",
+                fontWeight: 600,
+                textDecoration: "none",
+                transition: "all 0.15s ease",
+              }}
+              title="Students, educators & indie builders: DM Tarunya on X/Twitter for personal discounts"
+            >
+              <span style={{ color: "var(--text-amber-contrast)", fontWeight: 700 }}>Student or Indie?</span>
+              <span>DM for discount</span>
+              <ArrowUpRight size={12} color="var(--text-muted)" />
+            </a>
           </div>
 
-          <div style={{ display: "flex", alignItems: "baseline", gap: "8px", marginBottom: "8px" }}>
+          <div style={{ display: "flex", alignItems: "baseline", gap: "8px", marginBottom: "6px" }}>
             <span
               style={{
                 fontFamily: "var(--font-serif)",
@@ -62,6 +87,12 @@ export const PricingSection: React.FC<PricingSectionProps> = ({ onSelectPlan, cu
             </span>
             <span style={{ color: "var(--text-muted)", fontSize: "15px", fontWeight: 500 }}>
               one-time purchase
+            </span>
+          </div>
+
+          <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "24px" }}>
+            <span style={{ fontSize: "11px", color: "var(--text-muted)", fontFamily: "var(--font-mono)" }}>
+              Universal Binary (Apple Silicon M1/M2/M3/M4 & Intel)
             </span>
           </div>
 

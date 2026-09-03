@@ -100,16 +100,17 @@ export const FeatureGrid: React.FC = () => {
                   <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "16px" }}>
                     <div
                       style={{
-                        width: "38px",
-                        height: "38px",
+                        width: "40px",
+                        height: "40px",
                         borderRadius: "10px",
-                        backgroundColor: "var(--bg-canvas-subtle)",
+                        backgroundColor: "#0F1117",
                         display: "flex",
                         alignItems: "center",
                         justifyContent: "center",
+                        boxShadow: "0 2px 8px rgba(15, 17, 23, 0.18)",
                       }}
                     >
-                      <Icon size={19} color="var(--accent-forest)" />
+                      <Icon size={19} color="var(--accent-solar)" />
                     </div>
                     <span style={{ fontSize: "11px", fontFamily: "var(--font-mono)", color: "var(--text-muted)", fontWeight: 600 }}>
                       {p.type}
@@ -146,7 +147,7 @@ export const FeatureGrid: React.FC = () => {
           }}
         >
           <div className="card-editorial" style={{ display: "flex", gap: "16px", alignItems: "flex-start", padding: "24px" }}>
-            <Command size={22} color="var(--accent-forest)" style={{ flexShrink: 0, marginTop: "2px" }} />
+            <Command size={22} color="var(--accent-solar)" style={{ flexShrink: 0, marginTop: "2px" }} />
             <div>
               <h4 style={{ fontSize: "15px", fontWeight: 700, color: "var(--text-ink)", marginBottom: "4px" }}>
                 Global Hotkey (⌘⇧B)
@@ -158,7 +159,7 @@ export const FeatureGrid: React.FC = () => {
           </div>
 
           <div className="card-editorial" style={{ display: "flex", gap: "16px", alignItems: "flex-start", padding: "24px" }}>
-            <Database size={22} color="var(--accent-forest)" style={{ flexShrink: 0, marginTop: "2px" }} />
+            <Database size={22} color="var(--accent-solar)" style={{ flexShrink: 0, marginTop: "2px" }} />
             <div>
               <h4 style={{ fontSize: "15px", fontWeight: 700, color: "var(--text-ink)", marginBottom: "4px" }}>
                 100% Local SQLite WAL
@@ -170,7 +171,7 @@ export const FeatureGrid: React.FC = () => {
           </div>
 
           <div className="card-editorial" style={{ display: "flex", gap: "16px", alignItems: "flex-start", padding: "24px" }}>
-            <Headphones size={22} color="var(--accent-forest)" style={{ flexShrink: 0, marginTop: "2px" }} />
+            <Headphones size={22} color="var(--accent-solar)" style={{ flexShrink: 0, marginTop: "2px" }} />
             <div>
               <h4 style={{ fontSize: "15px", fontWeight: 700, color: "var(--text-ink)", marginBottom: "4px" }}>
                 Apple Music & Spotify

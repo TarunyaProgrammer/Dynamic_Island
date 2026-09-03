@@ -68,37 +68,37 @@ export const SoftwareOwnership: React.FC = () => {
               padding: "32px",
               borderRadius: "16px",
               backgroundColor: "#FFFFFF",
-              border: "2px solid var(--accent-forest)",
+              border: "2px solid var(--accent-obsidian)",
               boxShadow: "0 12px 36px rgba(13, 82, 63, 0.08)",
             }}
           >
             <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "24px" }}>
               <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
-                <ShieldCheck size={18} color="var(--accent-forest)" />
-                <span style={{ fontSize: "13px", fontWeight: 800, color: "var(--accent-forest)", textTransform: "uppercase", letterSpacing: "0.1em" }}>
+                <ShieldCheck size={18} color="var(--accent-obsidian)" />
+                <span style={{ fontSize: "13px", fontWeight: 800, color: "var(--accent-obsidian)", textTransform: "uppercase", letterSpacing: "0.1em" }}>
                   Beacon Lifetime
                 </span>
               </div>
-              <span style={{ fontSize: "13px", color: "var(--accent-forest)", fontWeight: 700, fontFamily: "var(--font-mono)" }}>
+              <span style={{ fontSize: "13px", color: "var(--accent-obsidian)", fontWeight: 700, fontFamily: "var(--font-mono)" }}>
                 $29 Once
               </span>
             </div>
 
             <div style={{ display: "flex", flexDirection: "column", gap: "16px", fontSize: "14px", color: "var(--text-ink)" }}>
               <div style={{ display: "flex", gap: "12px", alignItems: "flex-start" }}>
-                <Check size={17} color="var(--accent-forest)" style={{ flexShrink: 0, marginTop: "2px" }} />
+                <Check size={17} color="var(--accent-obsidian)" style={{ flexShrink: 0, marginTop: "2px" }} />
                 <span><strong>Pay once, own forever:</strong> Permanent personal license</span>
               </div>
               <div style={{ display: "flex", gap: "12px", alignItems: "flex-start" }}>
-                <Check size={17} color="var(--accent-forest)" style={{ flexShrink: 0, marginTop: "2px" }} />
+                <Check size={17} color="var(--accent-obsidian)" style={{ flexShrink: 0, marginTop: "2px" }} />
                 <span><strong>100% Private SQLite WAL:</strong> No tracking, zero telemetry</span>
               </div>
               <div style={{ display: "flex", gap: "12px", alignItems: "flex-start" }}>
-                <Check size={17} color="var(--accent-forest)" style={{ flexShrink: 0, marginTop: "2px" }} />
+                <Check size={17} color="var(--accent-obsidian)" style={{ flexShrink: 0, marginTop: "2px" }} />
                 <span><strong>0.1% Idle CPU:</strong> Hardware-native power efficiency</span>
               </div>
               <div style={{ display: "flex", gap: "12px", alignItems: "flex-start" }}>
-                <Check size={17} color="var(--accent-forest)" style={{ flexShrink: 0, marginTop: "2px" }} />
+                <Check size={17} color="var(--accent-obsidian)" style={{ flexShrink: 0, marginTop: "2px" }} />
                 <span><strong>Fully Offline:</strong> Works seamlessly on planes and cabins</span>
               </div>
             </div>

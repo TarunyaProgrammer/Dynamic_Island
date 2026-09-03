@@ -117,14 +117,14 @@ export const AppScreenshotsGallery: React.FC = () => {
                   gap: "8px",
                   padding: "10px 18px",
                   borderRadius: "12px",
-                  backgroundColor: isActive ? "var(--accent-forest)" : "#FFFFFF",
-                  border: isActive ? "1px solid var(--accent-forest)" : "1px solid var(--border-subtle)",
+                  backgroundColor: isActive ? "var(--accent-obsidian)" : "#FFFFFF",
+                  border: isActive ? "1px solid var(--accent-obsidian)" : "1px solid var(--border-subtle)",
                   color: isActive ? "#FFFFFF" : "var(--text-body)",
                   fontSize: "13px",
                   fontWeight: 600,
                   cursor: "pointer",
                   transition: "all 0.18s ease",
-                  boxShadow: isActive ? "0 4px 14px rgba(13, 82, 63, 0.25)" : "var(--shadow-sm)",
+                  boxShadow: isActive ? "0 4px 14px rgba(15, 17, 23, 0.25)" : "var(--shadow-sm)",
                 }}
               >
                 <Icon size={15} color={isActive ? "#FFFFFF" : "var(--text-muted)"} />
@@ -176,7 +176,7 @@ export const AppScreenshotsGallery: React.FC = () => {
                     padding: "5px 12px",
                     borderRadius: "100px",
                     backgroundColor: "var(--bg-canvas-subtle)",
-                    color: "var(--accent-forest)",
+                    color: "var(--text-ink)",
                     border: "1px solid var(--border-subtle)",
                   }}
                 >

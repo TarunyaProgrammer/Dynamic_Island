@@ -66,14 +66,15 @@ export const TechSpecs: React.FC = () => {
                     width: "36px",
                     height: "36px",
                     borderRadius: "8px",
-                    backgroundColor: "var(--bg-canvas)",
+                    backgroundColor: "#0F1117",
+                    boxShadow: "0 2px 8px rgba(15, 17, 23, 0.18)",
                     display: "flex",
                     alignItems: "center",
                     justifyContent: "center",
                     marginBottom: "16px",
                   }}
                 >
-                  <Icon size={18} color="var(--accent-forest)" />
+                  <Icon size={18} color="var(--accent-solar)" />
                 </div>
                 <h3 style={{ fontSize: "16px", fontWeight: 700, color: "var(--text-ink)", marginBottom: "6px" }}>
                   {s.title}

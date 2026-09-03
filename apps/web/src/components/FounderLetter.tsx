@@ -73,7 +73,7 @@ export const FounderLetter: React.FC = () => {
               }}
             >
               <div style={{ display: "flex", gap: "12px", alignItems: "flex-start" }}>
-                <CheckCircle2 size={19} color="var(--accent-forest)" style={{ flexShrink: 0, marginTop: "2px" }} />
+                <CheckCircle2 size={19} color="var(--accent-obsidian)" style={{ flexShrink: 0, marginTop: "2px" }} />
                 <div>
                   <strong style={{ color: "var(--text-ink)", display: "block", fontSize: "15px" }}>
                     Pay Once, Own It Forever
@@ -85,7 +85,7 @@ export const FounderLetter: React.FC = () => {
               </div>
 
               <div style={{ display: "flex", gap: "12px", alignItems: "flex-start" }}>
-                <CheckCircle2 size={19} color="var(--accent-forest)" style={{ flexShrink: 0, marginTop: "2px" }} />
+                <CheckCircle2 size={19} color="var(--accent-obsidian)" style={{ flexShrink: 0, marginTop: "2px" }} />
                 <div>
                   <strong style={{ color: "var(--text-ink)", display: "block", fontSize: "15px" }}>
                     Zero Cloud Lock-in & 100% Local Storage
@@ -97,7 +97,7 @@ export const FounderLetter: React.FC = () => {
               </div>
 
               <div style={{ display: "flex", gap: "12px", alignItems: "flex-start" }}>
-                <CheckCircle2 size={19} color="var(--accent-forest)" style={{ flexShrink: 0, marginTop: "2px" }} />
+                <CheckCircle2 size={19} color="var(--accent-obsidian)" style={{ flexShrink: 0, marginTop: "2px" }} />
                 <div>
                   <strong style={{ color: "var(--text-ink)", display: "block", fontSize: "15px" }}>
                     30-Day "No Questions Asked" Full Refund

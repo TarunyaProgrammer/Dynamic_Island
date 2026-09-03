@@ -59,7 +59,7 @@ export const EditorialManifestoStatement: React.FC = () => {
               }}
             >
               <img
-                src="/assets/macos-wallpaper-dark.jpg"
+                src="/assets/misty-hills-ambient.jpg"
                 alt="macOS atmospheric landscape"
                 style={{
                   width: "100%",

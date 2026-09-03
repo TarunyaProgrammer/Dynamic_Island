@@ -85,7 +85,7 @@ export const FAQSection: React.FC = () => {
                   <span>{f.q}</span>
                   <ChevronDown
                     size={18}
-                    color="var(--accent-forest)"
+                    color="var(--accent-obsidian)"
                     style={{
                       transform: isOpen ? "rotate(180deg)" : "rotate(0deg)",
                       transition: "transform 0.25s cubic-bezier(0.16, 1, 0.3, 1)",

@@ -24,7 +24,7 @@ body {
 
 .container {
   width: 100%;
-  max-width: 1200px;
+  max-width: 1380px;
   margin: 0 auto;
   padding: 0 24px;
 }
@@ -50,7 +50,7 @@ body {
   font-weight: 800;
   letter-spacing: 0.12em;
   text-transform: uppercase;
-  color: var(--accent-solar);
+  color: var(--text-amber-contrast);
   font-family: var(--font-sans);
 }
 
