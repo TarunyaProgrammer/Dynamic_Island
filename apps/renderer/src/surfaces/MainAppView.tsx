@@ -12,9 +12,11 @@ import { ConfettiCanvas } from '../components/ConfettiCanvas';
 import { triggerLightPulse } from '../components/LightBeamFeedback';
 import { ConfirmationModal } from '../components/ConfirmationModal';
 import { soundEffects } from '../utils/audio';
-import { Plus, Undo2, Redo2, Layers, CheckCircle2, Archive, Activity, Timer, Search, X, Sun, Moon } from 'lucide-react';
+import { Plus, Undo2, Redo2, Layers, CheckCircle2, Archive, Activity, Timer, Search, X, Sun, Moon, Quote } from 'lucide-react';
 import { FocusDashboardView } from '../components/FocusDashboardView';
 import { useCompanion } from '../hooks/useCompanion';
+import { SolarHorizonGraph } from '../components/SolarHorizonGraph';
+import { MomentumRhythmBar } from '../components/MomentumRhythmBar';
 
 export const MainAppView: React.FC = () => {
   const [viewMode, setViewMode] = useState<'goals' | 'focus'>('goals');
@@ -550,38 +552,107 @@ export const MainAppView: React.FC = () => {
             overflowY: 'auto',
           }}
         >
-          {/* Aggregated Overview */}
-          {stats && (
-            <div
-              style={{
-                padding: '14px',
-                backgroundColor: 'rgba(255, 255, 255, 0.03)',
-                borderRadius: 'var(--radius-lg)',
-                border: '1px solid var(--border-subtle)',
-                display: 'flex',
-                alignItems: 'center',
-                gap: '14px',
-              }}
-            >
-              <GoalProgressRing progressFraction={stats.overallProgressFraction} size={52} strokeWidth={4.5} />
+          {/* Today's Focus Card with Solar Horizon Graph */}
+          <div
+            style={{
+              padding: '14px',
+              backgroundColor: 'rgba(255, 255, 255, 0.03)',
+              borderRadius: 'var(--radius-lg)',
+              border: '1px solid var(--border-subtle)',
+              display: 'flex',
+              flexDirection: 'column',
+              gap: '12px',
+            }}
+          >
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '12px', fontWeight: 600, color: 'var(--text-primary)' }}>
+                <Timer size={13} color="var(--accent-solar, #ff7a00)" />
+                <span>Today's Focus</span>
+              </div>
+              <span
+                style={{
+                  fontSize: '9px',
+                  fontWeight: 700,
+                  letterSpacing: '0.04em',
+                  padding: '2px 6px',
+                  borderRadius: '9999px',
+                  backgroundColor: 'rgba(255, 122, 0, 0.12)',
+                  color: 'var(--accent-solar, #ff7a00)',
+                  border: '1px solid rgba(255, 122, 0, 0.28)',
+                  textTransform: 'uppercase',
+                }}
+              >
+                ✦ Locked In
+              </span>
+            </div>
+
+            <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+              <GoalProgressRing progressFraction={0.62} size={46} strokeWidth={4} color="var(--accent-solar, #ff7a00)" />
               <div style={{ display: 'flex', flexDirection: 'column' }}>
-                <span style={{ fontSize: '11px', color: 'var(--text-secondary)', fontWeight: 500 }}>Overall Progress</span>
-                <span style={{ fontSize: '18px', fontWeight: 700 }}>{Math.round(stats.overallProgressFraction * 100)}%</span>
-                <span style={{ fontSize: '10px', color: 'var(--text-muted)' }}>
-                  {stats.activeGoals} active • {stats.completedGoals} completed
-                </span>
+                <span style={{ fontSize: '10px', color: 'var(--text-secondary)', fontWeight: 500 }}>Deep Work</span>
+                <span style={{ fontSize: '17px', fontWeight: 700, color: '#ffffff', letterSpacing: '-0.02em' }}>2h 30m</span>
+                <span style={{ fontSize: '10px', color: 'var(--text-muted)' }}>62% of 4h goal · 3 sessions</span>
               </div>
             </div>
-          )}
 
-          {/* Activity Stream */}
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', flex: 1 }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '12px', fontWeight: 600, color: 'var(--text-secondary)' }}>
-              <Activity size={14} color="var(--accent-primary)" />
+            {/* Minimalist Solar Horizon Curve */}
+            <SolarHorizonGraph focusMinutesToday={150} targetMinutes={240} height={52} />
+          </div>
+
+          {/* Today's Activity Stream */}
+          <div
+            style={{
+              padding: '14px',
+              backgroundColor: 'rgba(255, 255, 255, 0.03)',
+              borderRadius: 'var(--radius-lg)',
+              border: '1px solid var(--border-subtle)',
+              display: 'flex',
+              flexDirection: 'column',
+              gap: '10px',
+            }}
+          >
+            <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '12px', fontWeight: 600, color: 'var(--text-primary)' }}>
+              <Activity size={13} color="var(--accent-solar, #ff7a00)" />
               <span>Today's Activity</span>
             </div>
 
             <ActivityTimeline events={history} goals={goals} />
+          </div>
+
+          {/* Momentum Rhythm Bar Card */}
+          <div
+            style={{
+              padding: '14px',
+              backgroundColor: 'rgba(255, 255, 255, 0.03)',
+              borderRadius: 'var(--radius-lg)',
+              border: '1px solid var(--border-subtle)',
+            }}
+          >
+            <MomentumRhythmBar />
+          </div>
+
+          {/* Motivational Anchor Quote */}
+          <div
+            style={{
+              padding: '12px 14px',
+              backgroundColor: 'rgba(255, 255, 255, 0.02)',
+              borderRadius: 'var(--radius-md)',
+              border: '1px solid rgba(255, 255, 255, 0.04)',
+              display: 'flex',
+              flexDirection: 'column',
+              gap: '4px',
+            }}
+          >
+            <div style={{ display: 'flex', alignItems: 'center', gap: '5px', color: 'var(--text-muted)' }}>
+              <Quote size={11} color="var(--accent-amber, #f59e0b)" />
+              <span style={{ fontSize: '10px', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.04em' }}>
+                Daily Focus Anchor
+              </span>
+            </div>
+            <p style={{ fontSize: '11px', color: 'var(--text-secondary)', fontStyle: 'italic', margin: '2px 0 0 0', lineHeight: 1.4 }}>
+              "Discipline today, freedom tomorrow."
+            </p>
+            <span style={{ fontSize: '10px', color: 'var(--text-muted)' }}>— Unknown</span>
           </div>
         </div>
       </div>

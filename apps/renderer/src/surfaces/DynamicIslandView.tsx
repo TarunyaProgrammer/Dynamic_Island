@@ -22,6 +22,7 @@ import {
   Music,
   Volume2,
   Sparkles,
+  ChevronRight,
 } from 'lucide-react';
 
 export const DynamicIslandView: React.FC = () => {
@@ -161,7 +162,7 @@ export const DynamicIslandView: React.FC = () => {
           which still delivers mousemove to web content for hover detection. */}
       <div
         style={{
-          width: isExpanded ? '640px' : '240px',
+          width: isExpanded ? '640px' : '440px',
           minHeight: isExpanded ? '146px' : '32px',
           maxHeight: isExpanded ? '160px' : '32px',
           backgroundColor: isExpanded ? 'rgba(10, 10, 14, 0.86)' : '#000000',
@@ -172,7 +173,7 @@ export const DynamicIslandView: React.FC = () => {
           borderRight: isExpanded ? '1px solid rgba(255, 255, 255, 0.12)' : 'none',
           borderBottom: isExpanded ? '1px solid rgba(255, 255, 255, 0.12)' : 'none',
           borderTop: 'none',
-          borderRadius: isExpanded ? '0 0 22px 22px' : '0 0 12px 12px',
+          borderRadius: isExpanded ? '0 0 22px 22px' : '0 0 14px 14px',
           boxShadow: isExpanded
             ? '0 10px 26px rgba(0, 0, 0, 0.28), 0 1px 3px rgba(0, 0, 0, 0.15)'
             : '0 2px 6px rgba(0, 0, 0, 0.2)',
@@ -235,43 +236,117 @@ export const DynamicIslandView: React.FC = () => {
             zIndex: 2,
           }}
         >
-          {/* Left Wing / Activity Switcher Tabs */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-            <button
-              type="button"
-              onClick={(e) => {
-                console.log('[DynamicIsland] Clicked Beacon/Goal tab');
-                e.stopPropagation();
-                resetCollapseTimer();
-                setActiveTab('goal');
-              }}
+          {!isExpanded ? (
+            /* Flush Collapsed Stats Ribbon */
+            <div
               style={{
+                width: '100%',
                 display: 'flex',
                 alignItems: 'center',
-                gap: '5px',
-                padding: '3px 8px',
-                borderRadius: '9999px',
-                backgroundColor: activeTab === 'goal' && isExpanded ? 'rgba(255, 255, 255, 0.16)' : 'transparent',
-                color: '#ffffff',
-                fontSize: '11px',
-                fontWeight: 600,
-                cursor: 'pointer',
-                border: 'none',
-                outline: 'none',
-                transition: 'all 0.15s ease',
+                justifyContent: 'space-between',
+                height: '32px',
+                userSelect: 'none',
               }}
-              title="Goals View"
             >
-              <BeaconCompanion state={companionState} size="tiny" label={companionMessage} />
-              <span>{focusState.isActive ? 'Focus Sprint' : 'Beacon'}</span>
-            </button>
+              {/* 1. Spirit & Beacon Status */}
+              <div style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
+                <BeaconCompanion state={companionState} size="tiny" label={companionMessage} />
+                <span style={{ fontSize: '11px', fontWeight: 600, color: '#ffffff' }}>Beacon</span>
+                <span style={{ width: '4px', height: '4px', borderRadius: '50%', backgroundColor: '#10b981' }} />
+                <span style={{ fontSize: '9px', color: 'rgba(255, 255, 255, 0.45)' }}>All good</span>
+              </div>
 
-            {isExpanded && (
-              <>
+              <ChevronRight size={10} color="rgba(255, 255, 255, 0.25)" />
+
+              {/* 2. Focus Sprint */}
+              <div style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
+                <GoalProgressRing
+                  progressFraction={focusState.isActive ? focusProgress : 0.62}
+                  size={13}
+                  strokeWidth={2}
+                  showText={false}
+                  color="var(--accent-cyan, #5ac8fa)"
+                />
+                <span style={{ fontSize: '9px', color: 'rgba(255, 255, 255, 0.45)' }}>Focus:</span>
+                <span style={{ fontSize: '10px', fontWeight: 600, color: '#ffffff' }}>
+                  {focusState.isActive ? focusTimeStr : '2h 30m'}
+                </span>
+              </div>
+
+              <ChevronRight size={10} color="rgba(255, 255, 255, 0.25)" />
+
+              {/* 3. Priority Goal */}
+              <div style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
+                <GoalProgressRing
+                  progressFraction={primaryGoal ? primaryFrac : 0.6}
+                  size={13}
+                  strokeWidth={2}
+                  showText={false}
+                  color="var(--accent-beacon, #7c6cff)"
+                />
+                <span
+                  style={{
+                    fontSize: '10px',
+                    fontWeight: 600,
+                    color: '#ffffff',
+                    maxWidth: '75px',
+                    overflow: 'hidden',
+                    textOverflow: 'ellipsis',
+                    whiteSpace: 'nowrap',
+                  }}
+                >
+                  {primaryGoal?.name || 'SaaS app'}
+                </span>
+                <span style={{ fontSize: '9px', fontWeight: 600, color: 'var(--accent-beacon, #7c6cff)' }}>
+                  {primaryGoal ? Math.round(primaryFrac * 100) : 60}%
+                </span>
+              </div>
+
+              <ChevronRight size={10} color="rgba(255, 255, 255, 0.25)" />
+
+              {/* 4. Streak Energy */}
+              <div style={{ display: 'flex', alignItems: 'center', gap: '3px' }}>
+                <Sparkles size={10} color="var(--accent-solar, #ff7a00)" />
+                <span style={{ fontSize: '10px', fontWeight: 700, color: 'var(--accent-solar, #ff7a00)' }}>
+                  {primaryGoal?.streakConfig?.currentStreak ?? 7}d
+                </span>
+              </div>
+            </div>
+          ) : (
+            /* Expanded Top Notch Header: Navigation Tabs + Open Main App Action */
+            <>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
                 <button
                   type="button"
                   onClick={(e) => {
-                    console.log('[DynamicIsland] Clicked Focus tab');
+                    e.stopPropagation();
+                    resetCollapseTimer();
+                    setActiveTab('goal');
+                  }}
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '5px',
+                    padding: '3px 8px',
+                    borderRadius: '9999px',
+                    backgroundColor: activeTab === 'goal' ? 'rgba(255, 255, 255, 0.16)' : 'transparent',
+                    color: '#ffffff',
+                    fontSize: '11px',
+                    fontWeight: 600,
+                    cursor: 'pointer',
+                    border: 'none',
+                    outline: 'none',
+                    transition: 'all 0.15s ease',
+                  }}
+                  title="Goals View"
+                >
+                  <BeaconCompanion state={companionState} size="tiny" label={companionMessage} />
+                  <span>Beacon</span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={(e) => {
                     e.stopPropagation();
                     resetCollapseTimer();
                     setActiveTab('focus');
@@ -300,7 +375,6 @@ export const DynamicIslandView: React.FC = () => {
                 <button
                   type="button"
                   onClick={(e) => {
-                    console.log('[DynamicIsland] Clicked Media tab');
                     e.stopPropagation();
                     resetCollapseTimer();
                     setActiveTab('media');
@@ -325,26 +399,8 @@ export const DynamicIslandView: React.FC = () => {
                   <Music size={11} />
                   <span>Media</span>
                 </button>
-              </>
-            )}
-          </div>
-
-          {/* Right Wing / Metrics & Quick Actions */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-            {!isExpanded ? (
-              <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                <span style={{ fontSize: '11px', fontWeight: 600, color: '#ffffff' }}>
-                  {focusState.isActive ? focusTimeStr : `${percent}%`}
-                </span>
-                <GoalProgressRing
-                  progressFraction={focusState.isActive ? focusProgress : (stats?.overallProgressFraction ?? 0)}
-                  size={16}
-                  strokeWidth={2.2}
-                  showText={false}
-                  color="#ffffff"
-                />
               </div>
-            ) : (
+
               <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
                 <button
                   type="button"
@@ -360,8 +416,8 @@ export const DynamicIslandView: React.FC = () => {
                   <ExternalLink size={12} />
                 </button>
               </div>
-            )}
-          </div>
+            </>
+          )}
         </div>
 
         {/* Expanded 3-Column Beacon Dynamic Island Body (Strictly Below Notch) */}

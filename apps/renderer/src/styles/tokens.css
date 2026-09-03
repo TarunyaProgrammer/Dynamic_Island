@@ -31,8 +31,10 @@
   --accent-beacon: #7c6cff;        /* Electric Blue-Violet */
   --accent-beacon-hover: #9183ff;
   --accent-cyan: #5ac8fa;          /* Soft Cyan Beam */
+  --accent-solar: #ff7a00;         /* Energetic Solar Tangerine */
+  --accent-solar-glow: rgba(255, 122, 0, 0.22);
+  --accent-amber: #f59e0b;         /* Solar Amber Spark */
   --accent-emerald: #10b981;       /* Restrained Completed Green */
-  --accent-amber: #f59e0b;         /* At-Risk Amber */
   --accent-rose: #ef4444;          /* Overdue / Missed Red */
   --accent-neutral: #3a3d4a;       /* Inactive Track */
 

@@ -57,8 +57,9 @@ export const ActivityTimeline: React.FC<ActivityTimelineProps> = ({ events, goal
                   fontWeight: 700,
                   padding: '2px 6px',
                   borderRadius: 'var(--radius-sm)',
-                  backgroundColor: isPositive ? 'rgba(16, 185, 129, 0.15)' : 'rgba(244, 63, 94, 0.15)',
-                  color: isPositive ? 'var(--accent-emerald)' : 'var(--accent-rose)',
+                  backgroundColor: isPositive ? 'rgba(255, 122, 0, 0.14)' : 'rgba(244, 63, 94, 0.15)',
+                  color: isPositive ? 'var(--accent-solar, #ff7a00)' : 'var(--accent-rose)',
+                  border: isPositive ? '1px solid rgba(255, 122, 0, 0.28)' : '1px solid rgba(244, 63, 94, 0.25)',
                 }}
               >
                 {isPositive ? `+${event.delta}` : `${event.delta}`}
