@@ -307,7 +307,40 @@ input, textarea {
   display: inline-block;
   margin-left: 3px;
   color: var(--accent-solar, #ff7a00);
-  animation: cursorBlink 0.8s ease-in-out infinite;
+  animation: cursorBlink 0.7s ease-in-out infinite;
   font-weight: bold;
+}
+
+.streaming-word {
+  display: inline;
+  animation: wordFadeIn 0.16s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes wordFadeIn {
+  0% {
+    opacity: 0.15;
+    filter: blur(1.5px);
+    transform: translateY(2px);
+  }
+  100% {
+    opacity: 1;
+    filter: blur(0);
+    transform: translateY(0);
+  }
+}
+
+.action-badge-enter {
+  animation: actionBadgePop 0.32s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes actionBadgePop {
+  0% {
+    opacity: 0;
+    transform: translateY(8px) scale(0.94);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
 }
 

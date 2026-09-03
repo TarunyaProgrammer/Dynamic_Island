@@ -81,39 +81,66 @@ const QUICK_ACTIONS = [
   },
 ];
 
-// Streaming animated typewriter text component
-const StreamingBubbleText: React.FC<{ text: string; animate?: boolean }> = ({ text, animate = false }) => {
-  const [displayedText, setDisplayedText] = useState(animate ? '' : text);
+// Natural-pacing word-by-word streaming typewriter text component
+const StreamingBubbleText: React.FC<{
+  text: string;
+  animate?: boolean;
+  onFinish?: () => void;
+  onWord?: () => void;
+}> = ({ text, animate = false, onFinish, onWord }) => {
+  const [displayedWords, setDisplayedWords] = useState<string[]>(() => (animate ? [] : text.split(' ')));
   const [isTyping, setIsTyping] = useState(animate);
 
   useEffect(() => {
     if (!animate) {
-      setDisplayedText(text);
+      setDisplayedWords(text.split(' '));
       setIsTyping(false);
+      onFinish?.();
       return;
     }
 
     const words = text.split(' ');
     let currentIdx = 0;
-    setDisplayedText('');
+    setDisplayedWords([]);
     setIsTyping(true);
 
-    const interval = setInterval(() => {
-      currentIdx += 1;
-      setDisplayedText(words.slice(0, currentIdx).join(' '));
+    let timer: any;
 
+    const streamNextWord = () => {
       if (currentIdx >= words.length) {
-        clearInterval(interval);
         setIsTyping(false);
+        onFinish?.();
+        return;
       }
-    }, 28);
 
-    return () => clearInterval(interval);
+      currentIdx += 1;
+      setDisplayedWords(words.slice(0, currentIdx));
+      onWord?.();
+
+      const currentWord = words[currentIdx - 1] || '';
+      // Natural speech pacing with punctuation pauses
+      let delay = 38; // ~26 words per second
+      if (currentWord.endsWith('.') || currentWord.endsWith('!') || currentWord.endsWith('?')) {
+        delay = 135; // Natural sentence pause
+      } else if (currentWord.endsWith(',') || currentWord.endsWith(';') || currentWord.endsWith(':')) {
+        delay = 75; // Natural clause pause
+      }
+
+      timer = setTimeout(streamNextWord, delay);
+    };
+
+    timer = setTimeout(streamNextWord, 60);
+
+    return () => clearTimeout(timer);
   }, [text, animate]);
 
   return (
-    <span>
-      {displayedText}
+    <span style={{ display: 'inline', whiteSpace: 'pre-wrap' }}>
+      {displayedWords.map((word, idx) => (
+        <span key={idx} className="streaming-word">
+          {word}{idx < displayedWords.length - 1 ? ' ' : ''}
+        </span>
+      ))}
       {isTyping && <span className="spirit-cursor">✦</span>}
     </span>
   );
@@ -139,6 +166,7 @@ export const BeaconCompanionChatModal: React.FC<BeaconCompanionChatModalProps> =
   const [providerName, setProviderName] = useState<string>('AI Brain');
   const [floatingEmote, setFloatingEmote] = useState<string | null>(null);
   const [filterCategory, setFilterCategory] = useState<string>('All');
+  const [streamFinishedIds, setStreamFinishedIds] = useState<Set<string>>(new Set(['welcome']));
   const chatScrollRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -238,10 +266,7 @@ export const BeaconCompanionChatModal: React.FC<BeaconCompanionChatModalProps> =
       };
 
       setMessages((prev) => [...prev, companionMsg]);
-      setCompanionMood(res.actionsTaken.length > 0 ? 'celebrating' : 'smiling');
-      if (res.actionsTaken.length > 0) {
-        soundEffects.playGoalFanfare();
-      }
+      setCompanionMood('smiling');
     } catch (err: any) {
       const errorMsg: Message = {
         id: `err-${Date.now()}`,
@@ -463,11 +488,26 @@ export const BeaconCompanionChatModal: React.FC<BeaconCompanionChatModalProps> =
                     boxShadow: isUser ? '0 2px 10px rgba(255, 122, 0, 0.3)' : 'var(--shadow-sm)',
                   }}
                 >
-                  <StreamingBubbleText text={m.text} animate={m.isStreaming} />
+                  <StreamingBubbleText
+                    text={m.text}
+                    animate={m.isStreaming && !streamFinishedIds.has(m.id)}
+                    onFinish={() => {
+                      setStreamFinishedIds((prev) => new Set([...prev, m.id]));
+                      if (m.actionsTaken && m.actionsTaken.length > 0) {
+                        setCompanionMood('celebrating');
+                        soundEffects.playGoalFanfare();
+                      }
+                    }}
+                    onWord={() => {
+                      if (chatScrollRef.current) {
+                        chatScrollRef.current.scrollTop = chatScrollRef.current.scrollHeight;
+                      }
+                    }}
+                  />
 
-                  {/* Executed Tools Feedback */}
-                  {m.actionsTaken && m.actionsTaken.length > 0 && (
-                    <div style={{ marginTop: '8px', display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                  {/* Executed Tools Feedback - reveals smoothly after speech finishes */}
+                  {m.actionsTaken && m.actionsTaken.length > 0 && (!m.isStreaming || streamFinishedIds.has(m.id)) && (
+                    <div className="action-badge-enter" style={{ marginTop: '8px', display: 'flex', flexDirection: 'column', gap: '4px' }}>
                       {m.actionsTaken.map((act, i) => (
                         <div
                           key={i}

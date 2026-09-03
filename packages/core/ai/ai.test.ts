@@ -57,7 +57,7 @@ describe('Beacon AI Engine', () => {
       const p = new GeminiProvider(async () => 'fake-key');
       expect(p.resolveModel('fast')).toBe('gemini-flash-lite-latest');
       expect(p.resolveModel('powerful')).toBe('gemini-pro-latest');
-      expect(p.resolveModel('balanced')).toBe('gemini-flash-latest');
+      expect(p.resolveModel('balanced')).toBe('gemini-3.5-flash');
     });
 
     it('Anthropic resolves correct models per profile', () => {

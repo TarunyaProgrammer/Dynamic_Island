@@ -19,7 +19,22 @@ export class GeminiProvider extends BaseAIProvider {
         return 'gemini-pro-latest';
       case 'balanced':
       default:
-        return 'gemini-flash-latest';
+        return 'gemini-3.5-flash';
+    }
+  }
+
+  getCandidateModels(profile: IntelligenceProfile, override?: string): string[] {
+    if (override && override.trim()) {
+      return [override.trim(), 'gemini-3.5-flash', 'gemini-3-flash-preview', 'gemini-flash-latest'];
+    }
+    switch (profile) {
+      case 'fast':
+        return ['gemini-3.5-flash', 'gemini-3.1-flash-lite', 'gemini-flash-lite-latest', 'gemini-flash-latest'];
+      case 'powerful':
+        return ['gemini-3.5-flash', 'gemini-pro-latest', 'gemini-flash-latest'];
+      case 'balanced':
+      default:
+        return ['gemini-3.5-flash', 'gemini-3-flash-preview', 'gemini-flash-latest', 'gemini-3.1-flash-lite'];
     }
   }
 
@@ -27,47 +42,71 @@ export class GeminiProvider extends BaseAIProvider {
     const start = Date.now();
     try {
       const apiKey = await this.getApiKey();
-      const testModel = 'gemini-flash-latest';
-      const url = `${this.apiBase}/${testModel}:generateContent?key=${apiKey}`;
+      const candidates = this.getCandidateModels('balanced');
+      let lastErrorMessage = '';
+      let successfulModel = '';
 
-      const res = await this.fetchWithTimeout(
-        url,
-        {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            contents: [{ role: 'user', parts: [{ text: 'ping' }] }],
-            generationConfig: { maxOutputTokens: 5 },
-          }),
-        },
-        12000
-      );
-
-      const latencyMs = Date.now() - start;
-
-      if (!res.ok) {
-        const errorText = await res.text();
-        let message = `HTTP ${res.status}`;
+      for (const testModel of candidates) {
         try {
-          const parsed = JSON.parse(errorText);
-          if (parsed?.error?.message) {
-            message = parsed.error.message;
+          const url = `${this.apiBase}/${testModel}:generateContent?key=${apiKey}`;
+          const res = await this.fetchWithTimeout(
+            url,
+            {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                contents: [{ role: 'user', parts: [{ text: 'ping' }] }],
+                generationConfig: { maxOutputTokens: 5 },
+              }),
+            },
+            10000
+          );
+
+          if (res.ok) {
+            successfulModel = testModel;
+            break;
           }
-        } catch {
-          message = errorText.slice(0, 120);
+
+          const errorText = await res.text();
+          let message = `HTTP ${res.status}`;
+          try {
+            const parsed = JSON.parse(errorText);
+            if (parsed?.error?.message) {
+              message = parsed.error.message;
+            }
+          } catch {
+            message = errorText.slice(0, 120);
+          }
+          lastErrorMessage = message;
+
+          // If upstream temporary issue (503 high demand, 429 rate spike, 404 deprecated alias, 500), try next candidate
+          if (res.status === 503 || res.status === 429 || res.status === 404 || res.status >= 500) {
+            continue;
+          } else {
+            return {
+              success: false,
+              latencyMs: Date.now() - start,
+              error: `Gemini: ${message}`,
+              modelUsed: testModel,
+            };
+          }
+        } catch (e: any) {
+          lastErrorMessage = e.message;
         }
+      }
+
+      if (successfulModel) {
         return {
-          success: false,
-          latencyMs,
-          error: `Gemini: ${message}`,
-          modelUsed: testModel,
+          success: true,
+          latencyMs: Date.now() - start,
+          modelUsed: successfulModel,
         };
       }
 
       return {
-        success: true,
-        latencyMs,
-        modelUsed: testModel,
+        success: false,
+        latencyMs: Date.now() - start,
+        error: `Gemini: ${lastErrorMessage || 'All candidate models unavailable'}`,
       };
     } catch (err: any) {
       return {
@@ -80,8 +119,7 @@ export class GeminiProvider extends BaseAIProvider {
 
   async generate(request: AIRequest): Promise<AIResponse> {
     const apiKey = await this.getApiKey();
-    const model = this.resolveModel(request.profile || 'balanced', request.modelOverride);
-    const url = `${this.apiBase}/${model}:generateContent?key=${apiKey}`;
+    const candidateModels = this.getCandidateModels(request.profile || 'balanced', request.modelOverride);
 
     let systemInstructionText = '';
     const contents: any[] = [];
@@ -100,6 +138,11 @@ export class GeminiProvider extends BaseAIProvider {
               },
             },
           ],
+        });
+      } else if (msg.role === 'assistant' && msg.rawParts && msg.rawParts.length > 0) {
+        contents.push({
+          role: 'model',
+          parts: msg.rawParts,
         });
       } else {
         const parts: any[] = [];
@@ -152,20 +195,57 @@ export class GeminiProvider extends BaseAIProvider {
       ];
     }
 
-    const res = await this.fetchWithTimeout(url, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(body),
-    });
+    let successfulJson: any = null;
+    let successfulModel = candidateModels[0];
+    let lastError: any = null;
 
-    if (!res.ok) {
-      const errorText = await res.text();
-      throw new Error(`Google Gemini error (${res.status}): ${errorText}`);
+    for (let i = 0; i < candidateModels.length; i++) {
+      const model = candidateModels[i];
+      const url = `${this.apiBase}/${model}:generateContent?key=${apiKey}`;
+
+      try {
+        const res = await this.fetchWithTimeout(
+          url,
+          {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(body),
+          },
+          16000
+        );
+
+        if (res.ok) {
+          successfulJson = await res.json();
+          successfulModel = model;
+          break;
+        }
+
+        const errorText = await res.text();
+        const status = res.status;
+        lastError = new Error(`Google Gemini error (${status}): ${errorText}`);
+
+        // If 503 (high demand), 429 (rate spike), 404, or 500, failover to next model
+        if ((status === 503 || status === 429 || status === 404 || status >= 500) && i < candidateModels.length - 1) {
+          console.warn(`[GeminiProvider] Model ${model} returned HTTP ${status}. Auto-failing over to ${candidateModels[i + 1]}...`);
+          continue;
+        }
+
+        throw lastError;
+      } catch (err: any) {
+        lastError = err;
+        if (i < candidateModels.length - 1) {
+          console.warn(`[GeminiProvider] Model ${model} failed (${err.message}). Auto-failing over to ${candidateModels[i + 1]}...`);
+          continue;
+        }
+        throw err;
+      }
     }
 
-    const json = await res.json();
-    const candidate = json.candidates?.[0];
+    if (!successfulJson) {
+      throw lastError || new Error('All Gemini model candidates exhausted.');
+    }
 
+    const candidate = successfulJson.candidates?.[0];
     if (!candidate) {
       throw new Error('Gemini response contained no candidates.');
     }
@@ -191,12 +271,13 @@ export class GeminiProvider extends BaseAIProvider {
     return {
       text,
       toolCalls: parsedToolCalls.length > 0 ? parsedToolCalls : undefined,
-      modelUsed: model,
-      usage: json.usageMetadata
+      modelUsed: successfulModel,
+      rawParts: candidate.content?.parts,
+      usage: successfulJson.usageMetadata
         ? {
-            promptTokens: json.usageMetadata.promptTokenCount || 0,
-            completionTokens: json.usageMetadata.candidatesTokenCount || 0,
-            totalTokens: json.usageMetadata.totalTokenCount || 0,
+            promptTokens: successfulJson.usageMetadata.promptTokenCount || 0,
+            completionTokens: successfulJson.usageMetadata.candidatesTokenCount || 0,
+            totalTokens: successfulJson.usageMetadata.totalTokenCount || 0,
           }
         : undefined,
     };

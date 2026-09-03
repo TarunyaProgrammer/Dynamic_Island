@@ -26,6 +26,7 @@ export interface ChatMessage {
   name?: string;
   toolCallId?: string;
   toolCalls?: ToolCall[];
+  rawParts?: any[];
 }
 
 export interface ToolPropertySchema {
@@ -79,6 +80,7 @@ export interface AIResponse {
     completionTokens: number;
     totalTokens: number;
   };
+  rawParts?: any[];
 }
 
 export interface AIProvider {

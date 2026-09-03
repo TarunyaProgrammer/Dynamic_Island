@@ -71,6 +71,7 @@ Directives:
         role: 'assistant',
         content: response.text || '',
         toolCalls: response.toolCalls,
+        rawParts: response.rawParts,
       });
 
       for (const tc of response.toolCalls) {
@@ -99,12 +100,24 @@ Directives:
       }
 
       // Second Turn: Let the model summarize the execution in its Companion persona
-      response = await provider.generate({
-        messages,
-        profile: config.profile,
-        modelOverride: config.customModel,
-        temperature: 0.3,
-      });
+      try {
+        response = await provider.generate({
+          messages,
+          profile: config.profile,
+          modelOverride: config.customModel,
+          temperature: 0.3,
+        });
+      } catch (err: any) {
+        console.warn('[AIOrchestrator] Turn 2 summary failed, synthesizing from actions:', err);
+        if (actionsTaken.length > 0) {
+          response = {
+            text: `Boom! ${actionsTaken.join('. ')}. Ready to crush it! ✦`,
+            modelUsed: 'local-companion-fallback',
+          };
+        } else {
+          throw err;
+        }
+      }
     }
 
     return {
