@@ -104,7 +104,7 @@ export const PricingSection: React.FC<PricingSectionProps> = ({ onSelectPlan, cu
             </span>
 
             <a
-              href="https://x.com/tarunyaprogram"
+              href="https://x.com/tarunyakesh"
               target="_blank"
               rel="noopener noreferrer"
               style={{

@@ -233,9 +233,36 @@ body {
   }
 
   .floating-obsidian-badge, .floating-white-badge {
-    width: 100%;
-    justify-content: center;
-    font-size: 12px !important;
-    padding: 8px 12px !important;
+    width: auto !important;
+    display: inline-flex !important;
+    font-size: 11px !important;
+    padding: 6px 12px !important;
+  }
+}
+
+/* Navbar Mobile Switcher Classes */
+.navbar-cta-desktop {
+  display: inline;
+}
+.navbar-cta-mobile {
+  display: none;
+}
+
+@media (max-width: 768px) {
+  .navbar-cta-desktop {
+    display: none;
+  }
+  .navbar-cta-mobile {
+    display: inline;
+    font-weight: 700;
+  }
+  .navbar-cta-btn {
+    width: auto !important;
+    padding: 7px 12px !important;
+  }
+  
+  #hero {
+    padding-top: 110px !important;
+    padding-bottom: 60px !important;
   }
 }

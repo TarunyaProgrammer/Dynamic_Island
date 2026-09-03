@@ -17,6 +17,7 @@ export const BeaconSpiritCinematic: React.FC = () => {
   const [temporaryReaction, setTemporaryReaction] = useState<{ speech: string; subtext: string; mood: Mood } | null>(null);
   const [isDismissed, setIsDismissed] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
+  const [showMobileBubble, setShowMobileBubble] = useState(false);
 
   // Periodic living eye blink
   useEffect(() => {
@@ -120,7 +121,7 @@ export const BeaconSpiritCinematic: React.FC = () => {
     let animationFrameId: number | null = null;
 
     const evaluateSections = () => {
-      const focalY = window.innerHeight * 0.45; // Exact center of user view
+      const focalY = window.innerHeight * 0.45;
       let matchingSection: SectionDialogue | null = null;
 
       for (const item of sectionDialogues) {
@@ -135,7 +136,17 @@ export const BeaconSpiritCinematic: React.FC = () => {
       }
 
       if (matchingSection) {
-        setActiveDialogue((prev) => (prev.sectionId === matchingSection!.sectionId ? prev : matchingSection!));
+        setActiveDialogue((prev) => {
+          if (prev.sectionId !== matchingSection!.sectionId) {
+            // Briefly show speech bubble on mobile when entering new section
+            if (isMobile) {
+              setShowMobileBubble(true);
+              setTimeout(() => setShowMobileBubble(false), 3800);
+            }
+            return matchingSection!;
+          }
+          return prev;
+        });
       }
     };
 
@@ -149,7 +160,6 @@ export const BeaconSpiritCinematic: React.FC = () => {
     window.addEventListener("scroll", handleScrollOrResize, { passive: true });
     window.addEventListener("resize", handleScrollOrResize, { passive: true });
     
-    // Evaluate immediately and after initial render pass
     evaluateSections();
     const timeout = setTimeout(evaluateSections, 150);
 
@@ -159,12 +169,11 @@ export const BeaconSpiritCinematic: React.FC = () => {
       if (animationFrameId !== null) cancelAnimationFrame(animationFrameId);
       clearTimeout(timeout);
     };
-  }, []);
+  }, [isMobile]);
 
-  // Smooth Companion Motion using useScroll
+  // Desktop Scroll Coordinates
   const { scrollYProgress } = useScroll();
 
-  // Gentle, unified right-flank trajectory (NO erratic ping-ponging)
   const rawXDesktop = useTransform(
     scrollYProgress,
     [0.0, 0.2, 0.45, 0.65, 0.82, 0.92, 1.0],
@@ -177,23 +186,18 @@ export const BeaconSpiritCinematic: React.FC = () => {
     ["20vh", "26vh", "30vh", "32vh", "28vh", "25vh", "72vh"]
   );
 
-  // Dynamic scale morphing: Expands large in Hero and Pricing!
   const rawScaleDesktop = useTransform(
     scrollYProgress,
     [0.0, 0.15, 0.35, 0.55, 0.75, 0.88, 0.96, 1.0],
     [1.35, 1.1, 0.92, 0.92, 1.0, 1.45, 1.1, 1.0]
   );
 
-  const rawXMobile = useTransform(scrollYProgress, [0, 1], ["calc(100vw - 110px)", "calc(100vw - 110px)"]);
-  const rawYMobile = useTransform(scrollYProgress, [0, 1], ["calc(100vh - 120px)", "calc(100vh - 120px)"]);
-  const rawScaleMobile = useTransform(scrollYProgress, [0, 1], [0.78, 0.78]);
-
   const smoothConfig = { stiffness: 50, damping: 18, mass: 0.8 };
-  const smoothX = useSpring(isMobile ? rawXMobile : rawXDesktop, smoothConfig);
-  const smoothY = useSpring(isMobile ? rawYMobile : rawYDesktop, smoothConfig);
-  const smoothScale = useSpring(isMobile ? rawScaleMobile : rawScaleDesktop, smoothConfig);
+  const smoothX = useSpring(rawXDesktop, smoothConfig);
+  const smoothY = useSpring(rawYDesktop, smoothConfig);
+  const smoothScale = useSpring(rawScaleDesktop, smoothConfig);
 
-  // Click Easter Eggs (Witty, professional — ZERO emojis)
+  // Easter Eggs
   const easterEggs = [
     {
       speech: "Poking the mascot is against Apple HIG.",
@@ -226,8 +230,10 @@ export const BeaconSpiritCinematic: React.FC = () => {
     const nextIdx = clickCount % easterEggs.length;
     setClickCount((prev) => prev + 1);
     setTemporaryReaction(easterEggs[nextIdx]);
+    if (isMobile) setShowMobileBubble(true);
     setTimeout(() => {
       setTemporaryReaction(null);
+      if (isMobile) setShowMobileBubble(false);
     }, 4500);
   };
 
@@ -237,6 +243,99 @@ export const BeaconSpiritCinematic: React.FC = () => {
   const currentSubtext = temporaryReaction ? temporaryReaction.subtext : activeDialogue.subtext;
   const currentMood = temporaryReaction ? temporaryReaction.mood : activeDialogue.mood;
 
+  // Render on Mobile: Anchored to Bottom Right corner dock (NO text collision!)
+  if (isMobile) {
+    return (
+      <div
+        style={{
+          position: "fixed",
+          bottom: "20px",
+          right: "16px",
+          zIndex: 100,
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "flex-end",
+          gap: "8px",
+          pointerEvents: "none",
+        }}
+      >
+        {/* Mobile Speech Bubble (Appears on section change or tap, docked above mascot) */}
+        {showMobileBubble && (
+          <motion.div
+            initial={{ opacity: 0, y: 10, scale: 0.9 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.9 }}
+            style={{
+              pointerEvents: "auto",
+              maxWidth: "240px",
+              backgroundColor: "#FFFFFF",
+              border: "1.5px solid var(--border-subtle)",
+              borderRadius: "16px",
+              padding: "10px 14px",
+              boxShadow: "0 12px 30px rgba(15, 17, 23, 0.15)",
+              position: "relative",
+              textAlign: "left",
+            }}
+          >
+            <span style={{ fontSize: "12px", fontWeight: 800, color: "var(--text-ink)", display: "block", marginBottom: "2px" }}>
+              {currentSpeech}
+            </span>
+            {currentSubtext && (
+              <p style={{ margin: 0, fontSize: "11px", color: "var(--text-body)", lineHeight: 1.4 }}>
+                {currentSubtext}
+              </p>
+            )}
+          </motion.div>
+        )}
+
+        {/* Compact Mobile Mascot Button */}
+        <button
+          type="button"
+          onClick={handleSpiritClick}
+          style={{
+            pointerEvents: "auto",
+            width: "58px",
+            height: "44px",
+            borderRadius: "14px",
+            backgroundColor: "#07080B",
+            border: currentMood === "shocked" ? "2px solid #EF4444" : "2px solid rgba(217, 119, 6, 0.7)",
+            boxShadow: "0 8px 24px rgba(0, 0, 0, 0.6), 0 0 16px rgba(217, 119, 6, 0.3)",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            cursor: "pointer",
+            outline: "none",
+          }}
+          title="Tap Beacon Spirit"
+        >
+          <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
+            {isBlinking ? (
+              <>
+                <div style={{ width: "6px", height: "1.5px", backgroundColor: "#FFFFFF", borderRadius: "1px" }} />
+                <div style={{ width: "6px", height: "1.5px", backgroundColor: "#FFFFFF", borderRadius: "1px" }} />
+              </>
+            ) : currentMood === "shocked" ? (
+              <>
+                <div style={{ width: "8px", height: "11px", borderRadius: "4px", backgroundColor: "#FFFFFF", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                  <div style={{ width: "3px", height: "3px", borderRadius: "50%", backgroundColor: "#07080B" }} />
+                </div>
+                <div style={{ width: "8px", height: "11px", borderRadius: "4px", backgroundColor: "#FFFFFF", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                  <div style={{ width: "3px", height: "3px", borderRadius: "50%", backgroundColor: "#07080B" }} />
+                </div>
+              </>
+            ) : (
+              <>
+                <div style={{ width: "6px", height: "12px", borderRadius: "3px", backgroundColor: "#FFFFFF" }} />
+                <div style={{ width: "6px", height: "12px", borderRadius: "3px", backgroundColor: "#FFFFFF" }} />
+              </>
+            )}
+          </div>
+        </button>
+      </div>
+    );
+  }
+
+  // Desktop Floating Layout
   return (
     <motion.div
       style={{
@@ -255,7 +354,7 @@ export const BeaconSpiritCinematic: React.FC = () => {
         transformOrigin: "center center",
       }}
     >
-      {/* Dynamic Speech Bubble */}
+      {/* Speech Bubble */}
       <motion.div
         key={currentSpeech}
         initial={{ opacity: 0, y: 8, scale: 0.92 }}
@@ -264,7 +363,7 @@ export const BeaconSpiritCinematic: React.FC = () => {
         transition={{ duration: 0.18, ease: [0.16, 1, 0.3, 1] }}
         style={{
           pointerEvents: "auto",
-          width: "min(260px, calc(100vw - 40px))",
+          width: "260px",
           backgroundColor: "#FFFFFF",
           border: "1.5px solid var(--border-subtle)",
           borderRadius: "18px",
@@ -307,7 +406,6 @@ export const BeaconSpiritCinematic: React.FC = () => {
           </p>
         )}
 
-        {/* Speech triangle */}
         <div
           style={{
             position: "absolute",
@@ -323,18 +421,12 @@ export const BeaconSpiritCinematic: React.FC = () => {
         />
       </motion.div>
 
-      {/* Prominent Large Living Mascot (96px × 68px) */}
+      {/* Prominent Desktop Living Mascot */}
       <motion.button
         type="button"
         onClick={handleSpiritClick}
-        animate={{
-          y: [0, -6, 0],
-        }}
-        transition={{
-          repeat: Infinity,
-          duration: 3.2,
-          ease: "easeInOut",
-        }}
+        animate={{ y: [0, -6, 0] }}
+        transition={{ repeat: Infinity, duration: 3.2, ease: "easeInOut" }}
         whileHover={{ scale: 1.1, y: -4 }}
         whileTap={{ scale: 0.92 }}
         style={{
@@ -343,12 +435,8 @@ export const BeaconSpiritCinematic: React.FC = () => {
           height: "68px",
           borderRadius: "22px",
           backgroundColor: "#07080B",
-          border: currentMood === "shocked"
-            ? "2.5px solid #EF4444"
-            : "2.5px solid rgba(217, 119, 6, 0.65)",
-          boxShadow: currentMood === "shocked"
-            ? "0 0 32px rgba(239, 68, 68, 0.5), 0 16px 36px rgba(0, 0, 0, 0.85)"
-            : "0 0 28px rgba(217, 119, 6, 0.4), 0 14px 32px rgba(0, 0, 0, 0.75)",
+          border: currentMood === "shocked" ? "2.5px solid #EF4444" : "2.5px solid rgba(217, 119, 6, 0.65)",
+          boxShadow: currentMood === "shocked" ? "0 0 32px rgba(239, 68, 68, 0.5), 0 16px 36px rgba(0, 0, 0, 0.85)" : "0 0 28px rgba(217, 119, 6, 0.4), 0 14px 32px rgba(0, 0, 0, 0.75)",
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
@@ -359,16 +447,13 @@ export const BeaconSpiritCinematic: React.FC = () => {
         }}
         title="Beacon Spirit — Click to interact"
       >
-        {/* Living Eyes Display */}
         <div style={{ display: "flex", alignItems: "center", gap: "10px", position: "relative" }}>
           {isBlinking ? (
-            // Blinking (— —)
             <>
               <div style={{ width: "10px", height: "2px", backgroundColor: "#FFFFFF", borderRadius: "1px" }} />
               <div style={{ width: "10px", height: "2px", backgroundColor: "#FFFFFF", borderRadius: "1px" }} />
             </>
           ) : currentMood === "shocked" ? (
-            // Comic Panic Shocked Eyes (O O) with Clean Vector SVG Teardrop
             <>
               <div style={{ width: "14px", height: "18px", borderRadius: "8px", backgroundColor: "#FFFFFF", display: "flex", alignItems: "center", justifyContent: "center" }}>
                 <div style={{ width: "5px", height: "5px", borderRadius: "50%", backgroundColor: "#07080B" }} />
@@ -376,7 +461,6 @@ export const BeaconSpiritCinematic: React.FC = () => {
               <div style={{ width: "14px", height: "18px", borderRadius: "8px", backgroundColor: "#FFFFFF", display: "flex", alignItems: "center", justifyContent: "center" }}>
                 <div style={{ width: "5px", height: "5px", borderRadius: "50%", backgroundColor: "#07080B" }} />
               </div>
-              {/* Professional SVG Teardrop Icon (No Emoji) */}
               <div style={{ position: "absolute", top: "-26px", right: "-12px" }}>
                 <svg width="18" height="20" viewBox="0 0 24 24" fill="#38BDF8">
                   <path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z" />
@@ -384,13 +468,11 @@ export const BeaconSpiritCinematic: React.FC = () => {
               </div>
             </>
           ) : currentMood === "excited" || currentMood === "relieved" ? (
-            // Cheerful Curved Eyes (^ ^)
             <>
               <span style={{ color: "#FFFFFF", fontSize: "20px", fontWeight: 900, lineHeight: 1 }}>^</span>
               <span style={{ color: "#FFFFFF", fontSize: "20px", fontWeight: 900, lineHeight: 1 }}>^</span>
             </>
           ) : (
-            // Normal Alert Living Eyes (• •) with pupil glint
             <>
               <div style={{ width: "9px", height: "18px", borderRadius: "5px", backgroundColor: "#FFFFFF", position: "relative" }}>
                 <div style={{ position: "absolute", top: "2px", left: "2px", width: "3px", height: "4px", backgroundColor: "#FFFFFF", borderRadius: "2px" }} />
@@ -402,7 +484,6 @@ export const BeaconSpiritCinematic: React.FC = () => {
           )}
         </div>
 
-        {/* Ambient Warm Underglow */}
         <div
           style={{
             position: "absolute",
