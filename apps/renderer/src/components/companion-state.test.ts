@@ -14,15 +14,17 @@ describe('companion visual state', () => {
       expect(visual.haloColor).toMatch(/^#/);
       expect(visual.leftEye.ry).toBeGreaterThan(0);
       expect(visual.rightEye.ry).toBeGreaterThan(0);
-      expect(visual.animation).toMatch(/^(idle|entry|thinking|celebration|static)$/);
+      expect(visual.animation).toMatch(/^(idle|entry|thinking|celebration|static|smile|giggle)$/);
     }
   });
 
-  it('only treats greeting, thinking, and celebrating as transient', () => {
+  it('only treats greeting, thinking, celebrating, smiling, and tickled as transient', () => {
     expect(COMPANION_STATES.filter(isTransientCompanionState)).toEqual([
       'greeting',
       'thinking',
       'celebrating',
+      'smiling',
+      'tickled',
     ]);
   });
 

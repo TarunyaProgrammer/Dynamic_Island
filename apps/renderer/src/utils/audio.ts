@@ -157,6 +157,35 @@ class SoundEngine {
     osc.start(now);
     osc.stop(now + 0.025);
   }
+
+  /**
+   * Playful micro-chuckle / giggle chirp when Beacon Spirit is tickled.
+   */
+  playChuckle(): void {
+    if (this.mode === 'silent') return;
+    const ctx = this.getContext();
+    if (!ctx) return;
+
+    const now = ctx.currentTime;
+    // Bubbly cheerful ascending harmonics
+    [
+      { time: 0, freq: 520, dur: 0.05 },
+      { time: 0.06, freq: 680, dur: 0.06 },
+      { time: 0.13, freq: 820, dur: 0.07 },
+    ].forEach(({ time, freq, dur }) => {
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(freq, now + time);
+      osc.frequency.exponentialRampToValueAtTime(freq * 1.15, now + time + dur);
+      gain.gain.setValueAtTime(0.035, now + time);
+      gain.gain.exponentialRampToValueAtTime(0.0001, now + time + dur);
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.start(now + time);
+      osc.stop(now + time + dur + 0.01);
+    });
+  }
 }
 
 export const soundEffects = new SoundEngine();

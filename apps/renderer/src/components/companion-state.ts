@@ -8,6 +8,8 @@ export const COMPANION_STATES: readonly CompanionState[] = [
   'concerned',
   'sleeping',
   'error',
+  'smiling',
+  'tickled',
 ];
 
 export interface CompanionEyePose {
@@ -21,15 +23,20 @@ export interface CompanionEyePose {
 export interface CompanionVisual {
   label: string;
   haloColor: string;
-  animation: 'idle' | 'entry' | 'thinking' | 'celebration' | 'static';
+  animation: 'idle' | 'entry' | 'thinking' | 'celebration' | 'static' | 'smile' | 'giggle';
   leftEye: CompanionEyePose;
   rightEye: CompanionEyePose;
 }
 
-export const COMPANION_TRANSIENT_DURATIONS_MS: Record<'greeting' | 'thinking' | 'celebrating', number> = {
+export const COMPANION_TRANSIENT_DURATIONS_MS: Record<
+  'greeting' | 'thinking' | 'celebrating' | 'smiling' | 'tickled',
+  number
+> = {
   greeting: 700,
   thinking: 1_200,
   celebrating: 850,
+  smiling: 1_000,
+  tickled: 1_600,
 };
 
 const baseEyes = (): Pick<CompanionVisual, 'leftEye' | 'rightEye'> => ({
@@ -56,6 +63,24 @@ export function getCompanionVisual(state: CompanionState): CompanionVisual {
       };
     case 'celebrating':
       return { ...eyes, label: 'Beacon companion: celebrating', haloColor: '#10B981', animation: 'celebration' };
+    case 'smiling':
+      return {
+        ...eyes,
+        label: 'Beacon companion: smiling',
+        haloColor: '#38BDF8',
+        animation: 'smile',
+        leftEye: { ...eyes.leftEye, cy: 47, rx: 8, ry: 6, rotate: -6 },
+        rightEye: { ...eyes.rightEye, cy: 47, rx: 8, ry: 6, rotate: 6 },
+      };
+    case 'tickled':
+      return {
+        ...eyes,
+        label: 'Beacon companion: giggling',
+        haloColor: '#F59E0B',
+        animation: 'giggle',
+        leftEye: { ...eyes.leftEye, cy: 49, rx: 8, ry: 3, rotate: -12 },
+        rightEye: { ...eyes.rightEye, cy: 49, rx: 8, ry: 3, rotate: 12 },
+      };
     case 'concerned':
       return {
         ...eyes,
@@ -88,6 +113,12 @@ export function getCompanionVisual(state: CompanionState): CompanionVisual {
 
 export function isTransientCompanionState(
   state: CompanionState,
-): state is 'greeting' | 'thinking' | 'celebrating' {
-  return state === 'greeting' || state === 'thinking' || state === 'celebrating';
+): state is 'greeting' | 'thinking' | 'celebrating' | 'smiling' | 'tickled' {
+  return (
+    state === 'greeting' ||
+    state === 'thinking' ||
+    state === 'celebrating' ||
+    state === 'smiling' ||
+    state === 'tickled'
+  );
 }

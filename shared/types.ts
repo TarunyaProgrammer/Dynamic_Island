@@ -177,7 +177,9 @@ export type CompanionState =
   | 'celebrating'
   | 'concerned'
   | 'sleeping'
-  | 'error';
+  | 'error'
+  | 'smiling'
+  | 'tickled';
 
 export type CompanionSource = 'main' | 'tray' | 'island';
 

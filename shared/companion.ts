@@ -8,6 +8,8 @@ const states: readonly CompanionState[] = [
   'concerned',
   'sleeping',
   'error',
+  'smiling',
+  'tickled',
 ];
 
 const sources: readonly CompanionSource[] = ['main', 'tray', 'island'];
