@@ -1,106 +1,129 @@
 import React from "react";
-import { X, Check, ShieldCheck } from "lucide-react";
+import { Check, X, ShieldCheck, Heart, Sparkles, DollarSign } from "lucide-react";
 
 export const SoftwareOwnership: React.FC = () => {
   return (
-    <section id="manifesto" style={{ padding: "90px 0", backgroundColor: "var(--bg-canvas-subtle)" }}>
-      <div className="container" style={{ maxWidth: "960px" }}>
-        <div style={{ textAlign: "center", marginBottom: "48px" }}>
-          <span className="eyebrow-wispr" style={{ display: "block", marginBottom: "12px" }}>
-            THE OLD-SCHOOL PROMISE
+    <section id="manifesto" style={{ padding: "100px 0", backgroundColor: "var(--bg-canvas)" }}>
+      <div className="container" style={{ maxWidth: "1000px" }}>
+        {/* Section Header */}
+        <div style={{ textAlign: "center", marginBottom: "52px" }}>
+          <span className="eyebrow-titanium" style={{ display: "block", marginBottom: "12px" }}>
+            A RETURN TO HONEST SOFTWARE
           </span>
-          <h2 className="serif-headline" style={{ fontSize: "clamp(32px, 4.5vw, 50px)", marginBottom: "14px" }}>
-            Software you own,<br />
-            <span className="serif-italic">not software you rent.</span>
+          <h2 className="serif-headline" style={{ fontSize: "clamp(34px, 5vw, 56px)", marginBottom: "16px" }}>
+            Software you own.<br />
+            <span className="serif-italic" style={{ color: "var(--accent-solar)" }}>Not another monthly rent check.</span>
           </h2>
-          <p className="text-subhead" style={{ fontSize: "16px", maxWidth: "600px", margin: "0 auto" }}>
-            We believe your productivity tools should belong to you, not be held hostage by a recurring monthly subscription.
+          <p className="text-subhead" style={{ fontSize: "17px", maxWidth: "600px", margin: "0 auto" }}>
+            The modern web turned simple desktop utilities into endless recurring subscriptions. Beacon is engineered on an older, honorable philosophy.
           </p>
         </div>
 
-        {/* 2-Column Comparison Table */}
+        {/* Psychological Contrast Grid */}
         <div
           style={{
             display: "grid",
             gridTemplateColumns: "repeat(auto-fit, minmax(320px, 1fr))",
-            gap: "24px",
+            gap: "28px",
+            alignItems: "stretch",
           }}
         >
-          {/* Column 1: Typical SaaS Tracker */}
+          {/* Column 1: The Modern SaaS Trap */}
           <div
             style={{
-              padding: "32px",
-              borderRadius: "16px",
-              backgroundColor: "rgba(25, 26, 25, 0.03)",
+              padding: "36px",
+              borderRadius: "24px",
+              backgroundColor: "rgba(15, 17, 23, 0.03)",
               border: "1px solid var(--border-subtle)",
+              display: "flex",
+              flexDirection: "column",
+              justifyContent: "space-between",
             }}
           >
-            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "24px" }}>
-              <span style={{ fontSize: "13px", fontWeight: 700, color: "var(--text-muted)", textTransform: "uppercase", letterSpacing: "0.1em" }}>
-                Modern SaaS Trackers
-              </span>
-              <span style={{ fontSize: "13px", color: "var(--text-muted)", fontFamily: "var(--font-mono)" }}>~$144 / year</span>
+            <div>
+              <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "12px" }}>
+                <X size={18} color="#EF4444" />
+                <span style={{ fontSize: "12px", fontWeight: 800, color: "#EF4444", textTransform: "uppercase", letterSpacing: "0.1em" }}>
+                  The Modern SaaS Trap
+                </span>
+              </div>
+
+              <div style={{ fontSize: "28px", fontWeight: 800, color: "var(--text-ink)", marginBottom: "8px", fontFamily: "var(--font-serif)" }}>
+                $180 – $900+
+              </div>
+              <p style={{ fontSize: "13px", color: "var(--text-muted)", marginBottom: "24px" }}>
+                $15/month billed every year of your career.
+              </p>
+
+              <div style={{ display: "flex", flexDirection: "column", gap: "14px", fontSize: "14px", color: "var(--text-body)" }}>
+                {[
+                  "Cancel your subscription and they lock you out of your historical streaks",
+                  "Forces all your private habits and journal entries into remote corporate cloud servers",
+                  "Burns 15% laptop CPU running heavy Electron web wrappers inside Chrome instances",
+                  "Price hikes every 18 months under the guise of 'AI features' you never asked for",
+                ].map((item, idx) => (
+                  <div key={idx} style={{ display: "flex", alignItems: "flex-start", gap: "10px" }}>
+                    <X size={16} color="#EF4444" style={{ flexShrink: 0, marginTop: "3px" }} />
+                    <span style={{ lineHeight: 1.5 }}>{item}</span>
+                  </div>
+                ))}
+              </div>
             </div>
 
-            <div style={{ display: "flex", flexDirection: "column", gap: "16px", fontSize: "14px", color: "var(--text-body)" }}>
-              <div style={{ display: "flex", gap: "12px", alignItems: "flex-start" }}>
-                <X size={17} color="#dc2626" style={{ flexShrink: 0, marginTop: "2px" }} />
-                <span>Monthly charges forever; stops working the minute you cancel</span>
-              </div>
-              <div style={{ display: "flex", gap: "12px", alignItems: "flex-start" }}>
-                <X size={17} color="#dc2626" style={{ flexShrink: 0, marginTop: "2px" }} />
-                <span>Mandatory cloud accounts; your private habits stored on external servers</span>
-              </div>
-              <div style={{ display: "flex", gap: "12px", alignItems: "flex-start" }}>
-                <X size={17} color="#dc2626" style={{ flexShrink: 0, marginTop: "2px" }} />
-                <span>Heavy web wrappers consuming 8–15% CPU and draining your MacBook battery</span>
-              </div>
-              <div style={{ display: "flex", gap: "12px", alignItems: "flex-start" }}>
-                <X size={17} color="#dc2626" style={{ flexShrink: 0, marginTop: "2px" }} />
-                <span>Cannot log habits without an active internet connection</span>
-              </div>
+            <div style={{ marginTop: "32px", padding: "12px 16px", borderRadius: "10px", backgroundColor: "rgba(239, 68, 68, 0.06)", fontSize: "12px", color: "#DC2626", fontWeight: 600 }}>
+              Psychological toll: Ongoing subscription anxiety and zero real ownership.
             </div>
           </div>
 
-          {/* Column 2: Beacon Heirloom License */}
+          {/* Column 2: The Beacon Sovereign Ownership */}
           <div
+            className="card-editorial"
             style={{
-              padding: "32px",
-              borderRadius: "16px",
-              backgroundColor: "#FFFFFF",
+              padding: "36px",
               border: "2px solid var(--accent-obsidian)",
-              boxShadow: "0 12px 36px rgba(13, 82, 63, 0.08)",
+              boxShadow: "0 16px 44px rgba(15, 17, 23, 0.1), 0 0 24px rgba(217, 119, 6, 0.08)",
+              display: "flex",
+              flexDirection: "column",
+              justifyContent: "space-between",
+              position: "relative",
             }}
           >
-            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "24px" }}>
-              <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
-                <ShieldCheck size={18} color="var(--accent-obsidian)" />
-                <span style={{ fontSize: "13px", fontWeight: 800, color: "var(--accent-obsidian)", textTransform: "uppercase", letterSpacing: "0.1em" }}>
-                  Beacon Lifetime
-                </span>
-              </div>
-              <span style={{ fontSize: "13px", color: "var(--accent-obsidian)", fontWeight: 700, fontFamily: "var(--font-mono)" }}>
-                $29 Once
-              </span>
+            <div style={{ position: "absolute", top: "18px", right: "20px", fontSize: "11px", fontWeight: 800, color: "var(--accent-solar)", textTransform: "uppercase", letterSpacing: "0.08em" }}>
+              Permanent Asset
             </div>
 
-            <div style={{ display: "flex", flexDirection: "column", gap: "16px", fontSize: "14px", color: "var(--text-ink)" }}>
-              <div style={{ display: "flex", gap: "12px", alignItems: "flex-start" }}>
-                <Check size={17} color="var(--accent-obsidian)" style={{ flexShrink: 0, marginTop: "2px" }} />
-                <span><strong>Pay once, own forever:</strong> Permanent personal license</span>
+            <div>
+              <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "12px" }}>
+                <ShieldCheck size={18} color="var(--accent-solar)" />
+                <span style={{ fontSize: "12px", fontWeight: 800, color: "var(--accent-solar)", textTransform: "uppercase", letterSpacing: "0.1em" }}>
+                  Beacon Sovereign Ownership
+                </span>
               </div>
-              <div style={{ display: "flex", gap: "12px", alignItems: "flex-start" }}>
-                <Check size={17} color="var(--accent-obsidian)" style={{ flexShrink: 0, marginTop: "2px" }} />
-                <span><strong>100% Private SQLite WAL:</strong> No tracking, zero telemetry</span>
+
+              <div style={{ fontSize: "28px", fontWeight: 800, color: "var(--text-ink)", marginBottom: "8px", fontFamily: "var(--font-serif)" }}>
+                $29 once. Forever.
               </div>
-              <div style={{ display: "flex", gap: "12px", alignItems: "flex-start" }}>
-                <Check size={17} color="var(--accent-obsidian)" style={{ flexShrink: 0, marginTop: "2px" }} />
-                <span><strong>0.1% Idle CPU:</strong> Hardware-native power efficiency</span>
+              <p style={{ fontSize: "13px", color: "var(--text-muted)", marginBottom: "24px" }}>
+                One payment for lifetime personal usage on every Mac you own.
+              </p>
+
+              <div style={{ display: "flex", flexDirection: "column", gap: "14px", fontSize: "14px", color: "var(--text-ink)" }}>
+                {[
+                  "Permanent software license — You own this tool like a physical Swiss watch",
+                  "100% private offline SQLite database directly on your SSD (Zero cloud telemetry)",
+                  "Ultralight Apple Silicon native binary (0.1% CPU idle, zero battery drain)",
+                  "All updates and maintenance releases throughout version 1.x included for free",
+                ].map((item, idx) => (
+                  <div key={idx} style={{ display: "flex", alignItems: "flex-start", gap: "10px" }}>
+                    <Check size={16} color="var(--accent-solar)" style={{ flexShrink: 0, marginTop: "3px" }} />
+                    <span style={{ lineHeight: 1.5, fontWeight: 500 }}>{item}</span>
+                  </div>
+                ))}
               </div>
-              <div style={{ display: "flex", gap: "12px", alignItems: "flex-start" }}>
-                <Check size={17} color="var(--accent-obsidian)" style={{ flexShrink: 0, marginTop: "2px" }} />
-                <span><strong>Fully Offline:</strong> Works seamlessly on planes and cabins</span>
-              </div>
+            </div>
+
+            <div style={{ marginTop: "32px", padding: "12px 16px", borderRadius: "10px", backgroundColor: "rgba(217, 119, 6, 0.08)", fontSize: "12px", color: "var(--text-amber-contrast)", fontWeight: 700 }}>
+              Calculated savings: Over $871+ saved over 5 years compared to recurring trackers.
             </div>
           </div>
         </div>
