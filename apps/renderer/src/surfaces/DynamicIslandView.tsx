@@ -164,18 +164,16 @@ export const DynamicIslandView: React.FC = () => {
           width: isExpanded ? '640px' : '200px',
           minHeight: isExpanded ? '146px' : '32px',
           maxHeight: isExpanded ? '160px' : '32px',
-          backgroundColor: isExpanded ? 'rgba(10, 10, 14, 0.86)' : '#000000',
-          backdropFilter: isExpanded ? 'blur(32px) saturate(190%)' : 'none',
-          WebkitBackdropFilter: isExpanded ? 'blur(32px) saturate(190%)' : 'none',
+          backgroundColor: '#07080b',
           position: 'relative',
-          borderLeft: isExpanded ? '1px solid rgba(255, 255, 255, 0.12)' : 'none',
-          borderRight: isExpanded ? '1px solid rgba(255, 255, 255, 0.12)' : 'none',
-          borderBottom: isExpanded ? '1px solid rgba(255, 255, 255, 0.12)' : 'none',
+          borderLeft: isExpanded ? '1px solid rgba(255, 255, 255, 0.14)' : 'none',
+          borderRight: isExpanded ? '1px solid rgba(255, 255, 255, 0.14)' : 'none',
+          borderBottom: isExpanded ? '1px solid rgba(255, 255, 255, 0.16)' : 'none',
           borderTop: 'none',
           borderRadius: isExpanded ? '0 0 22px 22px' : '0 0 12px 12px',
           boxShadow: isExpanded
-            ? '0 10px 26px rgba(0, 0, 0, 0.28), 0 1px 3px rgba(0, 0, 0, 0.15)'
-            : '0 2px 6px rgba(0, 0, 0, 0.2)',
+            ? '0 18px 48px rgba(0, 0, 0, 0.75), 0 2px 8px rgba(0, 0, 0, 0.5), inset 0 -1px 0 rgba(255, 255, 255, 0.08)'
+            : '0 2px 8px rgba(0, 0, 0, 0.4)',
           display: 'flex',
           flexDirection: 'column',
           transition: 'all 0.28s cubic-bezier(0.16, 1, 0.3, 1)',
@@ -280,16 +278,17 @@ export const DynamicIslandView: React.FC = () => {
                     display: 'flex',
                     alignItems: 'center',
                     gap: '5px',
-                    padding: '3px 8px',
+                    padding: '3px 10px',
                     borderRadius: '9999px',
-                    backgroundColor: activeTab === 'goal' ? 'rgba(255, 255, 255, 0.16)' : 'transparent',
-                    color: '#ffffff',
+                    backgroundColor: activeTab === 'goal' ? 'rgba(255, 122, 0, 0.18)' : 'transparent',
+                    border: activeTab === 'goal' ? '1px solid rgba(255, 122, 0, 0.45)' : '1px solid transparent',
+                    color: activeTab === 'goal' ? 'var(--accent-solar, #ff7a00)' : 'rgba(255, 255, 255, 0.65)',
                     fontSize: '11px',
                     fontWeight: 600,
                     cursor: 'pointer',
-                    border: 'none',
                     outline: 'none',
                     transition: 'all 0.15s ease',
+                    boxShadow: activeTab === 'goal' ? '0 0 10px rgba(255, 122, 0, 0.25)' : 'none',
                   }}
                   title="Goals View"
                 >
@@ -308,20 +307,21 @@ export const DynamicIslandView: React.FC = () => {
                     display: 'flex',
                     alignItems: 'center',
                     gap: '4px',
-                    padding: '3px 8px',
+                    padding: '3px 10px',
                     borderRadius: '9999px',
-                    backgroundColor: activeTab === 'focus' ? 'rgba(255, 255, 255, 0.16)' : 'rgba(255, 255, 255, 0.06)',
-                    color: activeTab === 'focus' ? '#ffffff' : 'rgba(255, 255, 255, 0.65)',
+                    backgroundColor: activeTab === 'focus' ? 'rgba(56, 189, 248, 0.18)' : 'rgba(255, 255, 255, 0.05)',
+                    border: activeTab === 'focus' ? '1px solid rgba(56, 189, 248, 0.45)' : '1px solid transparent',
+                    color: activeTab === 'focus' ? 'var(--accent-cyan, #38bdf8)' : 'rgba(255, 255, 255, 0.65)',
                     fontSize: '11px',
-                    fontWeight: activeTab === 'focus' ? 600 : 500,
+                    fontWeight: activeTab === 'focus' ? 700 : 500,
                     cursor: 'pointer',
-                    border: 'none',
                     outline: 'none',
                     transition: 'all 0.15s ease',
+                    boxShadow: activeTab === 'focus' ? '0 0 10px rgba(56, 189, 248, 0.25)' : 'none',
                   }}
                   title="Focus Timer"
                 >
-                  <Timer size={11} />
+                  <Timer size={11} color={activeTab === 'focus' ? 'var(--accent-cyan, #38bdf8)' : 'currentColor'} />
                   <span>{focusState.isActive ? focusTimeStr : 'Focus'}</span>
                 </button>
 
@@ -336,20 +336,21 @@ export const DynamicIslandView: React.FC = () => {
                     display: 'flex',
                     alignItems: 'center',
                     gap: '4px',
-                    padding: '3px 8px',
+                    padding: '3px 10px',
                     borderRadius: '9999px',
-                    backgroundColor: activeTab === 'media' ? 'rgba(255, 255, 255, 0.16)' : 'rgba(255, 255, 255, 0.06)',
-                    color: activeTab === 'media' ? '#ffffff' : 'rgba(255, 255, 255, 0.65)',
+                    backgroundColor: activeTab === 'media' ? 'rgba(168, 85, 247, 0.18)' : 'rgba(255, 255, 255, 0.05)',
+                    border: activeTab === 'media' ? '1px solid rgba(168, 85, 247, 0.45)' : '1px solid transparent',
+                    color: activeTab === 'media' ? '#c084fc' : 'rgba(255, 255, 255, 0.65)',
                     fontSize: '11px',
-                    fontWeight: activeTab === 'media' ? 600 : 500,
+                    fontWeight: activeTab === 'media' ? 700 : 500,
                     cursor: 'pointer',
-                    border: 'none',
                     outline: 'none',
                     transition: 'all 0.15s ease',
+                    boxShadow: activeTab === 'media' ? '0 0 10px rgba(168, 85, 247, 0.25)' : 'none',
                   }}
                   title="Media Controls"
                 >
-                  <Music size={11} />
+                  <Music size={11} color={activeTab === 'media' ? '#c084fc' : 'currentColor'} />
                   <span>Media</span>
                 </button>
               </div>
@@ -395,11 +396,15 @@ export const DynamicIslandView: React.FC = () => {
                   alignItems: 'center',
                   gap: '10px',
                   padding: '8px 10px',
-                  backgroundColor: 'rgba(255, 255, 255, 0.05)',
-                  border: '1px solid rgba(255, 255, 255, 0.08)',
+                  backgroundColor: 'rgba(18, 20, 28, 0.95)',
+                  borderTop: '1px solid rgba(255, 255, 255, 0.16)',
+                  borderBottom: '1px solid rgba(255, 255, 255, 0.08)',
+                  borderLeft: '1px solid rgba(255, 255, 255, 0.08)',
+                  borderRight: '1px solid rgba(255, 255, 255, 0.08)',
                   borderRadius: '16px',
                   minWidth: 0,
                   overflow: 'hidden',
+                  boxShadow: '0 2px 8px rgba(0, 0, 0, 0.4)',
                 }}
               >
                 <div
@@ -407,12 +412,13 @@ export const DynamicIslandView: React.FC = () => {
                     width: '56px',
                     height: '42px',
                     borderRadius: '12px',
-                    backgroundColor: 'rgba(255, 255, 255, 0.08)',
-                    border: '1px solid rgba(255, 255, 255, 0.12)',
+                    backgroundColor: 'rgba(255, 122, 0, 0.12)',
+                    border: '1px solid rgba(255, 122, 0, 0.28)',
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
                     flexShrink: 0,
+                    boxShadow: '0 0 12px rgba(255, 122, 0, 0.15)',
                   }}
                 >
                   <BeaconCompanion state={companionState} size="compact" label={companionMessage} />
@@ -432,11 +438,11 @@ export const DynamicIslandView: React.FC = () => {
                     >
                       {primaryGoal.name}
                     </span>
-                    <span style={{ fontSize: '10px', color: 'rgba(255, 255, 255, 0.55)' }}>
+                    <span style={{ fontSize: '10px', color: 'rgba(255, 255, 255, 0.65)', fontWeight: 500 }}>
                       {primaryGoal.currentValue} / {primaryGoal.targetValue} {primaryGoal.unit || ''}
                     </span>
                     <div style={{ marginTop: '2px' }}>
-                      <ProgressBar progressFraction={primaryFrac} color="#ffffff" height={3} />
+                      <ProgressBar progressFraction={primaryFrac} color="var(--accent-solar, #ff7a00)" height={3} />
                     </div>
 
                     {/* Increment Controls */}
@@ -458,8 +464,17 @@ export const DynamicIslandView: React.FC = () => {
                           e.stopPropagation();
                           void handlePrimaryProgress(primaryGoal.defaultIncrement || 1);
                         }}
-                        className="btn-ghost"
-                        style={{ padding: '2px 7px', fontSize: '9px', fontWeight: 600, backgroundColor: 'rgba(255, 255, 255, 0.14)', color: '#ffffff' }}
+                        style={{
+                          padding: '2px 8px',
+                          fontSize: '9px',
+                          fontWeight: 700,
+                          backgroundColor: 'rgba(255, 122, 0, 0.2)',
+                          border: '1px solid rgba(255, 122, 0, 0.45)',
+                          color: 'var(--accent-solar, #ff7a00)',
+                          borderRadius: '6px',
+                          cursor: 'pointer',
+                          boxShadow: '0 0 8px rgba(255, 122, 0, 0.2)',
+                        }}
                       >
                         +{primaryGoal.defaultIncrement || 1} {primaryGoal.unit || ''}
                       </button>
@@ -473,7 +488,7 @@ export const DynamicIslandView: React.FC = () => {
                         style={{ padding: '2px 5px', fontSize: '9px', backgroundColor: 'rgba(255, 255, 255, 0.08)' }}
                         title="Complete Goal"
                       >
-                        <CheckCircle2 size={10} />
+                        <CheckCircle2 size={10} color="#10b981" />
                       </button>
                     </div>
                   </div>
@@ -844,15 +859,19 @@ export const DynamicIslandView: React.FC = () => {
                 alignItems: 'center',
                 gap: '6px',
                 padding: '8px 10px',
-                backgroundColor: 'rgba(255, 255, 255, 0.03)',
-                border: '1px solid rgba(255, 255, 255, 0.06)',
+                backgroundColor: 'rgba(18, 20, 28, 0.95)',
+                borderTop: '1px solid rgba(255, 255, 255, 0.16)',
+                borderBottom: '1px solid rgba(255, 255, 255, 0.08)',
+                borderLeft: '1px solid rgba(255, 255, 255, 0.08)',
+                borderRight: '1px solid rgba(255, 255, 255, 0.08)',
                 borderRadius: '16px',
                 minWidth: 0,
                 overflow: 'hidden',
+                boxShadow: '0 2px 8px rgba(0, 0, 0, 0.4)',
               }}
             >
               <div style={{ display: 'flex', alignItems: 'center', gap: '5px', minWidth: 0 }}>
-                <span style={{ fontSize: '12px', fontWeight: 700, color: '#ffffff', flexShrink: 0 }}>{monthName}</span>
+                <span style={{ fontSize: '12px', fontWeight: 700, color: 'var(--accent-solar, #ff7a00)', flexShrink: 0 }}>{monthName}</span>
                 <div style={{ display: 'flex', gap: '3px', flexShrink: 0 }}>
                   {calendarDays.map((c, i) => (
                     <button
@@ -869,32 +888,33 @@ export const DynamicIslandView: React.FC = () => {
                         alignItems: 'center',
                         padding: '2px 4px',
                         borderRadius: '5px',
-                        backgroundColor: c.isToday ? 'rgba(255, 255, 255, 0.22)' : 'transparent',
-                        color: c.isToday ? '#ffffff' : 'rgba(255, 255, 255, 0.4)',
+                        backgroundColor: c.isToday ? 'var(--accent-solar, #ff7a00)' : 'transparent',
+                        color: c.isToday ? '#07080b' : 'rgba(255, 255, 255, 0.45)',
                         border: 'none',
                         cursor: 'pointer',
                         outline: 'none',
                         transition: 'all 0.15s ease',
+                        boxShadow: c.isToday ? '0 0 8px rgba(255, 122, 0, 0.4)' : 'none',
                       }}
                       title={c.isToday ? 'Today (Click to open Beacon)' : `Day ${c.date} (Click to open Beacon)`}
                     >
-                      <span style={{ fontSize: '7px', fontWeight: 500, textTransform: 'uppercase' }}>{c.dayName}</span>
-                      <span style={{ fontSize: '9px', fontWeight: c.isToday ? 700 : 500 }}>{c.date}</span>
+                      <span style={{ fontSize: '7px', fontWeight: 600, textTransform: 'uppercase' }}>{c.dayName}</span>
+                      <span style={{ fontSize: '9px', fontWeight: c.isToday ? 800 : 500 }}>{c.date}</span>
                     </button>
                   ))}
                 </div>
               </div>
 
-              <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '9px', color: 'rgba(255, 255, 255, 0.6)', whiteSpace: 'nowrap' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '9px', color: 'rgba(255, 255, 255, 0.65)', whiteSpace: 'nowrap' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '3px' }}>
-                  <Calendar size={10} />
+                  <Calendar size={10} color="rgba(255, 255, 255, 0.7)" />
                   <span>{goals.length > 0 ? `${goals.length} active` : 'Nothing today'}</span>
                 </div>
                 {goals.some((g) => (g.streakConfig?.currentStreak ?? 0) > 0) && (
                   <>
                     <span style={{ opacity: 0.4 }}>•</span>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '3px', color: '#5ac8fa', fontWeight: 600 }}>
-                      <Sparkles size={10} color="#5ac8fa" />
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '3px', color: 'var(--accent-solar, #ff7a00)', fontWeight: 700 }}>
+                      <Sparkles size={10} color="var(--accent-solar, #ff7a00)" />
                       <span>{Math.max(...goals.map((g) => g.streakConfig?.currentStreak ?? 0))}d streak</span>
                     </div>
                   </>
@@ -914,27 +934,31 @@ export const DynamicIslandView: React.FC = () => {
                 alignItems: 'center',
                 justifyContent: 'space-between',
                 padding: '8px 12px',
-                backgroundColor: 'rgba(255, 255, 255, 0.03)',
-                border: '1px solid rgba(255, 255, 255, 0.06)',
+                backgroundColor: 'rgba(18, 20, 28, 0.95)',
+                borderTop: '1px solid rgba(255, 255, 255, 0.16)',
+                borderBottom: '1px solid rgba(255, 255, 255, 0.08)',
+                borderLeft: '1px solid rgba(255, 255, 255, 0.08)',
+                borderRight: '1px solid rgba(255, 255, 255, 0.08)',
                 borderRadius: '16px',
                 cursor: 'pointer',
                 minWidth: 0,
                 overflow: 'hidden',
                 transition: 'background-color 0.15s ease',
+                boxShadow: '0 2px 8px rgba(0, 0, 0, 0.4)',
               }}
               title="Open Beacon Main Dashboard"
             >
               <div style={{ display: 'flex', flexDirection: 'column', gap: '1px', minWidth: 0 }}>
-                <span style={{ fontSize: '9px', color: 'rgba(255, 255, 255, 0.5)', fontWeight: 500 }}>Overall</span>
-                <span style={{ fontSize: '15px', fontWeight: 700, color: '#ffffff' }}>{percent}%</span>
-                <span style={{ fontSize: '8px', color: 'rgba(255, 255, 255, 0.4)' }}>{stats?.activeGoals ?? 0} active</span>
+                <span style={{ fontSize: '9px', color: 'rgba(255, 255, 255, 0.6)', fontWeight: 500 }}>Overall</span>
+                <span style={{ fontSize: '15px', fontWeight: 800, color: 'var(--accent-solar, #ff7a00)' }}>{percent}%</span>
+                <span style={{ fontSize: '8px', color: 'rgba(255, 255, 255, 0.45)' }}>{stats?.activeGoals ?? 0} active</span>
               </div>
 
               <GoalProgressRing
                 progressFraction={stats?.overallProgressFraction ?? 0}
                 size={38}
                 strokeWidth={3}
-                color="#ffffff"
+                color="var(--accent-solar, #ff7a00)"
                 showText={false}
               />
             </div>
