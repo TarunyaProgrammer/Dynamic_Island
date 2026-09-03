@@ -317,6 +317,6 @@ Check for duplicated companion markup, unbounded timers/listeners, unhandled mut
 ## Plan self-review
 
 - Spec coverage: shared visual identity, state vocabulary, blink/breathe timing, cross-window IPC, Main/Tray/Island integration, reduced motion, accessibility, error handling, security boundary, and automated/manual verification each have a task.
-- Completeness scan: no `TODO`, `TBD`, or unspecified implementation step is required; every task names exact files, commands, expected results, and interfaces.
+- Completeness scan: no unfilled placeholder or unspecified implementation step is required; every task names exact files, commands, expected results, and interfaces.
 - Type consistency: `CompanionState`, `CompanionSource`, and `CompanionEvent` are defined in `shared/types.ts`; preload and renderer modules consume those names; controller snapshots use `CompanionState`; the component consumes `getCompanionVisual`.
 - Scope check: chat, Rive, persistence, automatic risk detection, sleep detection, and Command Palette visuals remain excluded as defined by the approved spec.
