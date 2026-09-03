@@ -1,5 +1,5 @@
 // apps/renderer/src/components/GoalCard.tsx
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { Goal } from '@shared/types';
 import { GoalProgressRing } from './GoalProgressRing';
 import { QuickIncrementButton } from './QuickIncrementButton';
@@ -17,6 +17,7 @@ interface GoalCardProps {
   onArchive: (goalId: string) => void;
   onDelete: (goalId: string) => void;
   onEdit: (goal: Goal) => void;
+  onUpdateStreak?: (goalId: string, currentStreak: number, bestStreak: number) => void;
   compact?: boolean;
 }
 
@@ -30,14 +31,36 @@ export const GoalCard: React.FC<GoalCardProps> = ({
   onArchive,
   onDelete,
   onEdit,
+  onUpdateStreak,
   compact = false,
 }) => {
   const [expanded, setExpanded] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const [contextMenuPos, setContextMenuPos] = useState<{ x: number; y: number } | null>(null);
 
+  const [isStreakPopoverOpen, setIsStreakPopoverOpen] = useState(false);
+  const [popoverCurrentStreak, setPopoverCurrentStreak] = useState(goal.streakConfig?.currentStreak ?? 0);
+  const [popoverBestStreak, setPopoverBestStreak] = useState(goal.streakConfig?.bestStreak ?? 0);
+
   const menuButtonRef = useRef<HTMLButtonElement>(null);
   const menuContainerRef = useRef<HTMLDivElement>(null);
+  const streakPopoverRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    setPopoverCurrentStreak(goal.streakConfig?.currentStreak ?? 0);
+    setPopoverBestStreak(goal.streakConfig?.bestStreak ?? 0);
+  }, [goal.streakConfig]);
+
+  useEffect(() => {
+    if (!isStreakPopoverOpen) return;
+    const handleOutside = (e: MouseEvent) => {
+      if (streakPopoverRef.current && !streakPopoverRef.current.contains(e.target as Node)) {
+        setIsStreakPopoverOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handleOutside);
+    return () => document.removeEventListener('mousedown', handleOutside);
+  }, [isStreakPopoverOpen]);
   const contextMenuRef = useRef<HTMLDivElement>(null);
 
   const fraction = goal.targetValue > 0 ? Math.min(1.0, goal.currentValue / goal.targetValue) : 0;
@@ -121,24 +144,197 @@ export const GoalCard: React.FC<GoalCardProps> = ({
               )}
 
               {goal.streakConfig?.enabled && (
-                <span
-                  style={{
-                    display: 'inline-flex',
-                    alignItems: 'center',
-                    gap: '3px',
-                    fontSize: '10px',
-                    fontWeight: 600,
-                    padding: '1px 6px',
-                    borderRadius: 'var(--radius-sm)',
-                    backgroundColor: (goal.streakConfig.currentStreak ?? 0) > 0 ? 'rgba(90, 200, 250, 0.12)' : 'var(--bg-glass)',
-                    color: (goal.streakConfig.currentStreak ?? 0) > 0 ? 'var(--accent-cyan)' : 'var(--text-muted)',
-                    border: `1px solid ${(goal.streakConfig.currentStreak ?? 0) > 0 ? 'rgba(90, 200, 250, 0.28)' : 'var(--border-subtle)'}`,
-                  }}
-                  title={`Consistency: ${goal.health?.consistencyPercentage ?? 92}% · Light Streak: ${goal.streakConfig.currentStreak ?? 0} (Best: ${goal.streakConfig.bestStreak ?? 0})`}
-                >
-                  <Sparkles size={10} color={(goal.streakConfig.currentStreak ?? 0) > 0 ? 'var(--accent-cyan)' : 'currentColor'} />
-                  <span>{goal.streakConfig.currentStreak ?? 0} {goal.period === 'weekly' ? 'w' : 'd'}</span>
-                </span>
+                <div style={{ position: 'relative', display: 'inline-flex' }}>
+                  <button
+                    type="button"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setIsStreakPopoverOpen(!isStreakPopoverOpen);
+                    }}
+                    style={{
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      gap: '3px',
+                      fontSize: '10px',
+                      fontWeight: 600,
+                      padding: '1px 6px',
+                      borderRadius: 'var(--radius-sm)',
+                      backgroundColor: (goal.streakConfig.currentStreak ?? 0) > 0 ? 'rgba(90, 200, 250, 0.14)' : 'var(--bg-glass)',
+                      color: (goal.streakConfig.currentStreak ?? 0) > 0 ? 'var(--accent-cyan)' : 'var(--text-muted)',
+                      border: `1px solid ${(goal.streakConfig.currentStreak ?? 0) > 0 ? 'rgba(90, 200, 250, 0.32)' : 'var(--border-subtle)'}`,
+                      cursor: 'pointer',
+                      transition: 'all 0.15s ease',
+                    }}
+                    title={`Light Streak: ${goal.streakConfig.currentStreak ?? 0} (Best: ${goal.streakConfig.bestStreak ?? 0}) · Click to edit streak`}
+                  >
+                    <Sparkles size={10} color={(goal.streakConfig.currentStreak ?? 0) > 0 ? 'var(--accent-cyan)' : 'currentColor'} />
+                    <span>{goal.streakConfig.currentStreak ?? 0} {goal.period === 'weekly' ? 'w' : 'd'}</span>
+                  </button>
+
+                  {isStreakPopoverOpen && (
+                    <div
+                      ref={streakPopoverRef}
+                      onClick={(e) => e.stopPropagation()}
+                      style={{
+                        position: 'absolute',
+                        top: 'calc(100% + 6px)',
+                        left: 0,
+                        width: '210px',
+                        backgroundColor: '#16161c',
+                        border: '1px solid rgba(255, 255, 255, 0.14)',
+                        borderRadius: 'var(--radius-md)',
+                        boxShadow: '0 12px 28px rgba(0, 0, 0, 0.45), 0 2px 6px rgba(0, 0, 0, 0.2)',
+                        padding: '12px',
+                        zIndex: 100,
+                        display: 'flex',
+                        flexDirection: 'column',
+                        gap: '10px',
+                      }}
+                    >
+                      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
+                          <Sparkles size={12} color="var(--accent-cyan)" />
+                          <span style={{ fontSize: '11px', fontWeight: 600, color: 'var(--text-primary)' }}>
+                            Edit Streak
+                          </span>
+                        </div>
+                        <button
+                          type="button"
+                          onClick={() => setIsStreakPopoverOpen(false)}
+                          style={{
+                            background: 'none',
+                            border: 'none',
+                            color: 'var(--text-muted)',
+                            fontSize: '13px',
+                            cursor: 'pointer',
+                            padding: '0 3px',
+                          }}
+                        >
+                          ×
+                        </button>
+                      </div>
+
+                      {/* Stepper */}
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                        <span style={{ fontSize: '10px', color: 'var(--text-muted)' }}>Current Streak</span>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
+                          <button
+                            type="button"
+                            onClick={() => setPopoverCurrentStreak((prev) => Math.max(0, prev - 1))}
+                            className="btn-ghost"
+                            style={{ padding: '4px 8px', fontSize: '11px', backgroundColor: 'rgba(255, 255, 255, 0.06)' }}
+                            title="Decrease Streak"
+                          >
+                            -
+                          </button>
+                          <input
+                            type="number"
+                            min="0"
+                            value={popoverCurrentStreak}
+                            onChange={(e) => setPopoverCurrentStreak(Math.max(0, parseInt(e.target.value) || 0))}
+                            style={{
+                              flex: 1,
+                              textAlign: 'center',
+                              padding: '5px',
+                              backgroundColor: 'rgba(255, 255, 255, 0.06)',
+                              border: '1px solid var(--border-subtle)',
+                              borderRadius: 'var(--radius-sm)',
+                              color: 'var(--accent-cyan)',
+                              fontSize: '13px',
+                              fontWeight: 700,
+                            }}
+                          />
+                          <button
+                            type="button"
+                            onClick={() => setPopoverCurrentStreak((prev) => prev + 1)}
+                            className="btn-ghost"
+                            style={{ padding: '4px 8px', fontSize: '11px', backgroundColor: 'rgba(255, 255, 255, 0.06)' }}
+                            title="Increase Streak"
+                          >
+                            +
+                          </button>
+                        </div>
+                      </div>
+
+                      {/* Best Record */}
+                      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', fontSize: '10px', color: 'var(--text-secondary)' }}>
+                        <span>Best Record:</span>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                          <input
+                            type="number"
+                            min="0"
+                            value={popoverBestStreak}
+                            onChange={(e) => setPopoverBestStreak(Math.max(0, parseInt(e.target.value) || 0))}
+                            style={{
+                              width: '45px',
+                              textAlign: 'center',
+                              padding: '2px 4px',
+                              backgroundColor: 'rgba(255, 255, 255, 0.06)',
+                              border: '1px solid var(--border-subtle)',
+                              borderRadius: '4px',
+                              color: 'var(--text-primary)',
+                              fontSize: '11px',
+                              fontWeight: 600,
+                            }}
+                          />
+                          <span>{goal.period === 'weekly' ? 'weeks' : 'days'}</span>
+                        </div>
+                      </div>
+
+                      {/* Quick presets */}
+                      <div style={{ display: 'flex', gap: '4px' }}>
+                        <button
+                          type="button"
+                          onClick={() => setPopoverCurrentStreak((prev) => prev + 1)}
+                          style={{
+                            flex: 1,
+                            padding: '3px 6px',
+                            fontSize: '9px',
+                            fontWeight: 600,
+                            borderRadius: '4px',
+                            backgroundColor: 'rgba(90, 200, 250, 0.12)',
+                            color: 'var(--accent-cyan)',
+                            border: 'none',
+                            cursor: 'pointer',
+                          }}
+                        >
+                          +1 Day
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => setPopoverCurrentStreak(0)}
+                          style={{
+                            flex: 1,
+                            padding: '3px 6px',
+                            fontSize: '9px',
+                            fontWeight: 500,
+                            borderRadius: '4px',
+                            backgroundColor: 'rgba(255, 255, 255, 0.06)',
+                            color: 'var(--text-muted)',
+                            border: 'none',
+                            cursor: 'pointer',
+                          }}
+                        >
+                          Reset 0
+                        </button>
+                      </div>
+
+                      {/* Save action */}
+                      <button
+                        type="button"
+                        onClick={() => {
+                          const finalBest = Math.max(popoverCurrentStreak, popoverBestStreak);
+                          onUpdateStreak?.(goal.id, popoverCurrentStreak, finalBest);
+                          setIsStreakPopoverOpen(false);
+                        }}
+                        className="btn-primary"
+                        style={{ padding: '5px 10px', fontSize: '11px', fontWeight: 600, justifyContent: 'center' }}
+                      >
+                        Save Streak
+                      </button>
+                    </div>
+                  )}
+                </div>
               )}
             </div>
 

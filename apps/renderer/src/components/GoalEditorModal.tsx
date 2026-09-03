@@ -1,6 +1,5 @@
-// apps/renderer/src/components/GoalEditorModal.tsx
 import React, { useState, useEffect, useRef } from 'react';
-import { Goal, GoalDraft, GoalType, GoalUpdateDraft } from '@shared/types';
+import { Goal, GoalDraft, GoalType, GoalUpdateDraft, StreakType } from '@shared/types';
 import { X, Target, Calendar, Sparkles } from 'lucide-react';
 import { ConfirmationModal } from './ConfirmationModal';
 import { useDesktopOverlay } from '../hooks/useDesktopOverlay';
@@ -27,6 +26,9 @@ export const GoalEditorModal: React.FC<GoalEditorModalProps> = ({
   const [defaultIncrement, setDefaultIncrement] = useState<string>('1');
   const [deadline, setDeadline] = useState<string>('');
   const [trackStreak, setTrackStreak] = useState(true);
+  const [currentStreak, setCurrentStreak] = useState<string>('0');
+  const [bestStreak, setBestStreak] = useState<string>('0');
+  const [streakType, setStreakType] = useState<StreakType>('daily');
 
   const [isCalendarOpen, setIsCalendarOpen] = useState(false);
   const [calendarViewDate, setCalendarViewDate] = useState<Date>(() => new Date());
@@ -37,7 +39,17 @@ export const GoalEditorModal: React.FC<GoalEditorModalProps> = ({
   const calendarRef = useRef<HTMLDivElement>(null);
 
   // Track initial state to detect unsaved changes
-  const initialDataRef = useRef({ name: '', targetValue: '100', currentValue: '0', unit: '', deadline: '' });
+  const initialDataRef = useRef({
+    name: '',
+    targetValue: '100',
+    currentValue: '0',
+    unit: '',
+    deadline: '',
+    trackStreak: true,
+    currentStreak: '0',
+    bestStreak: '0',
+    streakType: 'daily',
+  });
 
   useEffect(() => {
     if (goal) {
@@ -50,6 +62,9 @@ export const GoalEditorModal: React.FC<GoalEditorModalProps> = ({
       const gInc = (goal.defaultIncrement || 1).toString();
       const dead = goal.deadline ? goal.deadline.split('T')[0] : '';
       const hasStreak = goal.streakConfig ? goal.streakConfig.enabled : true;
+      const curStreak = (goal.streakConfig?.currentStreak ?? 0).toString();
+      const bStreak = (goal.streakConfig?.bestStreak ?? 0).toString();
+      const sType: StreakType = goal.streakConfig?.type || 'daily';
 
       setName(gName);
       setArea(gArea);
@@ -60,9 +75,22 @@ export const GoalEditorModal: React.FC<GoalEditorModalProps> = ({
       setDefaultIncrement(gInc);
       setDeadline(dead);
       setTrackStreak(hasStreak);
+      setCurrentStreak(curStreak);
+      setBestStreak(bStreak);
+      setStreakType(sType);
       if (dead) setCalendarViewDate(new Date(dead));
 
-      initialDataRef.current = { name: gName, targetValue: gTarget, currentValue: gCurrent, unit: gUnit, deadline: dead };
+      initialDataRef.current = {
+        name: gName,
+        targetValue: gTarget,
+        currentValue: gCurrent,
+        unit: gUnit,
+        deadline: dead,
+        trackStreak: hasStreak,
+        currentStreak: curStreak,
+        bestStreak: bStreak,
+        streakType: sType,
+      };
     } else {
       setName('');
       setArea('Personal');
@@ -73,9 +101,22 @@ export const GoalEditorModal: React.FC<GoalEditorModalProps> = ({
       setDefaultIncrement('1');
       setDeadline('');
       setTrackStreak(true);
+      setCurrentStreak('0');
+      setBestStreak('0');
+      setStreakType('daily');
       setCalendarViewDate(new Date());
 
-      initialDataRef.current = { name: '', targetValue: '100', currentValue: '0', unit: '', deadline: '' };
+      initialDataRef.current = {
+        name: '',
+        targetValue: '100',
+        currentValue: '0',
+        unit: '',
+        deadline: '',
+        trackStreak: true,
+        currentStreak: '0',
+        bestStreak: '0',
+        streakType: 'daily',
+      };
     }
     setShowDiscardConfirm(false);
   }, [goal, isOpen]);
@@ -86,7 +127,11 @@ export const GoalEditorModal: React.FC<GoalEditorModalProps> = ({
       targetValue !== initialDataRef.current.targetValue ||
       currentValue !== initialDataRef.current.currentValue ||
       unit !== initialDataRef.current.unit ||
-      deadline !== initialDataRef.current.deadline
+      deadline !== initialDataRef.current.deadline ||
+      trackStreak !== initialDataRef.current.trackStreak ||
+      currentStreak !== initialDataRef.current.currentStreak ||
+      bestStreak !== initialDataRef.current.bestStreak ||
+      streakType !== initialDataRef.current.streakType
     );
   };
 
@@ -135,9 +180,9 @@ export const GoalEditorModal: React.FC<GoalEditorModalProps> = ({
       deadline: deadline || undefined,
       streakConfig: {
         enabled: trackStreak,
-        type: 'daily',
-        currentStreak: goal?.streakConfig?.currentStreak ?? 0,
-        bestStreak: goal?.streakConfig?.bestStreak ?? 0,
+        type: streakType,
+        currentStreak: Math.max(0, parseInt(currentStreak) || 0),
+        bestStreak: Math.max(Math.max(0, parseInt(currentStreak) || 0), parseInt(bestStreak) || 0),
       },
     } as any);
     onClose();
@@ -587,19 +632,177 @@ export const GoalEditorModal: React.FC<GoalEditorModalProps> = ({
             </div>
           </div>
 
-          {/* Streak Tracking Toggle */}
-          <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', userSelect: 'none', padding: '4px 0' }}>
-            <input
-              type="checkbox"
-              checked={trackStreak}
-              onChange={(e) => setTrackStreak(e.target.checked)}
-              style={{ accentColor: 'var(--accent-beacon)', width: '15px', height: '15px', cursor: 'pointer' }}
-            />
-            <span style={{ fontSize: '12px', color: 'var(--text-secondary)', display: 'inline-flex', alignItems: 'center', gap: '5px' }}>
-              <Sparkles size={13} color="var(--accent-cyan)" />
-              Enable light streak tracking for this goal
-            </span>
-          </label>
+          {/* Streak Tracking Toggle & Editor */}
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+            <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', userSelect: 'none', padding: '2px 0' }}>
+              <input
+                type="checkbox"
+                checked={trackStreak}
+                onChange={(e) => setTrackStreak(e.target.checked)}
+                style={{ accentColor: 'var(--accent-beacon)', width: '15px', height: '15px', cursor: 'pointer' }}
+              />
+              <span style={{ fontSize: '12px', color: 'var(--text-secondary)', display: 'inline-flex', alignItems: 'center', gap: '5px' }}>
+                <Sparkles size={13} color="var(--accent-cyan)" />
+                Enable light streak tracking for this goal
+              </span>
+            </label>
+
+            {trackStreak && (
+              <div
+                style={{
+                  padding: '12px 14px',
+                  backgroundColor: 'rgba(255, 255, 255, 0.03)',
+                  border: '1px solid rgba(255, 255, 255, 0.08)',
+                  borderRadius: 'var(--radius-md)',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  gap: '10px',
+                }}
+              >
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                  <span style={{ fontSize: '11px', color: 'var(--text-secondary)', fontWeight: 600 }}>Streak Cadence</span>
+                  <div style={{ display: 'flex', gap: '4px' }}>
+                    <button
+                      type="button"
+                      onClick={() => setStreakType('daily')}
+                      style={{
+                        padding: '3px 7px',
+                        fontSize: '10px',
+                        fontWeight: 600,
+                        borderRadius: '4px',
+                        backgroundColor: streakType === 'daily' ? 'rgba(90, 200, 250, 0.2)' : 'rgba(255, 255, 255, 0.06)',
+                        color: streakType === 'daily' ? 'var(--accent-cyan)' : 'var(--text-muted)',
+                        border: `1px solid ${streakType === 'daily' ? 'rgba(90, 200, 250, 0.4)' : 'transparent'}`,
+                        cursor: 'pointer',
+                      }}
+                    >
+                      Daily
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setStreakType('scheduled')}
+                      style={{
+                        padding: '3px 7px',
+                        fontSize: '10px',
+                        fontWeight: 600,
+                        borderRadius: '4px',
+                        backgroundColor: streakType === 'scheduled' ? 'rgba(90, 200, 250, 0.2)' : 'rgba(255, 255, 255, 0.06)',
+                        color: streakType === 'scheduled' ? 'var(--accent-cyan)' : 'var(--text-muted)',
+                        border: `1px solid ${streakType === 'scheduled' ? 'rgba(90, 200, 250, 0.4)' : 'transparent'}`,
+                        cursor: 'pointer',
+                      }}
+                    >
+                      Scheduled
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setStreakType('period_threshold')}
+                      style={{
+                        padding: '3px 7px',
+                        fontSize: '10px',
+                        fontWeight: 600,
+                        borderRadius: '4px',
+                        backgroundColor: streakType === 'period_threshold' ? 'rgba(90, 200, 250, 0.2)' : 'rgba(255, 255, 255, 0.06)',
+                        color: streakType === 'period_threshold' ? 'var(--accent-cyan)' : 'var(--text-muted)',
+                        border: `1px solid ${streakType === 'period_threshold' ? 'rgba(90, 200, 250, 0.4)' : 'transparent'}`,
+                        cursor: 'pointer',
+                      }}
+                    >
+                      Flexible
+                    </button>
+                  </div>
+                </div>
+
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                    <label style={{ fontSize: '11px', color: 'var(--text-secondary)', fontWeight: 600 }}>Current Streak</label>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                      <button
+                        type="button"
+                        onClick={() => setCurrentStreak((prev) => Math.max(0, (parseInt(prev) || 0) - 1).toString())}
+                        className="btn-ghost"
+                        style={{ padding: '6px 9px', backgroundColor: 'rgba(255, 255, 255, 0.06)' }}
+                        title="Decrease Streak"
+                      >
+                        -
+                      </button>
+                      <input
+                        type="number"
+                        min="0"
+                        value={currentStreak}
+                        onChange={(e) => setCurrentStreak(e.target.value)}
+                        style={{
+                          width: '100%',
+                          textAlign: 'center',
+                          padding: '7px 8px',
+                          backgroundColor: 'rgba(255, 255, 255, 0.05)',
+                          border: '1px solid var(--border-subtle)',
+                          borderRadius: 'var(--radius-sm)',
+                          color: 'var(--accent-cyan)',
+                          fontSize: '13px',
+                          fontWeight: 700,
+                        }}
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setCurrentStreak((prev) => ((parseInt(prev) || 0) + 1).toString())}
+                        className="btn-ghost"
+                        style={{ padding: '6px 9px', backgroundColor: 'rgba(255, 255, 255, 0.06)' }}
+                        title="Increase Streak"
+                      >
+                        +
+                      </button>
+                    </div>
+                  </div>
+
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                    <label style={{ fontSize: '11px', color: 'var(--text-secondary)', fontWeight: 600 }}>Best Streak Record</label>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                      <button
+                        type="button"
+                        onClick={() => setBestStreak((prev) => Math.max(0, (parseInt(prev) || 0) - 1).toString())}
+                        className="btn-ghost"
+                        style={{ padding: '6px 9px', backgroundColor: 'rgba(255, 255, 255, 0.06)' }}
+                        title="Decrease Record"
+                      >
+                        -
+                      </button>
+                      <input
+                        type="number"
+                        min="0"
+                        value={bestStreak}
+                        onChange={(e) => setBestStreak(e.target.value)}
+                        style={{
+                          width: '100%',
+                          textAlign: 'center',
+                          padding: '7px 8px',
+                          backgroundColor: 'rgba(255, 255, 255, 0.05)',
+                          border: '1px solid var(--border-subtle)',
+                          borderRadius: 'var(--radius-sm)',
+                          color: 'var(--text-primary)',
+                          fontSize: '13px',
+                          fontWeight: 700,
+                        }}
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setBestStreak((prev) => ((parseInt(prev) || 0) + 1).toString())}
+                        className="btn-ghost"
+                        style={{ padding: '6px 9px', backgroundColor: 'rgba(255, 255, 255, 0.06)' }}
+                        title="Increase Record"
+                      >
+                        +
+                      </button>
+                    </div>
+                  </div>
+                </div>
+
+                <span style={{ fontSize: '10px', color: 'var(--text-muted)' }}>
+                  ✦ Adjust your streak count to match habits you started before Beacon or restore an accidental lapse.
+                </span>
+              </div>
+            )}
+          </div>
 
           {/* Action Buttons */}
           <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '8px', marginTop: '10px' }}>

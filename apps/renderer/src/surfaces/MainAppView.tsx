@@ -152,6 +152,19 @@ export const MainAppView: React.FC = () => {
     triggerLightPulse('var(--accent-emerald, #10b981)');
   };
 
+  const handleUpdateStreak = async (goalId: string, currentStreak: number, bestStreak: number) => {
+    soundEffects.playTickSound();
+    await updateGoal(goalId, {
+      streakConfig: {
+        enabled: true,
+        currentStreak,
+        bestStreak: Math.max(currentStreak, bestStreak),
+      },
+    });
+    companion.celebrate('Streak updated');
+    triggerLightPulse('var(--accent-cyan)');
+  };
+
   const handlePromptDelete = (goalId: string) => {
     const target = goals.find((g) => g.id === goalId);
     if (target) {
@@ -516,6 +529,7 @@ export const MainAppView: React.FC = () => {
                     onArchive={archiveGoal}
                     onDelete={handlePromptDelete}
                     onEdit={handleOpenEdit}
+                    onUpdateStreak={handleUpdateStreak}
                   />
                 </div>
               ))
