@@ -1,7 +1,7 @@
 // apps/preload/index.ts - Secure Context-Isolated Preload Bridge
 import { contextBridge, ipcRenderer } from 'electron';
 import { IPC_CHANNELS } from '@shared/ipc-channels';
-import { AppSettings, GoalDraft, GoalStatus, GoalUpdateDraft } from '@shared/types';
+import { AppSettings, CompanionEvent, GoalDraft, GoalStatus, GoalUpdateDraft } from '@shared/types';
 import { BeaconApi } from './types';
 
 const api: BeaconApi = {
@@ -68,6 +68,10 @@ const api: BeaconApi = {
     setVolume: (volume: number) => ipcRenderer.invoke(IPC_CHANNELS.MEDIA_SET_VOLUME, volume),
   },
 
+  companion: {
+    emit: (event: CompanionEvent) => ipcRenderer.invoke(IPC_CHANNELS.COMPANION_EMIT, event),
+  },
+
   windows: {
     toggleMain: () => ipcRenderer.invoke(IPC_CHANNELS.WINDOW_TOGGLE_MAIN),
     togglePalette: () => ipcRenderer.invoke(IPC_CHANNELS.WINDOW_TOGGLE_PALETTE),
@@ -122,6 +126,14 @@ const api: BeaconApi = {
     ipcRenderer.on(IPC_CHANNELS.EVENT_MEDIA_CHANGED, handler);
     return () => {
       ipcRenderer.removeListener(IPC_CHANNELS.EVENT_MEDIA_CHANGED, handler);
+    };
+  },
+
+  onCompanionChanged: (callback: (event: CompanionEvent) => void) => {
+    const handler = (_event: Electron.IpcRendererEvent, value: CompanionEvent) => callback(value);
+    ipcRenderer.on(IPC_CHANNELS.EVENT_COMPANION_CHANGED, handler);
+    return () => {
+      ipcRenderer.removeListener(IPC_CHANNELS.EVENT_COMPANION_CHANGED, handler);
     };
   },
 };

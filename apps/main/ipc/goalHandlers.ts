@@ -1,7 +1,8 @@
 // apps/main/ipc/goalHandlers.ts - Central IPC Bridge Handlers
 import { BrowserWindow, app, ipcMain } from 'electron';
 import { IPC_CHANNELS } from '@shared/ipc-channels';
-import { AppSettings, GoalDraft, GoalStatus, GoalUpdateDraft, LiveActivity, FocusSessionState, FocusCompletedEvent } from '@shared/types';
+import { AppSettings, CompanionEvent, GoalDraft, GoalStatus, GoalUpdateDraft, LiveActivity, FocusSessionState, FocusCompletedEvent } from '@shared/types';
+import { isCompanionEvent } from '@shared/companion';
 import { GoalService } from '@core/services/goal-service';
 import { SettingsRepository } from '@database/repository/settings-repository';
 import { ActivityEngine } from '@core/activities/activity-engine';
@@ -78,11 +79,26 @@ export function registerIpcHandlers(
     }
   };
 
+  const broadcastCompanionChanged = (event: CompanionEvent) => {
+    for (const win of BrowserWindow.getAllWindows()) {
+      if (!win.isDestroyed() && !win.webContents.isDestroyed()) {
+        win.webContents.send(IPC_CHANNELS.EVENT_COMPANION_CHANGED, event);
+      }
+    }
+  };
+
   goalService.subscribe(broadcastGoalsChanged);
   activityEngine.subscribe(broadcastActivitiesChanged);
   focusManager.subscribe(broadcastFocusTick);
   focusManager.onComplete(broadcastFocusCompleted);
   mediaService.subscribe(broadcastMediaChanged);
+
+  ipcMain.handle(IPC_CHANNELS.COMPANION_EMIT, (_event, value: unknown) => {
+    if (!isCompanionEvent(value)) {
+      throw new Error('Invalid companion event');
+    }
+    broadcastCompanionChanged(value);
+  });
 
   // Goal queries & mutations
   ipcMain.handle(IPC_CHANNELS.GOALS_LIST, (_, status?: GoalStatus) => {

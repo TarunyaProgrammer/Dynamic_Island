@@ -1,5 +1,5 @@
 // apps/preload/types.ts - Typed Preload Bridge Interface
-import { AppSettings, BeaconStats, Goal, GoalDraft, GoalStatus, GoalUpdateDraft, Milestone, ProgressEvent } from '@shared/types';
+import { AppSettings, BeaconStats, CompanionEvent, Goal, GoalDraft, GoalStatus, GoalUpdateDraft, Milestone, ProgressEvent } from '@shared/types';
 
 export interface BeaconApi {
   // Goal CRUD & Progress
@@ -66,6 +66,11 @@ export interface BeaconApi {
     setVolume: (volume: number) => Promise<import('@shared/types').MediaActivityState>;
   };
 
+  // Companion Presence
+  companion: {
+    emit: (event: CompanionEvent) => Promise<void>;
+  };
+
   // Window Controls
   windows: {
     toggleMain: () => Promise<void>;
@@ -83,6 +88,7 @@ export interface BeaconApi {
   onFocusTick: (callback: (state: import('@shared/types').FocusSessionState) => void) => () => void;
   onFocusCompleted: (callback: (event: import('@shared/types').FocusCompletedEvent) => void) => () => void;
   onMediaChanged: (callback: (state: import('@shared/types').MediaActivityState) => void) => () => void;
+  onCompanionChanged: (callback: (event: CompanionEvent) => void) => () => void;
 }
 
 declare global {
