@@ -13,6 +13,7 @@ export const Navbar: React.FC<NavbarProps> = ({
   onOpenPricing,
 }) => {
   const [scrolled, setScrolled] = useState(false);
+  const [mobileMenu, setMobileMenu] = useState(false);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -96,6 +97,7 @@ export const Navbar: React.FC<NavbarProps> = ({
             color: "var(--text-body)",
           }}
           className="nav-links-desktop"
+        
         >
           <a href="#simulator" style={{ color: "inherit", textDecoration: "none" }}>Dynamic Island</a>
           <a href="#gallery" style={{ color: "inherit", textDecoration: "none" }}>Surfaces</a>
@@ -132,7 +134,7 @@ export const Navbar: React.FC<NavbarProps> = ({
             style={{ padding: "8px 18px", fontSize: "13px" }}
           >
             <Apple size={14} />
-            <span>Get started on macOS</span>
+            <span className="desktop-only-text">Get started on macOS</span><span className="mobile-only-text" style={{ display: "none" }}>Get</span>
           </button>
         </div>
       </nav>

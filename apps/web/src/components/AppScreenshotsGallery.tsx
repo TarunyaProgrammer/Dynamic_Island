@@ -101,6 +101,8 @@ export const AppScreenshotsGallery: React.FC = () => {
             gap: "8px",
             flexWrap: "wrap",
             marginBottom: "36px",
+            padding: "0 10px",
+            overflowX: "auto",
           }}
         >
           {surfaces.map((s) => {

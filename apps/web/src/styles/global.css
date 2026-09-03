@@ -170,3 +170,72 @@ body {
 .spin-slow {
   animation: spinSlow 50s linear infinite;
 }
+
+/* ==========================================================================
+   COMPREHENSIVE MOBILE RESPONSIVE SUITE (< 768px & < 480px)
+   ========================================================================== */
+
+@media (max-width: 1024px) {
+  .container {
+    padding: 0 20px;
+  }
+}
+
+@media (max-width: 768px) {
+  html, body {
+    overflow-x: hidden;
+    width: 100%;
+  }
+
+  .container {
+    padding: 0 16px;
+  }
+
+  /* Responsive Serif Headings */
+  .serif-headline {
+    font-size: clamp(28px, 8vw, 42px) !important;
+    line-height: 1.15 !important;
+  }
+
+  .text-subhead {
+    font-size: 15px !important;
+    line-height: 1.55 !important;
+  }
+
+  /* Buttons on Mobile */
+  .btn-obsidian, .btn-white {
+    width: 100%;
+    justify-content: center;
+    padding: 14px 20px !important;
+    font-size: 14px !important;
+  }
+
+  /* Cards on Mobile */
+  .card-editorial {
+    padding: 22px 18px !important;
+    border-radius: 18px !important;
+  }
+
+  /* Hide Desktop Nav Links on Mobile */
+  .nav-links-desktop {
+    display: none !important;
+  }
+}
+
+@media (max-width: 480px) {
+  .serif-headline {
+    font-size: 26px !important;
+  }
+
+  .eyebrow-titanium {
+    font-size: 10px !important;
+    letter-spacing: 0.08em !important;
+  }
+
+  .floating-obsidian-badge, .floating-white-badge {
+    width: 100%;
+    justify-content: center;
+    font-size: 12px !important;
+    padding: 8px 12px !important;
+  }
+}

@@ -184,9 +184,9 @@ export const BeaconSpiritCinematic: React.FC = () => {
     [1.35, 1.1, 0.92, 0.92, 1.0, 1.45, 1.1, 1.0]
   );
 
-  const rawXMobile = useTransform(scrollYProgress, [0, 1], ["62vw", "62vw"]);
-  const rawYMobile = useTransform(scrollYProgress, [0, 1], ["76vh", "76vh"]);
-  const rawScaleMobile = useTransform(scrollYProgress, [0, 1], [0.95, 0.95]);
+  const rawXMobile = useTransform(scrollYProgress, [0, 1], ["calc(100vw - 110px)", "calc(100vw - 110px)"]);
+  const rawYMobile = useTransform(scrollYProgress, [0, 1], ["calc(100vh - 120px)", "calc(100vh - 120px)"]);
+  const rawScaleMobile = useTransform(scrollYProgress, [0, 1], [0.78, 0.78]);
 
   const smoothConfig = { stiffness: 50, damping: 18, mass: 0.8 };
   const smoothX = useSpring(isMobile ? rawXMobile : rawXDesktop, smoothConfig);
@@ -264,7 +264,7 @@ export const BeaconSpiritCinematic: React.FC = () => {
         transition={{ duration: 0.18, ease: [0.16, 1, 0.3, 1] }}
         style={{
           pointerEvents: "auto",
-          width: "260px",
+          width: "min(260px, calc(100vw - 40px))",
           backgroundColor: "#FFFFFF",
           border: "1.5px solid var(--border-subtle)",
           borderRadius: "18px",
