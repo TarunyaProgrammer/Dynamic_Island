@@ -1,48 +1,52 @@
+/**
+ * BEACON PROPRIETARY DESIGN SYSTEM TOKENS
+ * Aesthetic: Swiss Titanium & Horological Obsidian
+ * High-Trust, Apple-Grade Hardware Craftsmanship
+ */
+
 :root {
-  /* Wispr Flow Exact Editorial Palette */
-  --bg-canvas: #FAF8EE;          /* Wispr Flow exact warm alabaster / ivory cream */
-  --bg-canvas-subtle: #F3F1E4;   /* Soft warm stone */
-  --bg-surface: #FFFFFF;         /* Crisp pure card white */
-  --bg-surface-elevated: #FFFFFF;
-  --bg-dark-section: #0B0D13;    /* Hardware obsidian section */
+  /* Architectural Titanium Canvas */
+  --bg-canvas: #F6F6F8;
+  --bg-canvas-subtle: #EDEDF0;
+  --bg-card: #FFFFFF;
+  --bg-card-hover: #FCFCFD;
 
-  /* Wispr Flow Editorial Ink Typography */
-  --text-ink: #191A19;           /* Deep soft charcoal ink */
-  --text-body: #4A4E46;          /* Readable warm slate */
-  --text-muted: #72766E;         /* Gentle editorial stone */
-  --text-subtle: #9EA29A;
+  /* Typography Ink (WCAG 2.2 AAA Compliant) */
+  --text-ink: #0F1117;
+  --text-body: #3E4351;
+  --text-secondary: #565C6C;
+  --text-muted: #727888;
+  --text-subtle: #9EA4B3;
 
-  /* Wispr Flow Accents */
-  --accent-forest: #0D523F;      /* Deep British Racing Forest Emerald (Wispr Tag) */
-  --accent-forest-hover: #093E30;
-  --accent-forest-text: #FFFFFF;
-
-  --accent-lilac: #ECE6FC;       /* Wispr Flow Signature Button Lilac */
-  --accent-lilac-hover: #E0D6F9;
-  --accent-lilac-text: #191A19;
-
-  --accent-solar: #D97706;       /* Warm Horological Amber Flame */
-  --accent-solar-hover: #B45309;
-  --accent-solar-subtle: rgba(217, 119, 6, 0.1);
+  /* Proprietary Color Accents */
+  --accent-obsidian: #0F1117;
+  --accent-obsidian-hover: #1C1F29;
+  --accent-solar: #D97706;
+  --accent-solar-glow: rgba(217, 119, 6, 0.2);
+  --accent-amber: #F59E0B;
+  --accent-emerald: #059669;
+  --accent-slate: #1E293B;
 
   /* Hairlines & Borders */
-  --border-subtle: rgba(25, 26, 25, 0.08);
-  --border-strong: rgba(25, 26, 25, 0.14);
-  --border-card: rgba(25, 26, 25, 0.06);
+  --border-subtle: rgba(15, 17, 23, 0.08);
+  --border-strong: rgba(15, 17, 23, 0.16);
+  --border-amber: rgba(217, 119, 6, 0.35);
 
-  /* Shadows (Natural, Non-Synthetic) */
-  --shadow-sm: 0 1px 2px rgba(25, 26, 25, 0.04);
-  --shadow-card: 0 4px 24px rgba(25, 26, 25, 0.06), 0 1px 3px rgba(25, 26, 25, 0.03);
-  --shadow-btn: 0 2px 8px rgba(25, 26, 25, 0.08);
+  /* Elevation Shadows */
+  --shadow-sm: 0 2px 6px rgba(15, 17, 23, 0.04);
+  --shadow-card: 0 8px 30px rgba(15, 17, 23, 0.06), 0 1px 3px rgba(15, 17, 23, 0.04);
+  --shadow-hover: 0 16px 44px rgba(15, 17, 23, 0.1), 0 2px 6px rgba(15, 17, 23, 0.06);
+  --shadow-obsidian-btn: 0 4px 18px rgba(15, 17, 23, 0.25), 0 0 12px rgba(217, 119, 6, 0.15);
 
-  /* Typography Stacks */
+  /* Typography Fonts */
   --font-serif: "EB Garamond", Garamond, Georgia, serif;
-  --font-sans: "Figtree", "Plus Jakarta Sans", -apple-system, sans-serif;
-  --font-mono: "JetBrains Mono", Menlo, monospace;
+  --font-sans: "Figtree", -apple-system, BlinkMacSystemFont, "SF Pro Display", sans-serif;
+  --font-mono: "JetBrains Mono", SFMono-Regular, Menlo, monospace;
 
-  /* Radii */
-  --radius-pill: 100px;
-  --radius-xl: 20px;
-  --radius-lg: 14px;
-  --radius-md: 8px;
+  /* Layout */
+  --radius-sm: 8px;
+  --radius-md: 14px;
+  --radius-lg: 20px;
+  --radius-xl: 28px;
+  --radius-pill: 9999px;
 }

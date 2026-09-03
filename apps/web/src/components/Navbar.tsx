@@ -1,5 +1,5 @@
-import React from "react";
-import { ArrowRight, Apple } from "lucide-react";
+import React, { useState, useEffect } from "react";
+import { Apple, ArrowUpRight } from "lucide-react";
 
 interface NavbarProps {
   currency: "INR" | "USD";
@@ -7,33 +7,52 @@ interface NavbarProps {
   onOpenPricing: () => void;
 }
 
-export const Navbar: React.FC<NavbarProps> = ({ currency, onToggleCurrency, onOpenPricing }) => {
+export const Navbar: React.FC<NavbarProps> = ({
+  currency,
+  onToggleCurrency,
+  onOpenPricing,
+}) => {
+  const [scrolled, setScrolled] = useState(false);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      setScrolled(window.scrollY > 20);
+    };
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
+
   return (
-    <div
+    <header
       style={{
-        position: "sticky",
-        top: "14px",
-        zIndex: 100,
-        width: "100%",
-        padding: "0 20px",
+        position: "fixed",
+        top: "20px",
+        left: 0,
+        right: 0,
+        zIndex: 90,
+        display: "flex",
+        justifyContent: "center",
+        padding: "0 24px",
+        pointerEvents: "none",
       }}
     >
-      <header
+      <nav
         style={{
-          maxWidth: "1080px",
-          margin: "0 auto",
-          backgroundColor: "#FFFFFF",
-          border: "1px solid var(--border-subtle)",
-          borderRadius: "100px",
-          boxShadow: "0 4px 20px rgba(25, 26, 25, 0.06)",
+          pointerEvents: "auto",
           display: "flex",
           alignItems: "center",
-          justifyContent: "space-between",
-          height: "58px",
-          padding: "0 8px 0 20px",
+          gap: "clamp(12px, 3vw, 32px)",
+          padding: "8px 10px 8px 16px",
+          borderRadius: "var(--radius-pill)",
+          backgroundColor: scrolled ? "rgba(255, 255, 255, 0.92)" : "#FFFFFF",
+          backdropFilter: "blur(16px)",
+          WebkitBackdropFilter: "blur(16px)",
+          border: "1px solid var(--border-subtle)",
+          boxShadow: "0 8px 30px rgba(15, 17, 23, 0.08)",
+          transition: "all 0.2s ease",
         }}
       >
-        {/* Brand */}
+        {/* Brand Logo & Name */}
         <a
           href="#"
           style={{
@@ -48,89 +67,75 @@ export const Navbar: React.FC<NavbarProps> = ({ currency, onToggleCurrency, onOp
             src="/logo.png"
             alt="Beacon"
             style={{
-              width: "26px",
-              height: "26px",
-              borderRadius: "6px",
+              width: "30px",
+              height: "30px",
+              objectFit: "contain",
             }}
           />
           <span
             style={{
               fontFamily: "var(--font-sans)",
-              fontSize: "18px",
+              fontSize: "17px",
               fontWeight: 800,
-              letterSpacing: "-0.03em",
               color: "var(--text-ink)",
+              letterSpacing: "-0.02em",
             }}
           >
             Beacon
           </span>
         </a>
 
-        {/* Center Navigation Links (Wispr Flow style) */}
-        <nav
+        {/* Desktop Navigation Links */}
+        <div
           style={{
-            display: "none",
+            display: "flex",
             alignItems: "center",
-            gap: "24px",
+            gap: "20px",
+            fontSize: "13px",
+            fontWeight: 500,
+            color: "var(--text-body)",
           }}
-          className="desktop-nav"
+          className="nav-links-desktop"
         >
-          <a href="#simulator" style={{ color: "var(--text-body)", textDecoration: "none", fontSize: "14px", fontWeight: 500 }}>
-            Dynamic Island
-          </a>
-          <a href="#gallery" style={{ color: "var(--text-body)", textDecoration: "none", fontSize: "14px", fontWeight: 500 }}>
-            Surfaces
-          </a>
-          <a href="#features" style={{ color: "var(--text-body)", textDecoration: "none", fontSize: "14px", fontWeight: 500 }}>
-            6 Paradigms
-          </a>
-          <a href="#manifesto" style={{ color: "var(--text-body)", textDecoration: "none", fontSize: "14px", fontWeight: 500 }}>
-            Manifesto
-          </a>
-          <a href="#pricing" style={{ color: "var(--text-body)", textDecoration: "none", fontSize: "14px", fontWeight: 500 }}>
-            Pricing
-          </a>
-        </nav>
+          <a href="#simulator" style={{ color: "inherit", textDecoration: "none" }}>Dynamic Island</a>
+          <a href="#gallery" style={{ color: "inherit", textDecoration: "none" }}>Surfaces</a>
+          <a href="#features" style={{ color: "inherit", textDecoration: "none" }}>6 Paradigms</a>
+          <a href="#anti-slop" style={{ color: "inherit", textDecoration: "none" }}>Manifesto</a>
+          <a href="#pricing" style={{ color: "inherit", textDecoration: "none" }}>Pricing</a>
+        </div>
 
-        {/* Right Actions */}
-        <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+        {/* Currency Switcher & Obsidian Action Button */}
+        <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
           <button
             type="button"
             onClick={onToggleCurrency}
             style={{
               background: "none",
               border: "1px solid var(--border-subtle)",
-              padding: "6px 10px",
-              borderRadius: "100px",
+              borderRadius: "var(--radius-pill)",
+              padding: "6px 12px",
               fontSize: "12px",
               fontWeight: 600,
-              cursor: "pointer",
               color: "var(--text-body)",
+              cursor: "pointer",
+              transition: "all 0.15s ease",
             }}
+            title="Toggle currency between USD ($) and INR (₹)"
           >
             {currency === "INR" ? "₹ INR" : "$ USD"}
           </button>
 
-          {/* Wispr Flow Signature Lilac Pill Button */}
           <button
             type="button"
             onClick={onOpenPricing}
-            className="btn-lilac"
-            style={{ fontSize: "13px", padding: "8px 16px" }}
+            className="btn-obsidian"
+            style={{ padding: "8px 18px", fontSize: "13px" }}
           >
-            <Apple size={15} />
+            <Apple size={14} />
             <span>Get started on macOS</span>
           </button>
         </div>
-      </header>
-
-      <style>{`
-        @media (min-width: 820px) {
-          .desktop-nav {
-            display: flex !important;
-          }
-        }
-      `}</style>
-    </div>
+      </nav>
+    </header>
   );
 };

@@ -11,36 +11,36 @@ export const PricingSection: React.FC<PricingSectionProps> = ({ onSelectPlan, cu
   const priceDisplay = isINR ? "₹2,499" : "$29";
 
   return (
-    <section id="pricing" style={{ padding: "100px 0" }}>
+    <section id="pricing" style={{ padding: "100px 0", backgroundColor: "var(--bg-canvas)" }}>
       <div className="container" style={{ maxWidth: "860px" }}>
         {/* Section Header */}
         <div style={{ textAlign: "center", marginBottom: "48px" }}>
-          <span className="eyebrow-wispr" style={{ display: "block", marginBottom: "12px" }}>
+          <span className="eyebrow-titanium" style={{ display: "block", marginBottom: "12px" }}>
             SIMPLE, HONEST PRICING
           </span>
           <h2 className="serif-headline" style={{ fontSize: "clamp(32px, 4.5vw, 52px)", marginBottom: "14px" }}>
             Invest once in your focus.<br />
-            <span className="serif-italic">Keep it for life.</span>
+            <span className="serif-italic" style={{ color: "var(--accent-solar)" }}>Keep it for life.</span>
           </h2>
           <p className="text-subhead" style={{ fontSize: "16px", maxWidth: "520px", margin: "0 auto" }}>
             No subscriptions. No upsells. One single payment for lifetime access across all your personal Macs.
           </p>
         </div>
 
-        {/* Crisp Pure White Pricing Card */}
+        {/* Pure Optical White Pricing Card with Obsidian Frame */}
         <div
           style={{
             maxWidth: "580px",
             margin: "0 auto",
             backgroundColor: "#FFFFFF",
             borderRadius: "24px",
-            border: "1px solid var(--border-subtle)",
-            boxShadow: "0 12px 40px rgba(25, 26, 25, 0.08)",
+            border: "2px solid var(--accent-obsidian)",
+            boxShadow: "0 16px 44px rgba(15, 17, 23, 0.1), 0 0 24px rgba(217, 119, 6, 0.08)",
             padding: "clamp(32px, 5vw, 44px)",
           }}
         >
           <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "20px" }}>
-            <span style={{ fontSize: "12px", fontWeight: 800, textTransform: "uppercase", letterSpacing: "0.12em", color: "var(--accent-forest)" }}>
+            <span style={{ fontSize: "12px", fontWeight: 800, textTransform: "uppercase", letterSpacing: "0.12em", color: "var(--accent-solar)" }}>
               Pioneer Lifetime Edition
             </span>
             <span style={{ fontSize: "12px", color: "var(--text-muted)", fontFamily: "var(--font-mono)" }}>
@@ -80,16 +80,17 @@ export const PricingSection: React.FC<PricingSectionProps> = ({ onSelectPlan, cu
               "Instant license key delivery via email and on-screen",
             ].map((feature, i) => (
               <div key={i} style={{ display: "flex", alignItems: "center", gap: "12px" }}>
-                <Check size={17} color="var(--accent-forest)" style={{ flexShrink: 0 }} />
+                <Check size={16} color="var(--accent-solar)" style={{ flexShrink: 0 }} />
                 <span style={{ color: "var(--text-ink)" }}>{feature}</span>
               </div>
             ))}
           </div>
 
+          {/* Master Obsidian Checkout Button */}
           <button
             type="button"
             onClick={onSelectPlan}
-            className="btn-forest"
+            className="btn-obsidian"
             style={{ width: "100%", padding: "16px", fontSize: "15px", borderRadius: "12px", marginBottom: "20px" }}
           >
             <Apple size={17} />
@@ -108,7 +109,7 @@ export const PricingSection: React.FC<PricingSectionProps> = ({ onSelectPlan, cu
               gap: "14px",
             }}
           >
-            <ShieldCheck size={26} color="var(--accent-forest)" style={{ flexShrink: 0 }} />
+            <ShieldCheck size={26} color="var(--accent-obsidian)" style={{ flexShrink: 0 }} />
             <div style={{ fontSize: "13px", lineHeight: 1.5 }}>
               <strong style={{ color: "var(--text-ink)", display: "block" }}>
                 30-Day Money-Back Guarantee
@@ -134,17 +135,17 @@ export const PricingSection: React.FC<PricingSectionProps> = ({ onSelectPlan, cu
           }}
         >
           <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
-            <Shield size={15} color="var(--accent-forest)" />
+            <Shield size={15} color="var(--accent-solar)" />
             <span>256-bit SSL Encrypted Payment</span>
           </div>
           <span>•</span>
           <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
-            <Key size={15} color="var(--accent-forest)" />
+            <Key size={15} color="var(--accent-solar)" />
             <span>Instant License Key</span>
           </div>
           <span>•</span>
           <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
-            <Laptop size={15} color="var(--accent-forest)" />
+            <Laptop size={15} color="var(--accent-solar)" />
             <span>Universal Mac Binary</span>
           </div>
         </div>

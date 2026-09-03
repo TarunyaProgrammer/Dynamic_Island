@@ -3,7 +3,7 @@ import { ArrowUpRight } from "lucide-react";
 
 export const Footer: React.FC = () => {
   return (
-    <footer
+    <footer id="footer"
       style={{
         borderTop: "1px solid var(--border-subtle)",
         backgroundColor: "var(--bg-canvas-subtle)",
@@ -26,7 +26,7 @@ export const Footer: React.FC = () => {
           {/* Brand Col */}
           <div style={{ maxWidth: "340px" }}>
             <div style={{ display: "flex", alignItems: "center", gap: "10px", marginBottom: "14px" }}>
-              <img src="/logo.png" alt="Beacon" style={{ width: "24px", height: "24px", borderRadius: "6px" }} />
+              <img src="/logo.png" alt="Beacon" style={{ width: "30px", height: "30px", objectFit: "contain" }} />
               <span style={{ fontSize: "16px", fontWeight: 800, color: "var(--text-ink)" }}>Beacon</span>
             </div>
             <p style={{ lineHeight: 1.6, color: "var(--text-body)", fontSize: "13px" }}>

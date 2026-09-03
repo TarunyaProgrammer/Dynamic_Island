@@ -1,5 +1,5 @@
 import React from "react";
-import { Apple, Check, ArrowRight, Sparkles, Activity } from "lucide-react";
+import { Apple, ArrowRight, Check, Flame, ShieldCheck } from "lucide-react";
 
 interface HeroSectionProps {
   onOpenPricing: () => void;
@@ -7,65 +7,75 @@ interface HeroSectionProps {
   currency: "INR" | "USD";
 }
 
-export const HeroSection: React.FC<HeroSectionProps> = ({ onOpenPricing, onDownloadTrial, currency }) => {
+export const HeroSection: React.FC<HeroSectionProps> = ({
+  onOpenPricing,
+  onDownloadTrial,
+  currency,
+}) => {
+  const priceDisplay = currency === "INR" ? "₹2,499" : "$29";
+
   return (
     <section
+      id="hero"
       style={{
-        position: "relative",
-        paddingTop: "70px",
+        paddingTop: "150px",
         paddingBottom: "80px",
         textAlign: "center",
+        position: "relative",
         overflow: "hidden",
       }}
     >
-      <div className="container" style={{ position: "relative", zIndex: 5 }}>
-        {/* Wispr Flow Eyebrow */}
-        <div style={{ marginBottom: "20px" }}>
-          <span className="eyebrow-wispr">
+      <div className="container" style={{ maxWidth: "860px" }}>
+        {/* Eyebrow */}
+        <div style={{ display: "inline-flex", alignItems: "center", gap: "6px", marginBottom: "20px" }}>
+          <span className="eyebrow-titanium">
             BEACON DYNAMIC ISLAND FOR MACOS
           </span>
         </div>
 
-        {/* Master Headline (Garamond Editorial Serif + Italic Accent) */}
+        {/* Master Serif Headline */}
         <h1
           className="serif-headline"
           style={{
-            fontSize: "clamp(46px, 7vw, 84px)",
-            maxWidth: "880px",
-            margin: "0 auto 24px auto",
+            fontSize: "clamp(42px, 6.8vw, 76px)",
+            marginBottom: "24px",
+            color: "var(--text-ink)",
           }}
         >
           Don't break flow,<br />
-          <span className="serif-italic">just glance.</span>
+          <span className="serif-italic" style={{ color: "var(--accent-solar)" }}>
+            just glance.
+          </span>
         </h1>
 
         {/* Subtitle */}
         <p
           className="text-subhead"
           style={{
-            maxWidth: "620px",
+            fontSize: "clamp(16px, 2.2vw, 19px)",
+            maxWidth: "600px",
             margin: "0 auto 36px auto",
           }}
         >
-          The zero-latency Dynamic Island for your Mac that turns your camera notch into an intentional peripheral HUD for active goals, habit streaks, and focus sprints.
+          Transform your MacBook notch into an ambient hardware heads-up display. Track daily quotas, focus sprints, and streaks with zero distance from your work.
         </p>
 
-        {/* Wispr Flow Signature Lilac Pill CTA */}
+        {/* Call to Actions: Obsidian Hardware Button + Clean White Outline */}
         <div
           style={{
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
-            gap: "12px",
+            gap: "14px",
             flexWrap: "wrap",
-            marginBottom: "16px",
+            marginBottom: "28px",
           }}
         >
           <button
             type="button"
-            onClick={onDownloadTrial}
-            className="btn-lilac"
-            style={{ padding: "14px 28px", fontSize: "15px", borderRadius: "10px" }}
+            onClick={onOpenPricing}
+            className="btn-obsidian"
+            style={{ padding: "14px 28px", fontSize: "15px" }}
           >
             <Apple size={17} />
             <span>Get started on macOS</span>
@@ -75,19 +85,19 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ onOpenPricing, onDownl
             type="button"
             onClick={onOpenPricing}
             className="btn-white"
-            style={{ padding: "14px 24px", fontSize: "15px", borderRadius: "10px" }}
+            style={{ padding: "14px 24px", fontSize: "15px" }}
           >
-            <span>Pioneer Lifetime ({currency === "INR" ? "₹2,499" : "$29"})</span>
+            <span>Pioneer Lifetime — {priceDisplay}</span>
             <ArrowRight size={15} />
           </button>
         </div>
 
-        {/* Sub-CTA Compatibility Note */}
+        {/* Trust Footnote */}
         <span style={{ fontSize: "12px", color: "var(--text-muted)", display: "block", marginBottom: "40px" }}>
-          Available for macOS Sonoma, Sequoia & Monterey • Apple Silicon (M1–M4) & Intel
+          Universal macOS binary (Apple Silicon M1/M2/M3/M4 & Intel) • 30-day money-back guarantee
         </span>
 
-        {/* Floating Wispr-Style Interactive Badges */}
+        {/* Floating Context Badges */}
         <div
           style={{
             display: "flex",
@@ -97,22 +107,14 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ onOpenPricing, onDownl
             flexWrap: "wrap",
           }}
         >
-          {/* Green Forest Badge (Like Wispr Flow's Removed Umm) */}
-          <div className="floating-forest-badge">
-            <Check size={15} strokeWidth={2.5} />
+          <div className="floating-obsidian-badge">
+            <Check size={14} color="#10b981" />
             <span>Logged +10 LeetCode</span>
           </div>
 
-          {/* White Waveform / Streak Pill */}
-          <div className="floating-waveform-badge">
-            <div style={{ display: "flex", alignItems: "center", gap: "3px" }}>
-              <span style={{ width: "3px", height: "12px", backgroundColor: "var(--text-ink)", borderRadius: "2px" }} />
-              <span style={{ width: "3px", height: "18px", backgroundColor: "var(--accent-solar)", borderRadius: "2px" }} />
-              <span style={{ width: "3px", height: "8px", backgroundColor: "var(--text-ink)", borderRadius: "2px" }} />
-              <span style={{ width: "3px", height: "15px", backgroundColor: "var(--text-ink)", borderRadius: "2px" }} />
-              <span style={{ width: "3px", height: "10px", backgroundColor: "var(--accent-solar)", borderRadius: "2px" }} />
-            </div>
-            <span style={{ fontSize: "13px", fontWeight: 700 }}>14-day Deep Work Streak</span>
+          <div className="floating-white-badge">
+            <Flame size={14} color="var(--accent-solar)" />
+            <span>14-day Deep Work Streak</span>
           </div>
         </div>
       </div>

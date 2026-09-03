@@ -11,7 +11,7 @@ import { PricingSection } from "./components/PricingSection";
 import { FounderLetter } from "./components/FounderLetter";
 import { FAQSection } from "./components/FAQSection";
 import { Footer } from "./components/Footer";
-import { BeaconSpiritCompanion } from "./components/BeaconSpiritCompanion";
+import { BeaconSpiritCinematic } from "./components/BeaconSpiritCinematic";
 import { RazorpayModal } from "./components/RazorpayModal";
 import { LicenseSuccessModal } from "./components/LicenseSuccessModal";
 import { PricingPlan, LicenseReceipt } from "./types";
@@ -127,7 +127,7 @@ export const App: React.FC = () => {
       <Footer />
 
       {/* Floating Scroll-Reactive Spirit Mascot Companion */}
-      <BeaconSpiritCompanion />
+      <BeaconSpiritCinematic />
 
       {/* Razorpay Checkout Modal */}
       <RazorpayModal

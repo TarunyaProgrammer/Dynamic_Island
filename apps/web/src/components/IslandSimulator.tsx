@@ -10,7 +10,10 @@ import {
   Search, 
   Command,
   Layout,
-  Layers
+  Layers,
+  BatteryCharging,
+  Pin,
+  Compass
 } from "lucide-react";
 
 type SurfaceView = "island" | "menubar" | "command";
@@ -219,7 +222,7 @@ export const IslandSimulator: React.FC = () => {
 
               <div style={{ display: "flex", alignItems: "center", gap: "12px", fontSize: "11px", fontWeight: 600 }}>
                 <span style={{ color: "var(--accent-solar)" }}>⌘⇧B</span>
-                <span>100% 🔋</span>
+                <span style={{ display: "inline-flex", alignItems: "center", gap: "3px" }}>100% <BatteryCharging size={13} color="#10b981" /></span>
                 <span>Fri Sep 4  {currentTime}</span>
               </div>
             </div>
@@ -332,7 +335,7 @@ export const IslandSimulator: React.FC = () => {
                           </button>
                         </div>
                         <span style={{ fontSize: "10px", color: "rgba(255, 255, 255, 0.4)" }}>
-                          {isPinned ? "Pinned 📌" : "Hover to expand"}
+                          <span style={{ display: "inline-flex", alignItems: "center", gap: "3px" }}>{isPinned ? <><Pin size={10} /> Pinned</> : "Hover to expand"}</span>
                         </span>
                       </div>
 
@@ -436,9 +439,9 @@ export const IslandSimulator: React.FC = () => {
             <div style={{ marginTop: "auto", marginBottom: "12px", display: "flex", justifyContent: "center", width: "100%", zIndex: 20 }}>
               <div style={{ display: "inline-flex", alignItems: "center", gap: "8px", padding: "6px 12px", borderRadius: "14px", backgroundColor: "rgba(18, 20, 28, 0.7)", backdropFilter: "blur(20px)", border: "1px solid rgba(255, 255, 255, 0.1)" }}>
                 <div style={{ width: "26px", height: "26px", borderRadius: "6px", backgroundColor: "#0284c7", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "12px" }}></div>
-                <div style={{ width: "26px", height: "26px", borderRadius: "6px", backgroundColor: "#0284c7", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "11px" }}>🧭</div>
+                <div style={{ width: "26px", height: "26px", borderRadius: "6px", backgroundColor: "#0284c7", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "11px" }}><Compass size={14} color="#ffffff" /></div>
                 <div style={{ width: "26px", height: "26px", borderRadius: "6px", backgroundColor: "#1e2230", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "11px" }}>&gt;_</div>
-                <img src="/logo.png" alt="Beacon" style={{ width: "26px", height: "26px", borderRadius: "6px" }} />
+                <img src="/logo.png" alt="Beacon" style={{ width: "30px", height: "30px", objectFit: "contain" }} />
               </div>
             </div>
           </div>

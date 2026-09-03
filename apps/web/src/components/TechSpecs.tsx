@@ -26,7 +26,7 @@ export const TechSpecs: React.FC = () => {
   ];
 
   return (
-    <section style={{ padding: "90px 0", backgroundColor: "var(--bg-canvas-subtle)" }}>
+    <section id="specs" style={{ padding: "90px 0", backgroundColor: "var(--bg-canvas-subtle)" }}>
       <div className="container">
         <div style={{ maxWidth: "680px", marginBottom: "44px" }}>
           <span className="eyebrow-wispr" style={{ display: "block", marginBottom: "12px" }}>

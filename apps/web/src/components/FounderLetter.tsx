@@ -3,7 +3,7 @@ import { CheckCircle2, ArrowUpRight } from "lucide-react";
 
 export const FounderLetter: React.FC = () => {
   return (
-    <section
+    <section id="founder"
       style={{
         padding: "100px 0",
         backgroundColor: "var(--bg-canvas)",

@@ -3,7 +3,7 @@ import { Sparkles, ArrowRight, CheckCircle2 } from "lucide-react";
 
 export const SpiritShowcase: React.FC = () => {
   const [selectedSpell, setSelectedSpell] = useState(0);
-  const [spiritEmote, setSpiritEmote] = useState<string | null>(null);
+  const [isPetting, setIsPetting] = useState(false);
 
   const spells = [
     {
@@ -24,10 +24,8 @@ export const SpiritShowcase: React.FC = () => {
   ];
 
   const handlePetMascot = () => {
-    const emotes = ["✨", "🔥", "🌱", "💡", "⚡"];
-    const random = emotes[Math.floor(Math.random() * emotes.length)];
-    setSpiritEmote(random);
-    setTimeout(() => setSpiritEmote(null), 1200);
+    setIsPetting(true);
+    setTimeout(() => setIsPetting(false), 1200);
   };
 
   return (
@@ -101,9 +99,9 @@ export const SpiritShowcase: React.FC = () => {
                   <div style={{ width: "6px", height: "12px", borderRadius: "3px", backgroundColor: "#ffffff" }} />
                   <div style={{ width: "6px", height: "12px", borderRadius: "3px", backgroundColor: "#ffffff" }} />
                 </div>
-                {spiritEmote && (
-                  <span style={{ position: "absolute", top: "-20px", right: "-6px", fontSize: "20px" }}>
-                    {spiritEmote}
+                {isPetting && (
+                  <span style={{ position: "absolute", top: "-20px", right: "-6px", color: "var(--accent-solar)" }}>
+                    <Sparkles size={18} />
                   </span>
                 )}
               </button>
@@ -113,7 +111,7 @@ export const SpiritShowcase: React.FC = () => {
                   Beacon Spirit
                 </span>
                 <span style={{ fontSize: "13px", color: "var(--accent-solar)", fontWeight: 600 }}>
-                  Ready to assist • Tap to interact
+                  Ready to assist — Tap to interact
                 </span>
               </div>
             </div>
@@ -137,7 +135,7 @@ export const SpiritShowcase: React.FC = () => {
                 Interactive Action Commands
               </span>
               <span style={{ fontSize: "11px", color: "#10B981", fontWeight: 700 }}>
-                ● Local (0.8s Latency)
+                Local (0.8s Latency)
               </span>
             </div>
 
