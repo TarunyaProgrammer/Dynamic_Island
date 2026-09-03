@@ -55,6 +55,9 @@ export const IPC_CHANNELS = {
   MEDIA_PREVIOUS: 'beacon:media:previous',
   MEDIA_SET_VOLUME: 'beacon:media:set-volume',
 
+  // Companion Presence
+  COMPANION_EMIT: 'beacon:companion:emit',
+
   // Broadcast Events (Main -> Renderer)
   EVENT_GOALS_CHANGED: 'beacon:event:goals-changed',
   EVENT_SETTINGS_CHANGED: 'beacon:event:settings-changed',
@@ -62,6 +65,7 @@ export const IPC_CHANNELS = {
   EVENT_FOCUS_TICK: 'beacon:event:focus-tick',
   EVENT_FOCUS_COMPLETED: 'beacon:event:focus-completed',
   EVENT_MEDIA_CHANGED: 'beacon:event:media-changed',
+  EVENT_COMPANION_CHANGED: 'beacon:event:companion-changed',
 } as const;
 
 export type IpcChannel = (typeof IPC_CHANNELS)[keyof typeof IPC_CHANNELS];

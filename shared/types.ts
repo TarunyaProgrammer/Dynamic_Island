@@ -168,6 +168,27 @@ export interface Goal {
   updatedAt: string;
 }
 
+// ─── Companion Presence ─────────────────────────────────────────────────────
+
+export type CompanionState =
+  | 'idle'
+  | 'greeting'
+  | 'thinking'
+  | 'celebrating'
+  | 'concerned'
+  | 'sleeping'
+  | 'error';
+
+export type CompanionSource = 'main' | 'tray' | 'island';
+
+export interface CompanionEvent {
+  id: string;
+  state: CompanionState;
+  source: CompanionSource;
+  message?: string;
+  occurredAt: string;
+}
+
 export interface GoalDraft {
   name: string;
   description?: string;
