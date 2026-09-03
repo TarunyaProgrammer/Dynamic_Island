@@ -1,0 +1,139 @@
+.beacon-companion {
+  --companion-halo-color: #5ac8fa;
+  position: relative;
+  display: inline-flex;
+  flex: 0 0 auto;
+  align-items: center;
+  justify-content: center;
+  width: 88px;
+  height: 54px;
+  isolation: isolate;
+  vertical-align: middle;
+}
+
+.beacon-companion--tiny {
+  width: 32px;
+  height: 22px;
+}
+
+.beacon-companion--compact {
+  width: 56px;
+  height: 36px;
+}
+
+.beacon-companion--regular {
+  width: 88px;
+  height: 54px;
+}
+
+.beacon-companion--large {
+  width: 144px;
+  height: 88px;
+}
+
+.beacon-companion__halo {
+  position: absolute;
+  inset: 10%;
+  z-index: -1;
+  border-radius: 50%;
+  background: var(--companion-halo-color);
+  filter: blur(12px);
+  opacity: 0.2;
+  transform: scale(0.78);
+  transition: background-color 180ms ease, opacity 180ms ease;
+}
+
+.beacon-companion--tiny .beacon-companion__halo {
+  filter: blur(6px);
+}
+
+.beacon-companion--large .beacon-companion__halo {
+  filter: blur(18px);
+}
+
+.beacon-companion__svg {
+  position: relative;
+  z-index: 1;
+  display: block;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+
+.beacon-companion__body {
+  fill: #000000;
+  transform-box: fill-box;
+  transform-origin: center;
+}
+
+.beacon-companion__eyes {
+  fill: #f5f5f7;
+  transform-box: fill-box;
+  transform-origin: center;
+  transition: transform 120ms ease, opacity 180ms ease;
+}
+
+.beacon-companion--blinking .beacon-companion__eyes {
+  transform: scaleY(0.18);
+}
+
+.beacon-companion--idle .beacon-companion__body,
+.beacon-companion--idle .beacon-companion__halo {
+  animation: companion-breathe 5s ease-in-out infinite;
+  will-change: transform;
+}
+
+.beacon-companion--entry .beacon-companion__body,
+.beacon-companion--entry .beacon-companion__halo {
+  animation: companion-entry 700ms cubic-bezier(0.16, 1, 0.3, 1) both;
+  will-change: transform, opacity;
+}
+
+.beacon-companion--thinking .beacon-companion__halo {
+  animation: companion-thinking 1.2s ease-in-out infinite;
+  will-change: transform, opacity;
+}
+
+.beacon-companion--celebration .beacon-companion__halo {
+  animation: companion-celebration 850ms cubic-bezier(0.16, 1, 0.3, 1) both;
+  will-change: transform, opacity;
+}
+
+.beacon-companion--celebration .beacon-companion__eyes {
+  animation: companion-eye-brighten 850ms ease-out both;
+}
+
+@keyframes companion-breathe {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.012); }
+}
+
+@keyframes companion-entry {
+  0% { opacity: 0; transform: scale(0.94) translateY(2px); }
+  100% { opacity: 1; transform: scale(1) translateY(0); }
+}
+
+@keyframes companion-thinking {
+  0%, 100% { opacity: 0.16; transform: scale(0.82); }
+  50% { opacity: 0.28; transform: scale(0.96); }
+}
+
+@keyframes companion-celebration {
+  0% { opacity: 0.18; transform: scale(0.76); }
+  42% { opacity: 0.42; transform: scale(1.08); }
+  100% { opacity: 0.2; transform: scale(0.88); }
+}
+
+@keyframes companion-eye-brighten {
+  0%, 100% { opacity: 1; }
+  40% { opacity: 0.72; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .beacon-companion__body,
+  .beacon-companion__halo,
+  .beacon-companion__eyes {
+    animation: none !important;
+    transition: none;
+  }
+}
