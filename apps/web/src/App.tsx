@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { Navbar } from "./components/Navbar";
 import { HeroSection } from "./components/HeroSection";
 import { IslandSimulator } from "./components/IslandSimulator";
+import { AppScreenshotsGallery } from "./components/AppScreenshotsGallery";
 import { FeatureGrid } from "./components/FeatureGrid";
 import { SpiritShowcase } from "./components/SpiritShowcase";
 import { TechSpecs } from "./components/TechSpecs";
@@ -75,6 +76,9 @@ export const App: React.FC = () => {
 
       {/* Interactive Dynamic Island Hardware Simulator */}
       <IslandSimulator />
+
+      {/* Real macOS Screenshots Gallery */}
+      <AppScreenshotsGallery />
 
       {/* 6 Behavioral Goal Paradigms & OS Integration */}
       <FeatureGrid />
