@@ -16,37 +16,42 @@ const DEFAULT_DAYS: DayActivity[] = [
   { dayLabel: 'S', count: 3, isToday: true },
 ];
 
-export const MomentumRhythmBar: React.FC<{ days?: DayActivity[] }> = ({ days = DEFAULT_DAYS }) => {
+export const MomentumRhythmBar: React.FC<{ days?: DayActivity[]; hideHeader?: boolean }> = ({
+  days = DEFAULT_DAYS,
+  hideHeader = false,
+}) => {
   const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
   const maxCount = Math.max(...days.map((d) => d.count), 5);
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', width: '100%' }}>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', width: '100%' }}>
       {/* Header Stat & Energetic Word Badge */}
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-        <div
-          style={{
-            display: 'inline-flex',
-            alignItems: 'center',
-            gap: '5px',
-            fontSize: '10px',
-            fontWeight: 700,
-            padding: '2px 8px',
-            borderRadius: '9999px',
-            backgroundColor: 'rgba(255, 122, 0, 0.12)',
-            color: 'var(--accent-solar, #ff7a00)',
-            border: '1px solid rgba(255, 122, 0, 0.28)',
-            letterSpacing: '0.04em',
-            textTransform: 'uppercase',
-          }}
-        >
-          <span>✦</span>
-          <span>Momentum Surge</span>
+      {!hideHeader && (
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+          <div
+            style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '5px',
+              fontSize: '10px',
+              fontWeight: 700,
+              padding: '2px 8px',
+              borderRadius: '9999px',
+              backgroundColor: 'rgba(255, 122, 0, 0.12)',
+              color: 'var(--accent-solar, #ff7a00)',
+              border: '1px solid rgba(255, 122, 0, 0.28)',
+              letterSpacing: '0.04em',
+              textTransform: 'uppercase',
+            }}
+          >
+            <span>✦</span>
+            <span>Momentum Surge</span>
+          </div>
+          <span style={{ fontSize: '11px', fontWeight: 600, color: 'var(--accent-solar, #ff7a00)' }}>
+            +14% vs last week
+          </span>
         </div>
-        <span style={{ fontSize: '11px', fontWeight: 600, color: 'var(--accent-amber, #f59e0b)' }}>
-          +14% vs last week
-        </span>
-      </div>
+      )}
 
       {/* 7-Day Velocity Columns */}
       <div

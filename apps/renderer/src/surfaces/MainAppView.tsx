@@ -12,11 +12,12 @@ import { ConfettiCanvas } from '../components/ConfettiCanvas';
 import { triggerLightPulse } from '../components/LightBeamFeedback';
 import { ConfirmationModal } from '../components/ConfirmationModal';
 import { soundEffects } from '../utils/audio';
-import { Plus, Undo2, Redo2, Layers, CheckCircle2, Archive, Activity, Timer, Search, X, Sun, Moon, Quote } from 'lucide-react';
+import { Plus, Undo2, Redo2, Layers, CheckCircle2, Archive, Timer, Search, X, Sun, Moon } from 'lucide-react';
 import { FocusDashboardView } from '../components/FocusDashboardView';
 import { useCompanion } from '../hooks/useCompanion';
 import { SolarHorizonGraph } from '../components/SolarHorizonGraph';
 import { MomentumRhythmBar } from '../components/MomentumRhythmBar';
+import atmosphericBg from '../assets/atmospheric_bg.jpg';
 
 export const MainAppView: React.FC = () => {
   const [viewMode, setViewMode] = useState<'goals' | 'focus'>('goals');
@@ -196,6 +197,29 @@ export const MainAppView: React.FC = () => {
       }}
     >
       <ConfettiCanvas />
+      {/* Bespoke Dark Atmospheric Photo Wallpaper */}
+      <div
+        style={{
+          position: 'absolute',
+          inset: 0,
+          backgroundImage: `url(${atmosphericBg})`,
+          backgroundSize: 'cover',
+          backgroundPosition: 'center top',
+          opacity: 0.35,
+          pointerEvents: 'none',
+          zIndex: 0,
+        }}
+      />
+      {/* Cinematic Vignette to Deep Obsidian Black */}
+      <div
+        style={{
+          position: 'absolute',
+          inset: 0,
+          background: 'radial-gradient(ellipse at 50% 10%, rgba(7, 8, 11, 0.2) 0%, rgba(7, 8, 11, 0.8) 70%, #07080b 100%)',
+          pointerEvents: 'none',
+          zIndex: 0,
+        }}
+      />
       {/* Titlebar / Drag Region */}
       <div
         className="drag-region"
@@ -544,98 +568,114 @@ export const MainAppView: React.FC = () => {
           style={{
             width: '280px',
             borderLeft: '1px solid var(--border-subtle)',
-            backgroundColor: 'rgba(0, 0, 0, 0.15)',
+            backgroundColor: 'rgba(7, 8, 11, 0.72)',
+            backdropFilter: 'blur(24px)',
+            WebkitBackdropFilter: 'blur(24px)',
             display: 'flex',
             flexDirection: 'column',
             padding: '16px',
-            gap: '16px',
+            gap: '12px',
             overflowY: 'auto',
+            position: 'relative',
+            zIndex: 1,
           }}
         >
-          {/* Today's Focus Card with Solar Horizon Graph */}
+          {/* Card 1: Today's Focus & Solar Horizon */}
           <div
             style={{
-              padding: '14px',
-              backgroundColor: 'rgba(255, 255, 255, 0.03)',
+              padding: '12px 14px',
+              backgroundColor: 'rgba(255, 255, 255, 0.025)',
               borderRadius: 'var(--radius-lg)',
-              border: '1px solid var(--border-subtle)',
-              display: 'flex',
-              flexDirection: 'column',
-              gap: '12px',
-            }}
-          >
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '12px', fontWeight: 600, color: 'var(--text-primary)' }}>
-                <Timer size={13} color="var(--accent-solar, #ff7a00)" />
-                <span>Today's Focus</span>
-              </div>
-              <span
-                style={{
-                  fontSize: '9px',
-                  fontWeight: 700,
-                  letterSpacing: '0.04em',
-                  padding: '2px 6px',
-                  borderRadius: '9999px',
-                  backgroundColor: 'rgba(255, 122, 0, 0.12)',
-                  color: 'var(--accent-solar, #ff7a00)',
-                  border: '1px solid rgba(255, 122, 0, 0.28)',
-                  textTransform: 'uppercase',
-                }}
-              >
-                ✦ Locked In
-              </span>
-            </div>
-
-            <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-              <GoalProgressRing progressFraction={0.62} size={46} strokeWidth={4} color="var(--accent-solar, #ff7a00)" />
-              <div style={{ display: 'flex', flexDirection: 'column' }}>
-                <span style={{ fontSize: '10px', color: 'var(--text-secondary)', fontWeight: 500 }}>Deep Work</span>
-                <span style={{ fontSize: '17px', fontWeight: 700, color: '#ffffff', letterSpacing: '-0.02em' }}>2h 30m</span>
-                <span style={{ fontSize: '10px', color: 'var(--text-muted)' }}>62% of 4h goal · 3 sessions</span>
-              </div>
-            </div>
-
-            {/* Minimalist Solar Horizon Curve */}
-            <SolarHorizonGraph focusMinutesToday={150} targetMinutes={240} height={52} />
-          </div>
-
-          {/* Today's Activity Stream */}
-          <div
-            style={{
-              padding: '14px',
-              backgroundColor: 'rgba(255, 255, 255, 0.03)',
-              borderRadius: 'var(--radius-lg)',
-              border: '1px solid var(--border-subtle)',
+              borderTop: '1px solid rgba(255, 255, 255, 0.08)',
+              borderBottom: '1px solid rgba(255, 255, 255, 0.03)',
+              borderLeft: '1px solid var(--border-subtle)',
+              borderRight: '1px solid var(--border-subtle)',
               display: 'flex',
               flexDirection: 'column',
               gap: '10px',
             }}
           >
-            <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '12px', fontWeight: 600, color: 'var(--text-primary)' }}>
-              <Activity size={13} color="var(--accent-solar, #ff7a00)" />
-              <span>Today's Activity</span>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+              <span style={{ fontSize: '10px', fontWeight: 700, letterSpacing: '0.06em', textTransform: 'uppercase', color: 'var(--text-muted)' }}>
+                Today's Focus
+              </span>
+              <span style={{ fontSize: '10px', fontWeight: 700, color: 'var(--accent-solar, #ff7a00)', letterSpacing: '0.02em' }}>
+                ✦ 2h 30m · 62%
+              </span>
+            </div>
+
+            <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+              <GoalProgressRing progressFraction={0.62} size={42} strokeWidth={3.8} color="var(--accent-solar, #ff7a00)" />
+              <div style={{ display: 'flex', flexDirection: 'column' }}>
+                <span style={{ fontSize: '10px', color: 'var(--text-secondary)', fontWeight: 500 }}>Deep Work Sprint</span>
+                <span style={{ fontSize: '16px', fontWeight: 700, color: '#ffffff', letterSpacing: '-0.02em' }}>2h 30m</span>
+                <span style={{ fontSize: '10px', color: 'var(--text-muted)' }}>Target 4h · 3 sessions</span>
+              </div>
+            </div>
+
+            {/* Minimalist Solar Horizon Curve */}
+            <SolarHorizonGraph focusMinutesToday={150} targetMinutes={240} height={48} />
+          </div>
+
+          {/* Card 2: Weekly Rhythm (Momentum) */}
+          <div
+            style={{
+              padding: '12px 14px',
+              backgroundColor: 'rgba(255, 255, 255, 0.025)',
+              borderRadius: 'var(--radius-lg)',
+              borderTop: '1px solid rgba(255, 255, 255, 0.08)',
+              borderBottom: '1px solid rgba(255, 255, 255, 0.03)',
+              borderLeft: '1px solid var(--border-subtle)',
+              borderRight: '1px solid var(--border-subtle)',
+              display: 'flex',
+              flexDirection: 'column',
+              gap: '8px',
+            }}
+          >
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+              <span style={{ fontSize: '10px', fontWeight: 700, letterSpacing: '0.06em', textTransform: 'uppercase', color: 'var(--text-muted)' }}>
+                Weekly Rhythm
+              </span>
+              <span style={{ fontSize: '10px', fontWeight: 700, color: 'var(--accent-solar, #ff7a00)', letterSpacing: '0.02em' }}>
+                +14% Pace
+              </span>
+            </div>
+
+            <MomentumRhythmBar hideHeader={true} />
+          </div>
+
+          {/* Card 3: Recent Activity Stream */}
+          <div
+            style={{
+              padding: '12px 14px',
+              backgroundColor: 'rgba(255, 255, 255, 0.025)',
+              borderRadius: 'var(--radius-lg)',
+              borderTop: '1px solid rgba(255, 255, 255, 0.08)',
+              borderBottom: '1px solid rgba(255, 255, 255, 0.03)',
+              borderLeft: '1px solid var(--border-subtle)',
+              borderRight: '1px solid var(--border-subtle)',
+              display: 'flex',
+              flexDirection: 'column',
+              gap: '8px',
+            }}
+          >
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+              <span style={{ fontSize: '10px', fontWeight: 700, letterSpacing: '0.06em', textTransform: 'uppercase', color: 'var(--text-muted)' }}>
+                Recent Activity
+              </span>
+              <span style={{ fontSize: '10px', fontWeight: 600, color: 'var(--text-secondary)' }}>
+                {history.length} logged
+              </span>
             </div>
 
             <ActivityTimeline events={history} goals={goals} />
           </div>
 
-          {/* Momentum Rhythm Bar Card */}
+          {/* Card 4: Daily Anchor */}
           <div
             style={{
-              padding: '14px',
-              backgroundColor: 'rgba(255, 255, 255, 0.03)',
-              borderRadius: 'var(--radius-lg)',
-              border: '1px solid var(--border-subtle)',
-            }}
-          >
-            <MomentumRhythmBar />
-          </div>
-
-          {/* Motivational Anchor Quote */}
-          <div
-            style={{
-              padding: '12px 14px',
-              backgroundColor: 'rgba(255, 255, 255, 0.02)',
+              padding: '10px 14px',
+              backgroundColor: 'rgba(255, 255, 255, 0.018)',
               borderRadius: 'var(--radius-md)',
               border: '1px solid rgba(255, 255, 255, 0.04)',
               display: 'flex',
@@ -643,16 +683,12 @@ export const MainAppView: React.FC = () => {
               gap: '4px',
             }}
           >
-            <div style={{ display: 'flex', alignItems: 'center', gap: '5px', color: 'var(--text-muted)' }}>
-              <Quote size={11} color="var(--accent-amber, #f59e0b)" />
-              <span style={{ fontSize: '10px', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.04em' }}>
-                Daily Focus Anchor
-              </span>
-            </div>
+            <span style={{ fontSize: '9px', fontWeight: 700, letterSpacing: '0.06em', textTransform: 'uppercase', color: 'var(--text-muted)' }}>
+              Focus Anchor
+            </span>
             <p style={{ fontSize: '11px', color: 'var(--text-secondary)', fontStyle: 'italic', margin: '2px 0 0 0', lineHeight: 1.4 }}>
               "Discipline today, freedom tomorrow."
             </p>
-            <span style={{ fontSize: '10px', color: 'var(--text-muted)' }}>— Unknown</span>
           </div>
         </div>
       </div>

@@ -6,37 +6,39 @@
   --font-sans: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'SF Pro Display', 'Inter', sans-serif;
   --font-mono: 'SF Mono', SFMono-Regular, Menlo, Monaco, Consolas, monospace;
 
-  /* Signature Atmospheric Dark Palette */
-  --bg-app: #0b0c10;
-  --bg-surface: #12141a;
-  --bg-surface-elevated: #191c24;
-  --bg-surface-hover: #222632;
-  --bg-surface-active: #2b3040;
-  --bg-glass: rgba(18, 20, 26, 0.75);
+  /* Signature Deep Obsidian Dark Palette */
+  --bg-app: #07080b;
+  --bg-surface: #0e1017;
+  --bg-surface-elevated: #151821;
+  --bg-surface-hover: #1c202c;
+  --bg-surface-active: #252a3a;
+  --bg-glass: rgba(14, 16, 23, 0.75);
   --bg-glass-active: rgba(255, 255, 255, 0.08);
 
   /* Subtle Crisp Hairline Borders */
-  --border-subtle: rgba(255, 255, 255, 0.07);
-  --border-glass: rgba(255, 255, 255, 0.12);
-  --border-focus: rgba(90, 200, 250, 0.5);
-  --border-accent: rgba(124, 108, 255, 0.35);
+  --border-subtle: rgba(255, 255, 255, 0.06);
+  --border-glass: rgba(255, 255, 255, 0.10);
+  --border-focus: rgba(255, 122, 0, 0.5);
+  --border-accent: rgba(255, 122, 0, 0.35);
 
   /* Text Colors */
   --text-primary: #ffffff;
-  --text-secondary: #9496a1;
-  --text-muted: #585a66;
-  --text-inverse: #0b0c10;
+  --text-secondary: #8e909d;
+  --text-muted: #535562;
+  --text-inverse: #07080b;
 
-  /* Beacon Semantic Light-Based Accents */
-  --accent-beacon: #7c6cff;        /* Electric Blue-Violet */
-  --accent-beacon-hover: #9183ff;
-  --accent-cyan: #5ac8fa;          /* Soft Cyan Beam */
+  /* Disciplined Dual Accent Palette: Solar Amber (Primary) + Ice Cyan (Secondary) */
+  --accent-beacon: #ff7a00;        /* Signature Solar Amber */
+  --accent-beacon-hover: #ff912b;
+  --accent-primary: #ff7a00;       /* Primary Energy Accent */
   --accent-solar: #ff7a00;         /* Energetic Solar Tangerine */
   --accent-solar-glow: rgba(255, 122, 0, 0.22);
-  --accent-amber: #f59e0b;         /* Solar Amber Spark */
-  --accent-emerald: #10b981;       /* Restrained Completed Green */
-  --accent-rose: #ef4444;          /* Overdue / Missed Red */
-  --accent-neutral: #3a3d4a;       /* Inactive Track */
+  --accent-amber: #ff7a00;         /* Unified Warm Amber */
+  --accent-cyan: #38bdf8;          /* Calm Ice Cyan Signal */
+  --accent-secondary: #38bdf8;     /* Secondary Companion Beam */
+  --accent-emerald: #ff7a00;       /* Unified with Primary Accent */
+  --accent-rose: #ef4444;          /* Red only for Danger / Delete */
+  --accent-neutral: #222530;       /* Inactive Track */
 
   /* Button Tokens */
   --btn-primary-bg: #ffffff;

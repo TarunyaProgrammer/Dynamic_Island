@@ -16,16 +16,15 @@ export const ActivityTimeline: React.FC<ActivityTimelineProps> = ({ events, goal
       <div
         style={{
           display: 'flex',
-          flexDirection: 'column',
           alignItems: 'center',
           justifyContent: 'center',
-          padding: '30px 10px',
+          padding: '14px 10px',
           color: 'var(--text-muted)',
-          gap: '8px',
+          gap: '6px',
         }}
       >
-        <Activity size={24} strokeWidth={1.5} opacity={0.4} />
-        <span style={{ fontSize: '12px' }}>No progress recorded yet today.</span>
+        <Activity size={13} strokeWidth={1.5} opacity={0.5} />
+        <span style={{ fontSize: '11px' }}>No activity logged yet today</span>
       </div>
     );
   }

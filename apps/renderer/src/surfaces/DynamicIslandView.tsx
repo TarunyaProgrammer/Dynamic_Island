@@ -22,7 +22,6 @@ import {
   Music,
   Volume2,
   Sparkles,
-  ChevronRight,
 } from 'lucide-react';
 
 export const DynamicIslandView: React.FC = () => {
@@ -162,7 +161,7 @@ export const DynamicIslandView: React.FC = () => {
           which still delivers mousemove to web content for hover detection. */}
       <div
         style={{
-          width: isExpanded ? '640px' : '440px',
+          width: isExpanded ? '640px' : '200px',
           minHeight: isExpanded ? '146px' : '32px',
           maxHeight: isExpanded ? '160px' : '32px',
           backgroundColor: isExpanded ? 'rgba(10, 10, 14, 0.86)' : '#000000',
@@ -173,7 +172,7 @@ export const DynamicIslandView: React.FC = () => {
           borderRight: isExpanded ? '1px solid rgba(255, 255, 255, 0.12)' : 'none',
           borderBottom: isExpanded ? '1px solid rgba(255, 255, 255, 0.12)' : 'none',
           borderTop: 'none',
-          borderRadius: isExpanded ? '0 0 22px 22px' : '0 0 14px 14px',
+          borderRadius: isExpanded ? '0 0 22px 22px' : '0 0 12px 12px',
           boxShadow: isExpanded
             ? '0 10px 26px rgba(0, 0, 0, 0.28), 0 1px 3px rgba(0, 0, 0, 0.15)'
             : '0 2px 6px rgba(0, 0, 0, 0.2)',
@@ -237,80 +236,34 @@ export const DynamicIslandView: React.FC = () => {
           }}
         >
           {!isExpanded ? (
-            /* Flush Collapsed Stats Ribbon */
+            /* Stealth Notch State: Fits inside the 200px MacBook Camera Notch without Overflow */
             <div
               style={{
                 width: '100%',
                 display: 'flex',
                 alignItems: 'center',
-                justifyContent: 'space-between',
+                justifyContent: 'center',
+                gap: '8px',
                 height: '32px',
                 userSelect: 'none',
               }}
             >
-              {/* 1. Spirit & Beacon Status */}
-              <div style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
-                <BeaconCompanion state={companionState} size="tiny" label={companionMessage} />
-                <span style={{ fontSize: '11px', fontWeight: 600, color: '#ffffff' }}>Beacon</span>
-                <span style={{ width: '4px', height: '4px', borderRadius: '50%', backgroundColor: '#10b981' }} />
-                <span style={{ fontSize: '9px', color: 'rgba(255, 255, 255, 0.45)' }}>All good</span>
-              </div>
-
-              <ChevronRight size={10} color="rgba(255, 255, 255, 0.25)" />
-
-              {/* 2. Focus Sprint */}
-              <div style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
-                <GoalProgressRing
-                  progressFraction={focusState.isActive ? focusProgress : 0.62}
-                  size={13}
-                  strokeWidth={2}
-                  showText={false}
-                  color="var(--accent-cyan, #5ac8fa)"
-                />
-                <span style={{ fontSize: '9px', color: 'rgba(255, 255, 255, 0.45)' }}>Focus:</span>
-                <span style={{ fontSize: '10px', fontWeight: 600, color: '#ffffff' }}>
-                  {focusState.isActive ? focusTimeStr : '2h 30m'}
-                </span>
-              </div>
-
-              <ChevronRight size={10} color="rgba(255, 255, 255, 0.25)" />
-
-              {/* 3. Priority Goal */}
-              <div style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
-                <GoalProgressRing
-                  progressFraction={primaryGoal ? primaryFrac : 0.6}
-                  size={13}
-                  strokeWidth={2}
-                  showText={false}
-                  color="var(--accent-beacon, #7c6cff)"
-                />
-                <span
-                  style={{
-                    fontSize: '10px',
-                    fontWeight: 600,
-                    color: '#ffffff',
-                    maxWidth: '75px',
-                    overflow: 'hidden',
-                    textOverflow: 'ellipsis',
-                    whiteSpace: 'nowrap',
-                  }}
-                >
-                  {primaryGoal?.name || 'SaaS app'}
-                </span>
-                <span style={{ fontSize: '9px', fontWeight: 600, color: 'var(--accent-beacon, #7c6cff)' }}>
-                  {primaryGoal ? Math.round(primaryFrac * 100) : 60}%
-                </span>
-              </div>
-
-              <ChevronRight size={10} color="rgba(255, 255, 255, 0.25)" />
-
-              {/* 4. Streak Energy */}
-              <div style={{ display: 'flex', alignItems: 'center', gap: '3px' }}>
-                <Sparkles size={10} color="var(--accent-solar, #ff7a00)" />
-                <span style={{ fontSize: '10px', fontWeight: 700, color: 'var(--accent-solar, #ff7a00)' }}>
-                  {primaryGoal?.streakConfig?.currentStreak ?? 7}d
-                </span>
-              </div>
+              <BeaconCompanion state={companionState} size="tiny" label={companionMessage} />
+              <span style={{ fontSize: '11px', fontWeight: 600, color: '#ffffff', letterSpacing: '-0.01em' }}>
+                {focusState.isActive ? 'Focus' : 'Beacon'}
+              </span>
+              <span
+                style={{
+                  width: '5px',
+                  height: '5px',
+                  borderRadius: '50%',
+                  backgroundColor: focusState.isActive ? 'var(--accent-solar, #ff7a00)' : 'var(--accent-cyan, #38bdf8)',
+                  boxShadow: focusState.isActive ? '0 0 6px var(--accent-solar, #ff7a00)' : '0 0 6px var(--accent-cyan, #38bdf8)',
+                }}
+              />
+              <span style={{ fontSize: '10px', fontWeight: 600, color: 'rgba(255, 255, 255, 0.7)' }}>
+                {focusState.isActive ? focusTimeStr : `${percent}%`}
+              </span>
             </div>
           ) : (
             /* Expanded Top Notch Header: Navigation Tabs + Open Main App Action */

@@ -91,17 +91,16 @@ export const GoalCard: React.FC<GoalCardProps> = ({
     window.location.hash = '#focus';
   };
 
-  const ringColor = fraction >= 0.5 ? 'var(--accent-solar, #ff7a00)' : 'var(--accent-cyan, #5ac8fa)';
+  const ringColor = fraction >= 0.5 ? 'var(--accent-solar, #ff7a00)' : 'var(--accent-cyan, #38bdf8)';
 
   const getAreaStyle = (area?: string) => {
     switch (area?.toLowerCase()) {
       case 'learning':
-        return { bg: 'rgba(90, 200, 250, 0.12)', color: 'var(--accent-cyan, #5ac8fa)', border: 'rgba(90, 200, 250, 0.25)' };
+        return { bg: 'rgba(56, 189, 248, 0.12)', color: 'var(--accent-cyan, #38bdf8)', border: 'rgba(56, 189, 248, 0.25)' };
       case 'health':
-        return { bg: 'rgba(16, 185, 129, 0.12)', color: 'var(--accent-emerald, #10b981)', border: 'rgba(16, 185, 129, 0.25)' };
       case 'career':
       case 'work':
-        return { bg: 'rgba(124, 108, 255, 0.12)', color: 'var(--accent-beacon, #7c6cff)', border: 'rgba(124, 108, 255, 0.25)' };
+        return { bg: 'rgba(255, 122, 0, 0.12)', color: 'var(--accent-solar, #ff7a00)', border: 'rgba(255, 122, 0, 0.25)' };
       default:
         return { bg: 'rgba(255, 255, 255, 0.06)', color: 'var(--text-secondary)', border: 'rgba(255, 255, 255, 0.08)' };
     }
