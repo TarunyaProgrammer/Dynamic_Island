@@ -18,6 +18,7 @@ interface GoalCardProps {
   onDelete: (goalId: string) => void;
   onEdit: (goal: Goal) => void;
   onUpdateStreak?: (goalId: string, currentStreak: number, bestStreak: number) => void;
+  onMenuToggle?: (isOpen: boolean) => void;
   compact?: boolean;
 }
 
@@ -32,6 +33,7 @@ export const GoalCard: React.FC<GoalCardProps> = ({
   onDelete,
   onEdit,
   onUpdateStreak,
+  onMenuToggle,
   compact = false,
 }) => {
   const [expanded, setExpanded] = useState(false);
@@ -45,6 +47,10 @@ export const GoalCard: React.FC<GoalCardProps> = ({
   const menuButtonRef = useRef<HTMLButtonElement>(null);
   const menuContainerRef = useRef<HTMLDivElement>(null);
   const streakPopoverRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    onMenuToggle?.(menuOpen || isStreakPopoverOpen || Boolean(contextMenuPos));
+  }, [menuOpen, isStreakPopoverOpen, contextMenuPos, onMenuToggle]);
 
   useEffect(() => {
     setPopoverCurrentStreak(goal.streakConfig?.currentStreak ?? 0);
@@ -106,6 +112,8 @@ export const GoalCard: React.FC<GoalCardProps> = ({
     }
   };
 
+  const isAnyMenuOpen = menuOpen || isStreakPopoverOpen || Boolean(contextMenuPos);
+
   return (
     <div
       onContextMenu={handleContextMenu}
@@ -123,8 +131,9 @@ export const GoalCard: React.FC<GoalCardProps> = ({
         flexDirection: 'column',
         gap: '10px',
         position: 'relative',
+        zIndex: isAnyMenuOpen ? 50 : 1,
         transition: 'all 0.2s ease',
-        boxShadow: 'var(--shadow-sm)',
+        boxShadow: isAnyMenuOpen ? 'var(--shadow-md), 0 8px 24px rgba(0, 0, 0, 0.25)' : 'var(--shadow-sm)',
       }}
     >
       {/* Header Row */}
@@ -467,19 +476,21 @@ export const GoalCard: React.FC<GoalCardProps> = ({
                 ref={menuContainerRef}
                 style={{
                   position: 'absolute',
-                  top: '100%',
+                  top: 'calc(100% + 4px)',
                   right: 0,
-                  zIndex: 50,
-                  width: '130px',
-                  backgroundColor: 'rgba(28, 30, 39, 0.98)',
-                  backdropFilter: 'blur(20px)',
-                  border: '1px solid var(--border-subtle)',
+                  zIndex: 100,
+                  width: '136px',
+                  backgroundColor: 'var(--bg-card, rgba(28, 30, 39, 0.98))',
+                  backdropFilter: 'blur(24px)',
+                  WebkitBackdropFilter: 'blur(24px)',
+                  border: '1px solid var(--border-glass, var(--border-subtle))',
                   borderRadius: 'var(--radius-md)',
-                  padding: '4px',
-                  boxShadow: 'var(--shadow-lg)',
+                  padding: '5px',
+                  boxShadow: 'var(--shadow-lg), 0 16px 36px rgba(0, 0, 0, 0.55)',
                   display: 'flex',
                   flexDirection: 'column',
                   gap: '2px',
+                  animation: 'popScale 0.14s cubic-bezier(0.16, 1, 0.3, 1)',
                 }}
               >
                 <button
@@ -599,15 +610,17 @@ export const GoalCard: React.FC<GoalCardProps> = ({
             left: contextMenuPos.x,
             zIndex: 1000,
             width: '150px',
-            backgroundColor: 'rgba(28, 30, 39, 0.98)',
-            backdropFilter: 'blur(20px)',
-            border: '1px solid var(--border-subtle)',
+            backgroundColor: 'var(--bg-card, rgba(28, 30, 39, 0.98))',
+            backdropFilter: 'blur(24px)',
+            WebkitBackdropFilter: 'blur(24px)',
+            border: '1px solid var(--border-glass, var(--border-subtle))',
             borderRadius: 'var(--radius-md)',
-            padding: '4px',
-            boxShadow: '0 12px 30px rgba(0, 0, 0, 0.85)',
+            padding: '5px',
+            boxShadow: 'var(--shadow-lg), 0 16px 36px rgba(0, 0, 0, 0.65)',
             display: 'flex',
             flexDirection: 'column',
             gap: '2px',
+            animation: 'popScale 0.14s cubic-bezier(0.16, 1, 0.3, 1)',
           }}
         >
           {!isComplete && (

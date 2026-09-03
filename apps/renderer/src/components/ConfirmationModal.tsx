@@ -47,7 +47,7 @@ export const ConfirmationModal: React.FC<ConfirmationModalProps> = ({
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
-        zIndex: 1000,
+        zIndex: 10001,
       }}
     >
       <div
@@ -57,7 +57,7 @@ export const ConfirmationModal: React.FC<ConfirmationModalProps> = ({
         aria-labelledby="confirm-dialog-title"
         style={{
           width: '380px',
-          backgroundColor: '#121216',
+          backgroundColor: 'var(--bg-card, #121216)',
           border: '1px solid rgba(255, 255, 255, 0.12)',
           borderRadius: '16px',
           padding: '22px',

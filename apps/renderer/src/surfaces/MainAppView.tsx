@@ -27,6 +27,7 @@ export const MainAppView: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [showAISettings, setShowAISettings] = useState(false);
   const [showAIChat, setShowAIChat] = useState(false);
+  const [activeMenuGoalId, setActiveMenuGoalId] = useState<string | null>(null);
   const [isEditorOpen, setIsEditorOpen] = useState(false);
   const [editingGoal, setEditingGoal] = useState<Goal | null>(null);
   const [goalToDelete, setGoalToDelete] = useState<Goal | null>(null);
@@ -658,22 +659,35 @@ export const MainAppView: React.FC = () => {
                 )}
               </div>
             ) : (
-              filteredGoals.map((g) => (
-                <div key={g.id} className="card-spring-enter">
-                  <GoalCard
-                    goal={g}
-                    onIncrement={handleIncrement}
-                    onToggleMilestone={handleToggleMilestone}
-                    onAddMilestone={addMilestone}
-                    onDeleteMilestone={deleteMilestone}
-                    onComplete={handleCompleteGoal}
-                    onArchive={archiveGoal}
-                    onDelete={handlePromptDelete}
-                    onEdit={handleOpenEdit}
-                    onUpdateStreak={handleUpdateStreak}
-                  />
-                </div>
-              ))
+              filteredGoals.map((g) => {
+                const isMenuActive = activeMenuGoalId === g.id;
+                return (
+                  <div
+                    key={g.id}
+                    className="card-spring-enter"
+                    style={{
+                      position: 'relative',
+                      zIndex: isMenuActive ? 50 : 1,
+                    }}
+                  >
+                    <GoalCard
+                      goal={g}
+                      onIncrement={handleIncrement}
+                      onToggleMilestone={handleToggleMilestone}
+                      onAddMilestone={addMilestone}
+                      onDeleteMilestone={deleteMilestone}
+                      onComplete={handleCompleteGoal}
+                      onArchive={archiveGoal}
+                      onDelete={handlePromptDelete}
+                      onEdit={handleOpenEdit}
+                      onUpdateStreak={handleUpdateStreak}
+                      onMenuToggle={(isOpen) => {
+                        setActiveMenuGoalId(isOpen ? g.id : null);
+                      }}
+                    />
+                  </div>
+                );
+              })
             )}
           </div>
         </div>
