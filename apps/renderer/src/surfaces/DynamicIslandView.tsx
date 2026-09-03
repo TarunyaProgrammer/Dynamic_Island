@@ -226,6 +226,7 @@ export const DynamicIslandView: React.FC = () => {
             <button
               type="button"
               onClick={(e) => {
+                console.log('[DynamicIsland] Clicked Beacon/Goal tab');
                 e.stopPropagation();
                 resetCollapseTimer();
                 setActiveTab('goal');
@@ -256,6 +257,7 @@ export const DynamicIslandView: React.FC = () => {
                 <button
                   type="button"
                   onClick={(e) => {
+                    console.log('[DynamicIsland] Clicked Focus tab');
                     e.stopPropagation();
                     resetCollapseTimer();
                     setActiveTab('focus');
@@ -284,6 +286,7 @@ export const DynamicIslandView: React.FC = () => {
                 <button
                   type="button"
                   onClick={(e) => {
+                    console.log('[DynamicIsland] Clicked Media tab');
                     e.stopPropagation();
                     resetCollapseTimer();
                     setActiveTab('media');
@@ -353,9 +356,9 @@ export const DynamicIslandView: React.FC = () => {
             style={{
               flex: 1,
               display: 'grid',
-              gridTemplateColumns: '1.4fr 1.2fr 0.9fr',
-              gap: '12px',
-              padding: '6px 16px 14px 16px',
+              gridTemplateColumns: 'minmax(0, 1.75fr) minmax(0, 1.25fr) minmax(0, 0.85fr)',
+              gap: '10px',
+              padding: '6px 14px 14px 14px',
               boxSizing: 'border-box',
               position: 'relative',
               zIndex: 1,
@@ -367,18 +370,19 @@ export const DynamicIslandView: React.FC = () => {
                 style={{
                   display: 'flex',
                   alignItems: 'center',
-                  gap: '12px',
-                  padding: '10px 12px',
+                  gap: '10px',
+                  padding: '8px 10px',
                   backgroundColor: 'rgba(255, 255, 255, 0.05)',
                   border: '1px solid rgba(255, 255, 255, 0.08)',
                   borderRadius: '16px',
                   minWidth: 0,
+                  overflow: 'hidden',
                 }}
               >
                 <div
                   style={{
-                    width: '46px',
-                    height: '46px',
+                    width: '42px',
+                    height: '42px',
                     borderRadius: '12px',
                     backgroundColor: 'rgba(255, 255, 255, 0.08)',
                     border: '1px solid rgba(255, 255, 255, 0.12)',
@@ -388,11 +392,11 @@ export const DynamicIslandView: React.FC = () => {
                     flexShrink: 0,
                   }}
                 >
-                  <BeaconLogo size={28} />
+                  <BeaconLogo size={24} />
                 </div>
 
                 {primaryGoal ? (
-                  <div style={{ display: 'flex', flexDirection: 'column', flex: 1, minWidth: 0, gap: '3px' }}>
+                  <div style={{ display: 'flex', flexDirection: 'column', flex: 1, minWidth: 0, gap: '2px' }}>
                     <span
                       style={{
                         fontSize: '12px',
@@ -413,37 +417,40 @@ export const DynamicIslandView: React.FC = () => {
                     </div>
 
                     {/* Increment Controls */}
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginTop: '4px' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '5px', marginTop: '3px' }}>
                       <button
+                        type="button"
                         onClick={(e) => {
                           e.stopPropagation();
                           incrementProgress(primaryGoal.id, -(primaryGoal.defaultIncrement || 1));
                         }}
                         className="btn-ghost"
-                        style={{ padding: '2px 6px', fontSize: '10px', backgroundColor: 'rgba(255, 255, 255, 0.08)' }}
+                        style={{ padding: '2px 5px', fontSize: '9px', backgroundColor: 'rgba(255, 255, 255, 0.08)' }}
                       >
-                        <Minus size={10} />
+                        <Minus size={9} />
                       </button>
                       <button
+                        type="button"
                         onClick={(e) => {
                           e.stopPropagation();
                           incrementProgress(primaryGoal.id, primaryGoal.defaultIncrement || 1);
                         }}
                         className="btn-ghost"
-                        style={{ padding: '2px 8px', fontSize: '10px', fontWeight: 600, backgroundColor: 'rgba(255, 255, 255, 0.14)', color: '#ffffff' }}
+                        style={{ padding: '2px 7px', fontSize: '9px', fontWeight: 600, backgroundColor: 'rgba(255, 255, 255, 0.14)', color: '#ffffff' }}
                       >
                         +{primaryGoal.defaultIncrement || 1} {primaryGoal.unit || ''}
                       </button>
                       <button
+                        type="button"
                         onClick={(e) => {
                           e.stopPropagation();
                           completeGoal(primaryGoal.id);
                         }}
                         className="btn-ghost"
-                        style={{ padding: '2px 6px', fontSize: '10px', backgroundColor: 'rgba(255, 255, 255, 0.08)' }}
+                        style={{ padding: '2px 5px', fontSize: '9px', backgroundColor: 'rgba(255, 255, 255, 0.08)' }}
                         title="Complete Goal"
                       >
-                        <CheckCircle2 size={11} />
+                        <CheckCircle2 size={10} />
                       </button>
                     </div>
                   </div>
@@ -466,6 +473,7 @@ export const DynamicIslandView: React.FC = () => {
                       borderRadius: '8px',
                       textAlign: 'left',
                       transition: 'background-color 0.15s ease',
+                      minWidth: 0,
                     }}
                     title="Open Beacon to Create a Goal"
                   >
@@ -481,20 +489,20 @@ export const DynamicIslandView: React.FC = () => {
                 style={{
                   display: 'flex',
                   alignItems: 'center',
-                  gap: '10px',
-                  padding: '8px 12px',
+                  padding: '8px 10px',
                   backgroundColor: 'rgba(255, 255, 255, 0.05)',
                   border: '1px solid rgba(255, 255, 255, 0.08)',
                   borderRadius: '16px',
                   minWidth: 0,
+                  overflow: 'hidden',
                 }}
               >
-                <div style={{ display: 'flex', flexDirection: 'column', flex: 1, gap: '4px' }}>
+                <div style={{ display: 'flex', flexDirection: 'column', flex: 1, gap: '3px', minWidth: 0 }}>
                   {/* Active Header & Timer */}
-                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '8px' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '6px', minWidth: 0 }}>
                     {!focusState.isActive ? (
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '6px', flex: 1, minWidth: 0 }}>
-                        <span style={{ fontSize: '11px', color: 'rgba(255, 255, 255, 0.5)', fontWeight: 500, flexShrink: 0 }}>Goal:</span>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '4px', flex: 1, minWidth: 0 }}>
+                        <span style={{ fontSize: '10px', color: 'rgba(255, 255, 255, 0.5)', fontWeight: 500, flexShrink: 0 }}>Goal:</span>
                         <select
                           value={selectedFocusGoalId}
                           onChange={(e) => {
@@ -506,17 +514,19 @@ export const DynamicIslandView: React.FC = () => {
                             backgroundColor: '#16161a',
                             color: '#ffffff',
                             border: '1px solid rgba(255, 255, 255, 0.14)',
-                            borderRadius: '6px',
-                            padding: '2px 6px',
-                            fontSize: '11px',
+                            borderRadius: '5px',
+                            padding: '1px 4px',
+                            fontSize: '10px',
                             fontWeight: 600,
-                            maxWidth: '130px',
+                            flex: 1,
+                            minWidth: 0,
+                            maxWidth: '110px',
                             overflow: 'hidden',
                             textOverflow: 'ellipsis',
                             whiteSpace: 'nowrap',
                           }}
                         >
-                          <option value="">⚡️ Independent Timer</option>
+                          <option value="">⚡️ Independent</option>
                           {goals.map((g) => (
                             <option key={g.id} value={g.id}>
                               {g.name}
@@ -533,6 +543,8 @@ export const DynamicIslandView: React.FC = () => {
                           whiteSpace: 'nowrap',
                           overflow: 'hidden',
                           textOverflow: 'ellipsis',
+                          flex: 1,
+                          minWidth: 0,
                         }}
                       >
                         {focusState.goalName ? `Sprint: ${focusState.goalName}` : 'Independent Timer'}
@@ -552,8 +564,8 @@ export const DynamicIslandView: React.FC = () => {
 
                   {/* Duration Presets (When Idle) & Actions */}
                   {!focusState.isActive ? (
-                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '6px', marginTop: '3px' }}>
-                      <div style={{ display: 'flex', gap: '3px' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '4px', marginTop: '2px', minWidth: 0 }}>
+                      <div style={{ display: 'flex', gap: '2px', flexShrink: 0 }}>
                         {[5, 15, 25, 45, 60].map((mins) => (
                           <button
                             key={mins}
@@ -563,13 +575,14 @@ export const DynamicIslandView: React.FC = () => {
                               setSelectedDuration(mins);
                             }}
                             style={{
-                              padding: '2px 5px',
-                              fontSize: '10px',
+                              padding: '2px 4px',
+                              fontSize: '9px',
                               fontWeight: selectedDuration === mins ? 700 : 500,
                               borderRadius: '4px',
                               backgroundColor: selectedDuration === mins ? '#ffffff' : 'rgba(255, 255, 255, 0.08)',
                               color: selectedDuration === mins ? '#000000' : 'rgba(255, 255, 255, 0.7)',
                               cursor: 'pointer',
+                              border: 'none',
                             }}
                           >
                             {mins}m
@@ -578,66 +591,71 @@ export const DynamicIslandView: React.FC = () => {
                       </div>
 
                       <button
+                        type="button"
                         onClick={(e) => {
                           e.stopPropagation();
                           soundEffects.playTickSound();
                           startFocus(selectedDuration, selectedFocusGoalId || undefined);
                         }}
                         className="btn-ghost"
-                        style={{ padding: '2px 8px', fontSize: '10px', fontWeight: 700, backgroundColor: 'rgba(255, 255, 255, 0.16)', color: '#ffffff' }}
+                        style={{ padding: '2px 6px', fontSize: '9px', fontWeight: 700, backgroundColor: 'rgba(255, 255, 255, 0.16)', color: '#ffffff', flexShrink: 0 }}
                       >
-                        <Play size={10} style={{ marginRight: '3px' }} /> Start
+                        <Play size={9} style={{ marginRight: '2px' }} /> Start
                       </button>
                     </div>
                   ) : (
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginTop: '3px' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '5px', marginTop: '2px', minWidth: 0 }}>
                       {focusState.isPaused ? (
                         <button
+                          type="button"
                           onClick={(e) => {
                             e.stopPropagation();
                             soundEffects.playTickSound();
                             resumeFocus();
                           }}
                           className="btn-ghost"
-                          style={{ padding: '2px 8px', fontSize: '10px', fontWeight: 600, backgroundColor: 'rgba(255, 255, 255, 0.14)', color: '#ffffff' }}
+                          style={{ padding: '2px 7px', fontSize: '9px', fontWeight: 600, backgroundColor: 'rgba(255, 255, 255, 0.14)', color: '#ffffff' }}
                         >
-                          <Play size={10} style={{ marginRight: '3px' }} /> Resume
+                          <Play size={9} style={{ marginRight: '2px' }} /> Resume
                         </button>
                       ) : (
                         <button
+                          type="button"
                           onClick={(e) => {
                             e.stopPropagation();
                             soundEffects.playTickSound();
                             pauseFocus();
                           }}
                           className="btn-ghost"
-                          style={{ padding: '2px 8px', fontSize: '10px', fontWeight: 600, backgroundColor: 'rgba(255, 255, 255, 0.1)', color: '#ffffff' }}
+                          style={{ padding: '2px 7px', fontSize: '9px', fontWeight: 600, backgroundColor: 'rgba(255, 255, 255, 0.1)', color: '#ffffff' }}
                         >
-                          <Pause size={10} style={{ marginRight: '3px' }} /> Pause
+                          <Pause size={9} style={{ marginRight: '2px' }} /> Pause
                         </button>
                       )}
 
                       <button
+                        type="button"
                         onClick={(e) => {
                           e.stopPropagation();
                           soundEffects.playMilestonePop();
                           extendFocus(5);
                         }}
                         className="btn-ghost"
-                        style={{ padding: '2px 6px', fontSize: '10px', backgroundColor: 'rgba(255, 255, 255, 0.08)' }}
+                        style={{ padding: '2px 5px', fontSize: '9px', backgroundColor: 'rgba(255, 255, 255, 0.08)' }}
                         title="Add 5 minutes"
                       >
                         +5m
                       </button>
 
                       <button
+                        type="button"
                         onClick={(e) => {
                           e.stopPropagation();
                           soundEffects.playMilestonePop();
                           stopFocus(!!focusState.goalId);
                         }}
                         className="btn-ghost"
-                        style={{ padding: '2px 6px', fontSize: '10px', backgroundColor: 'rgba(255, 255, 255, 0.08)' }}
+                        style={{ padding: '2px 5px', fontSize: '9px', backgroundColor: 'rgba(255, 255, 255, 0.08)' }}
                         title="End timer"
                       >
                         {focusState.goalId ? 'Stop & Log' : 'Stop'}
@@ -790,16 +808,18 @@ export const DynamicIslandView: React.FC = () => {
                 flexDirection: 'column',
                 justifyContent: 'center',
                 alignItems: 'center',
-                gap: '8px',
-                padding: '10px 12px',
+                gap: '6px',
+                padding: '8px 10px',
                 backgroundColor: 'rgba(255, 255, 255, 0.03)',
                 border: '1px solid rgba(255, 255, 255, 0.06)',
                 borderRadius: '16px',
+                minWidth: 0,
+                overflow: 'hidden',
               }}
             >
-              <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                <span style={{ fontSize: '13px', fontWeight: 700, color: '#ffffff' }}>{monthName}</span>
-                <div style={{ display: 'flex', gap: '4px' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '5px', minWidth: 0 }}>
+                <span style={{ fontSize: '12px', fontWeight: 700, color: '#ffffff', flexShrink: 0 }}>{monthName}</span>
+                <div style={{ display: 'flex', gap: '3px', flexShrink: 0 }}>
                   {calendarDays.map((c, i) => (
                     <button
                       key={i}
@@ -813,8 +833,8 @@ export const DynamicIslandView: React.FC = () => {
                         display: 'flex',
                         flexDirection: 'column',
                         alignItems: 'center',
-                        padding: '3px 5px',
-                        borderRadius: '6px',
+                        padding: '2px 4px',
+                        borderRadius: '5px',
                         backgroundColor: c.isToday ? 'rgba(255, 255, 255, 0.22)' : 'transparent',
                         color: c.isToday ? '#ffffff' : 'rgba(255, 255, 255, 0.4)',
                         border: 'none',
@@ -824,24 +844,24 @@ export const DynamicIslandView: React.FC = () => {
                       }}
                       title={c.isToday ? 'Today (Click to open Beacon)' : `Day ${c.date} (Click to open Beacon)`}
                     >
-                      <span style={{ fontSize: '8px', fontWeight: 500, textTransform: 'uppercase' }}>{c.dayName}</span>
-                      <span style={{ fontSize: '10px', fontWeight: c.isToday ? 700 : 500 }}>{c.date}</span>
+                      <span style={{ fontSize: '7px', fontWeight: 500, textTransform: 'uppercase' }}>{c.dayName}</span>
+                      <span style={{ fontSize: '9px', fontWeight: c.isToday ? 700 : 500 }}>{c.date}</span>
                     </button>
                   ))}
                 </div>
               </div>
 
-              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '10px', color: 'rgba(255, 255, 255, 0.6)' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-                  <Calendar size={11} />
-                  <span>{goals.length > 0 ? `${goals.length} active` : 'Nothing for today'}</span>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '9px', color: 'rgba(255, 255, 255, 0.6)', whiteSpace: 'nowrap' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '3px' }}>
+                  <Calendar size={10} />
+                  <span>{goals.length > 0 ? `${goals.length} active` : 'Nothing today'}</span>
                 </div>
                 {goals.some((g) => (g.streakConfig?.currentStreak ?? 0) > 0) && (
                   <>
                     <span style={{ opacity: 0.4 }}>•</span>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '3px', color: '#5ac8fa', fontWeight: 600 }}>
-                      <Sparkles size={11} color="#5ac8fa" />
-                      <span>{Math.max(...goals.map((g) => g.streakConfig?.currentStreak ?? 0))}d light streak</span>
+                      <Sparkles size={10} color="#5ac8fa" />
+                      <span>{Math.max(...goals.map((g) => g.streakConfig?.currentStreak ?? 0))}d streak</span>
                     </div>
                   </>
                 )}
@@ -859,25 +879,27 @@ export const DynamicIslandView: React.FC = () => {
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'space-between',
-                padding: '10px 14px',
+                padding: '8px 12px',
                 backgroundColor: 'rgba(255, 255, 255, 0.03)',
                 border: '1px solid rgba(255, 255, 255, 0.06)',
                 borderRadius: '16px',
                 cursor: 'pointer',
+                minWidth: 0,
+                overflow: 'hidden',
                 transition: 'background-color 0.15s ease',
               }}
               title="Open Beacon Main Dashboard"
             >
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
-                <span style={{ fontSize: '10px', color: 'rgba(255, 255, 255, 0.5)', fontWeight: 500 }}>Overall</span>
-                <span style={{ fontSize: '16px', fontWeight: 700, color: '#ffffff' }}>{percent}%</span>
-                <span style={{ fontSize: '9px', color: 'rgba(255, 255, 255, 0.4)' }}>{stats?.activeGoals ?? 0} active</span>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '1px', minWidth: 0 }}>
+                <span style={{ fontSize: '9px', color: 'rgba(255, 255, 255, 0.5)', fontWeight: 500 }}>Overall</span>
+                <span style={{ fontSize: '15px', fontWeight: 700, color: '#ffffff' }}>{percent}%</span>
+                <span style={{ fontSize: '8px', color: 'rgba(255, 255, 255, 0.4)' }}>{stats?.activeGoals ?? 0} active</span>
               </div>
 
               <GoalProgressRing
                 progressFraction={stats?.overallProgressFraction ?? 0}
-                size={44}
-                strokeWidth={3.5}
+                size={38}
+                strokeWidth={3}
                 color="#ffffff"
                 showText={false}
               />

@@ -17,10 +17,12 @@ import { registerIpcHandlers } from './ipc/goalHandlers';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-// Development server URL or packaged paths
 const isDev = process.env.NODE_ENV !== 'production' && !app.isPackaged;
 const RENDERER_URL = process.env.VITE_DEV_SERVER_URL;
-const PRELOAD_PATH = path.join(__dirname, '../preload/index.js');
+import fs from 'fs';
+const PRELOAD_PATH = fs.existsSync(path.join(__dirname, '../preload/index.cjs'))
+  ? path.join(__dirname, '../preload/index.cjs')
+  : path.join(__dirname, '../preload/index.js');
 
 // Enforce single instance in production, allow hot-reloading in dev
 if (!isDev) {

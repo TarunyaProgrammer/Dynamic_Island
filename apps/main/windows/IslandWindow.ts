@@ -1,21 +1,23 @@
 // apps/main/windows/IslandWindow.ts
-// Dynamic Island overlay — always 660×180 (full expanded size).
-// Collapsed/expanded is pure CSS. We toggle setIgnoreMouseEvents instead of resizing.
-// Fixes macOS AppKit event delivery by ensuring focusable: true and proper window level.
+// Fixed 660×180 Dynamic Island window.
+// Pure CSS handles expand (640×160) and collapse (240×32).
+// No setSize resizing (prevents clipping).
+// No setIgnoreMouseEvents (ensures all native clicks on tabs, buttons, inputs work 100%).
 import { BrowserWindow, app, screen } from 'electron';
 import path from 'path';
 
 export class IslandWindowController {
   private window: BrowserWindow | null = null;
 
-  // Full-size window dimensions — never changes at runtime
-  private static readonly W = 660;
-  private static readonly H = 180;
+  // Window canvas is always 660×180
+  public static readonly W = 660;
+  public static readonly H = 180;
 
   createOrShow(preloadPath: string, rendererUrl?: string): BrowserWindow {
     if (this.window && !this.window.isDestroyed()) {
       this.reposition();
-      this.window.showInactive();
+      this.window.show();
+      this.window.focus();
       return this.window;
     }
 
@@ -35,7 +37,7 @@ export class IslandWindowController {
       resizable: false,
       alwaysOnTop: true,
       skipTaskbar: true,
-      focusable: true, // CRITICAL: must be true at creation on macOS so canBecomeKeyWindow is YES
+      focusable: true,
       roundedCorners: false,
       backgroundColor: '#00000000',
       webPreferences: {
@@ -47,12 +49,13 @@ export class IslandWindowController {
     });
 
     this.window.setVisibleOnAllWorkspaces(true, { visibleOnFullScreen: true });
-    // Use 'pop-up-menu' level: floats above full-screen apps and status bar, but remains 100% interactive
+    // 'pop-up-menu' level: floats above full-screen apps and status bar while remaining fully interactive
     this.window.setAlwaysOnTop(true, 'pop-up-menu');
 
-    // Start in collapsed/pass-through mode.
-    // forward: true — mouse MOVE events still reach the web content (for hover detection).
-    this.window.setIgnoreMouseEvents(true, { forward: true });
+    // Forward web console messages to terminal
+    this.window.webContents.on('console-message', (_event, _level, message) => {
+      console.log('[Island Web]', message);
+    });
 
     if (rendererUrl) {
       this.window.loadURL(`${rendererUrl}?surface=island`);
@@ -63,7 +66,7 @@ export class IslandWindowController {
     }
 
     this.window.once('ready-to-show', () => {
-      this.window?.showInactive();
+      this.window?.show();
     });
 
     this.window.on('closed', () => {
@@ -73,20 +76,10 @@ export class IslandWindowController {
     return this.window;
   }
 
-  /**
-   * Toggle expanded state.
-   * expanded=true  → window intercepts all mouse events (clicks, scroll, keyboard) & gains focus
-   * expanded=false → window passes clicks through but still receives mouse moves (for hover)
-   */
   setExpanded(expanded: boolean): void {
     if (!this.window || this.window.isDestroyed()) return;
     if (expanded) {
-      this.window.setIgnoreMouseEvents(false);
       this.window.focus();
-    } else {
-      // forward: true keeps mouse-move events flowing so hover still works
-      this.window.setIgnoreMouseEvents(true, { forward: true });
-      this.window.blur();
     }
   }
 
