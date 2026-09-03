@@ -205,7 +205,10 @@ export const MainAppView: React.FC = () => {
           backgroundImage: `url(${atmosphericBg})`,
           backgroundSize: 'cover',
           backgroundPosition: 'center top',
-          opacity: 0.35,
+          opacity: 0.22,
+          filter: 'blur(2px)',
+          maskImage: 'linear-gradient(to bottom, rgba(0, 0, 0, 1) 15%, rgba(0, 0, 0, 0.3) 70%, transparent 100%)',
+          WebkitMaskImage: 'linear-gradient(to bottom, rgba(0, 0, 0, 1) 15%, rgba(0, 0, 0, 0.3) 70%, transparent 100%)',
           pointerEvents: 'none',
           zIndex: 0,
         }}
@@ -215,7 +218,7 @@ export const MainAppView: React.FC = () => {
         style={{
           position: 'absolute',
           inset: 0,
-          background: 'radial-gradient(ellipse at 50% 10%, rgba(7, 8, 11, 0.2) 0%, rgba(7, 8, 11, 0.8) 70%, #07080b 100%)',
+          background: 'radial-gradient(ellipse at 50% 10%, rgba(7, 8, 11, 0.3) 0%, rgba(7, 8, 11, 0.85) 65%, #07080b 100%)',
           pointerEvents: 'none',
           zIndex: 0,
         }}
