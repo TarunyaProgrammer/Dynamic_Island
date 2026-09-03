@@ -12,6 +12,7 @@ export interface BeaconCompanionProps {
   interactive?: boolean;
   bubblePlacement?: 'top' | 'bottom';
   onInteract?: (state: CompanionState, message?: string) => void;
+  onClick?: (e: React.MouseEvent) => void;
 }
 
 interface CompanionStyle extends React.CSSProperties {
@@ -88,6 +89,7 @@ export const BeaconCompanion: React.FC<BeaconCompanionProps> = ({
   interactive = true,
   bubblePlacement = size === 'tiny' ? 'bottom' : 'top',
   onInteract,
+  onClick,
 }) => {
   const [internalState, setInternalState] = useState<CompanionState | null>(null);
   const [internalMessage, setInternalMessage] = useState<string | null>(null);
@@ -158,6 +160,7 @@ export const BeaconCompanion: React.FC<BeaconCompanionProps> = ({
     setInternalState('celebrating');
     setInternalMessage('Yay! ✦');
     onInteract?.('celebrating', 'Yay! ✦');
+    onClick?.(e);
 
     setTimeout(() => {
       setInternalState(null);

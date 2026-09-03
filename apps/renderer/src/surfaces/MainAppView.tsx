@@ -12,12 +12,13 @@ import { ConfettiCanvas } from '../components/ConfettiCanvas';
 import { triggerLightPulse } from '../components/LightBeamFeedback';
 import { ConfirmationModal } from '../components/ConfirmationModal';
 import { soundEffects } from '../utils/audio';
-import { Plus, Undo2, Redo2, Layers, CheckCircle2, Archive, Timer, Search, X, Sun, Moon, Sparkles } from 'lucide-react';
+import { Plus, Undo2, Redo2, Layers, CheckCircle2, Archive, Timer, Search, X, Sun, Moon, Sparkles, MessageSquare } from 'lucide-react';
 import { FocusDashboardView } from '../components/FocusDashboardView';
 import { useCompanion } from '../hooks/useCompanion';
 import { SolarHorizonGraph } from '../components/SolarHorizonGraph';
 import { MomentumRhythmBar } from '../components/MomentumRhythmBar';
 import { AISettingsModal } from '../components/AISettingsModal';
+import { BeaconCompanionChatModal } from '../components/BeaconCompanionChatModal';
 import atmosphericBg from '../assets/atmospheric_bg.jpg';
 
 export const MainAppView: React.FC = () => {
@@ -25,6 +26,7 @@ export const MainAppView: React.FC = () => {
   const [activeTab, setActiveTab] = useState<GoalStatus | 'all'>('active');
   const [searchQuery, setSearchQuery] = useState('');
   const [showAISettings, setShowAISettings] = useState(false);
+  const [showAIChat, setShowAIChat] = useState(false);
   const [isEditorOpen, setIsEditorOpen] = useState(false);
   const [editingGoal, setEditingGoal] = useState<Goal | null>(null);
   const [goalToDelete, setGoalToDelete] = useState<Goal | null>(null);
@@ -383,7 +385,38 @@ export const MainAppView: React.FC = () => {
             }}
           >
             <div style={{ display: 'flex', alignItems: 'center', gap: '12px', minWidth: 0 }}>
-              <BeaconCompanion state={companion.state} size="regular" label={companion.message} />
+              <div
+                onClick={() => setShowAIChat(true)}
+                style={{ cursor: 'pointer', position: 'relative' }}
+                title="Tap spirit to talk with AI & see suggested commands"
+              >
+                <BeaconCompanion
+                  state={companion.state}
+                  size="regular"
+                  label={companion.message}
+                  onClick={() => setShowAIChat(true)}
+                />
+                <div
+                  style={{
+                    position: 'absolute',
+                    bottom: '-2px',
+                    right: '-2px',
+                    backgroundColor: 'var(--accent-solar, #ff7a00)',
+                    color: '#07080b',
+                    borderRadius: '9999px',
+                    width: '18px',
+                    height: '18px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    boxShadow: '0 0 8px rgba(255, 122, 0, 0.4)',
+                  }}
+                  title="Click spirit to chat with AI"
+                >
+                  <Sparkles size={11} strokeWidth={2.5} />
+                </div>
+              </div>
+
               <div style={{ display: 'flex', flexDirection: 'column', gap: '3px', minWidth: 0 }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                 <span style={{ fontSize: '14px', fontWeight: 600, color: 'var(--text-primary)', letterSpacing: '-0.2px' }}>
@@ -397,6 +430,20 @@ export const MainAppView: React.FC = () => {
                 <span>{Math.round((stats?.overallProgressFraction ?? 0) * 100)}% completed today</span>
                 <span>•</span>
                 <span>Consistency {stats?.consistencyPercentage ?? 92}%</span>
+                <span>•</span>
+                <span
+                  onClick={() => setShowAIChat(true)}
+                  style={{
+                    color: 'var(--accent-solar, #ff7a00)',
+                    fontWeight: 600,
+                    cursor: 'pointer',
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: '3px',
+                  }}
+                >
+                  ✦ Tap spirit to talk
+                </span>
                 {stats?.momentumDeltaPercent !== undefined && stats.momentumDeltaPercent !== 0 && (
                   <>
                     <span>•</span>
@@ -409,7 +456,29 @@ export const MainAppView: React.FC = () => {
               </div>
             </div>
 
-            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+              <button
+                onClick={() => setShowAIChat(true)}
+                className="btn-ghost"
+                style={{
+                  padding: '5px 10px',
+                  borderRadius: 'var(--radius-sm)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '5px',
+                  fontSize: '11px',
+                  fontWeight: 600,
+                  color: 'var(--accent-solar, #ff7a00)',
+                  backgroundColor: 'rgba(255, 122, 0, 0.1)',
+                  border: '1px solid rgba(255, 122, 0, 0.25)',
+                  cursor: 'pointer',
+                }}
+                title="Talk to Beacon Companion"
+              >
+                <MessageSquare size={12} />
+                <span>Talk to Spirit</span>
+              </button>
+
               <div style={{ width: '80px', height: '4px', backgroundColor: 'var(--accent-neutral)', borderRadius: '2px', overflow: 'hidden' }}>
                 <div
                   style={{
@@ -768,6 +837,13 @@ export const MainAppView: React.FC = () => {
       <AISettingsModal
         isOpen={showAISettings}
         onClose={() => setShowAISettings(false)}
+      />
+
+      {/* Beacon Companion Spirit AI Chat & Action Modal */}
+      <BeaconCompanionChatModal
+        isOpen={showAIChat}
+        onClose={() => setShowAIChat(false)}
+        onOpenSettings={() => setShowAISettings(true)}
       />
     </div>
   );
