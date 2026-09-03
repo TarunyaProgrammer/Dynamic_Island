@@ -1,7 +1,7 @@
 # Beacon Companion — Cross-Surface Presence Design
 
-**Date:** 2026-09-03  
-**Status:** Proposed for implementation  
+**Date:** 2026-09-03
+**Status:** Proposed for implementation
 **Scope:** Electron renderer surfaces: Main, Tray, and Dynamic Island
 
 ## Goal
