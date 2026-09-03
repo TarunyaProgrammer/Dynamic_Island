@@ -2,14 +2,17 @@
 import React, { useState } from 'react';
 import { useGoals } from '../hooks/useGoals';
 import { GoalProgressRing } from '../components/GoalProgressRing';
+import { BeaconCompanion } from '../components/BeaconCompanion';
 import { QuickIncrementButton } from '../components/QuickIncrementButton';
 import { GoalEditorModal } from '../components/GoalEditorModal';
 import { BeaconLogo } from '../components/BeaconLogo';
 import { Plus, ExternalLink, CheckCircle2 } from 'lucide-react';
 import { GoalDraft, GoalUpdateDraft } from '@shared/types';
+import { useCompanion } from '../hooks/useCompanion';
 
 export const TrayPopoverView: React.FC = () => {
   const { goals, stats, incrementProgress, toggleMilestone, createGoal, completeGoal } = useGoals('active');
+  const companion = useCompanion('tray');
   const [isEditorOpen, setIsEditorOpen] = useState(false);
 
   React.useEffect(() => {
@@ -28,7 +31,23 @@ export const TrayPopoverView: React.FC = () => {
   };
 
   const handleCreate = async (payload: GoalDraft | GoalUpdateDraft) => {
-    await createGoal(payload as GoalDraft);
+    const createdGoal = await createGoal(payload as GoalDraft);
+    companion.celebrate(`Created ${createdGoal.name}`);
+  };
+
+  const handleIncrement = async (goalId: string) => {
+    await incrementProgress(goalId);
+    companion.celebrate('Progress logged');
+  };
+
+  const handleComplete = async (goalId: string) => {
+    const completedGoal = await completeGoal(goalId);
+    companion.celebrate(`${completedGoal.name} completed`);
+  };
+
+  const handleToggleMilestone = async (goalId: string, milestoneId: string) => {
+    await toggleMilestone(goalId, milestoneId);
+    companion.celebrate('Milestone updated');
   };
 
   return (
@@ -97,6 +116,7 @@ export const TrayPopoverView: React.FC = () => {
           }}
         >
           <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+            <BeaconCompanion state={companion.state} size="compact" label={companion.message} />
             <GoalProgressRing progressFraction={stats.overallProgressFraction} size={36} strokeWidth={3} />
             <div style={{ display: 'flex', flexDirection: 'column' }}>
               <span style={{ fontSize: '12px', fontWeight: 600 }}>
@@ -171,10 +191,10 @@ export const TrayPopoverView: React.FC = () => {
                     <QuickIncrementButton
                       amount={g.defaultIncrement || 1}
                       unit={g.unit}
-                      onClick={() => incrementProgress(g.id)}
+                      onClick={() => handleIncrement(g.id)}
                     />
                     <button
-                      onClick={() => completeGoal(g.id)}
+                      onClick={() => handleComplete(g.id)}
                       title="Complete Goal"
                       className="btn-ghost"
                       style={{ padding: '3px', color: 'var(--text-muted)' }}
@@ -190,7 +210,7 @@ export const TrayPopoverView: React.FC = () => {
                     {g.milestones.slice(0, 3).map((m) => (
                       <button
                         key={m.id}
-                        onClick={() => toggleMilestone(g.id, m.id)}
+                        onClick={() => handleToggleMilestone(g.id, m.id)}
                         style={{
                           fontSize: '10px',
                           padding: '2px 6px',

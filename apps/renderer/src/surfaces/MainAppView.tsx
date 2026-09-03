@@ -6,6 +6,7 @@ import { GoalCard } from '../components/GoalCard';
 import { GoalEditorModal } from '../components/GoalEditorModal';
 import { ActivityTimeline } from '../components/ActivityTimeline';
 import { GoalProgressRing } from '../components/GoalProgressRing';
+import { BeaconCompanion } from '../components/BeaconCompanion';
 import { BeaconLogo } from '../components/BeaconLogo';
 import { ConfettiCanvas } from '../components/ConfettiCanvas';
 import { triggerLightPulse } from '../components/LightBeamFeedback';
@@ -13,6 +14,7 @@ import { ConfirmationModal } from '../components/ConfirmationModal';
 import { soundEffects } from '../utils/audio';
 import { Plus, Undo2, Redo2, Layers, CheckCircle2, Archive, Activity, Timer, Search, X, Sun, Moon } from 'lucide-react';
 import { FocusDashboardView } from '../components/FocusDashboardView';
+import { useCompanion } from '../hooks/useCompanion';
 
 export const MainAppView: React.FC = () => {
   const [viewMode, setViewMode] = useState<'goals' | 'focus'>('goals');
@@ -56,6 +58,7 @@ export const MainAppView: React.FC = () => {
     undo,
     redo,
   } = useGoals(activeTab === 'all' ? undefined : activeTab);
+  const companion = useCompanion('main');
 
   // Keyboard navigation & desktop global shortcuts
   useEffect(() => {
@@ -121,28 +124,32 @@ export const MainAppView: React.FC = () => {
     if (editingGoal) {
       await updateGoal(editingGoal.id, payload);
     } else {
+      const createdGoal = await createGoal(payload as GoalDraft);
+      companion.celebrate(`Created ${createdGoal.name}`);
       soundEffects.playGoalFanfare();
       triggerLightPulse();
-      await createGoal(payload as GoalDraft);
     }
   };
 
-  const handleIncrement = (goalId: string, delta?: number) => {
+  const handleIncrement = async (goalId: string, delta?: number) => {
+    await incrementProgress(goalId, delta);
+    companion.celebrate('Progress logged');
     soundEffects.playMilestonePop();
     triggerLightPulse();
-    incrementProgress(goalId, delta);
   };
 
-  const handleToggleMilestone = (goalId: string, milestoneId: string) => {
+  const handleToggleMilestone = async (goalId: string, milestoneId: string) => {
+    await toggleMilestone(goalId, milestoneId);
+    companion.celebrate('Milestone updated');
     soundEffects.playMilestonePop();
     triggerLightPulse();
-    toggleMilestone(goalId, milestoneId);
   };
 
-  const handleCompleteGoal = (goalId: string) => {
+  const handleCompleteGoal = async (goalId: string) => {
+    const completedGoal = await completeGoal(goalId);
+    companion.celebrate(`${completedGoal.name} completed`);
     soundEffects.playGoalFanfare();
     triggerLightPulse('var(--accent-emerald, #10b981)');
-    completeGoal(goalId);
   };
 
   const handlePromptDelete = (goalId: string) => {
@@ -295,16 +302,18 @@ export const MainAppView: React.FC = () => {
               boxShadow: 'var(--shadow-sm)',
             }}
           >
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '3px' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '12px', minWidth: 0 }}>
+              <BeaconCompanion state={companion.state} size="regular" label={companion.message} />
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '3px', minWidth: 0 }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                 <span style={{ fontSize: '14px', fontWeight: 600, color: 'var(--text-primary)', letterSpacing: '-0.2px' }}>
                   {new Date().getHours() < 12 ? 'Good morning.' : new Date().getHours() < 18 ? 'Good afternoon.' : 'Good evening.'}
                 </span>
                 <span style={{ fontSize: '12px', color: 'var(--text-secondary)' }}>
                   You've kept {stats?.commitmentsKept?.completed ?? 0} of {stats?.commitmentsKept?.total ?? Math.max(1, goals.length)} commitments this week.
                 </span>
-              </div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '10px', fontSize: '11px', color: 'var(--text-muted)' }}>
+                </div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '10px', fontSize: '11px', color: 'var(--text-muted)' }}>
                 <span>{Math.round((stats?.overallProgressFraction ?? 0) * 100)}% completed today</span>
                 <span>•</span>
                 <span>Consistency {stats?.consistencyPercentage ?? 92}%</span>
@@ -316,6 +325,7 @@ export const MainAppView: React.FC = () => {
                     </span>
                   </>
                 )}
+                </div>
               </div>
             </div>
 
