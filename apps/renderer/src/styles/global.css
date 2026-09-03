@@ -251,3 +251,63 @@ input, textarea {
   transform: translateY(-2px);
 }
 
+@keyframes messageBubblePop {
+  0% {
+    opacity: 0;
+    transform: translateY(8px) scale(0.97);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes spiritFloat {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-3px);
+  }
+}
+
+@keyframes spiritEmotePop {
+  0% {
+    opacity: 0;
+    transform: translateY(6px) scale(0.6);
+  }
+  60% {
+    opacity: 1;
+    transform: translateY(-2px) scale(1.15);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes cursorBlink {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0;
+  }
+}
+
+.spirit-floating {
+  animation: spiritFloat 3s ease-in-out infinite;
+}
+
+.message-enter-anim {
+  animation: messageBubblePop 0.22s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.spirit-cursor {
+  display: inline-block;
+  margin-left: 3px;
+  color: var(--accent-solar, #ff7a00);
+  animation: cursorBlink 0.8s ease-in-out infinite;
+  font-weight: bold;
+}
+

@@ -1,7 +1,8 @@
+// apps/renderer/src/components/BeaconCompanionChatModal.tsx - Interactive Spirit Companion AI Modal with Streaming Animations & Personality
 import React, { useState, useEffect, useRef } from 'react';
 import { BeaconCompanion } from './BeaconCompanion';
 import { CompanionState } from '@shared/types';
-import { Sparkles, Send, X, Loader2, CheckCircle2, Zap, Target, ArrowRight, Settings } from 'lucide-react';
+import { Sparkles, Send, X, Loader2, CheckCircle2, Zap, Target, ArrowRight, Settings, RotateCcw } from 'lucide-react';
 import { soundEffects } from '../utils/audio';
 
 interface Message {
@@ -10,6 +11,7 @@ interface Message {
   text: string;
   actionsTaken?: string[];
   timestamp: string;
+  isStreaming?: boolean;
 }
 
 interface BeaconCompanionChatModalProps {
@@ -18,46 +20,104 @@ interface BeaconCompanionChatModalProps {
   onOpenSettings?: () => void;
 }
 
-const PRE_GENERATED_ACTIONS = [
+const SPIRIT_EMOTES = ['✨', '🔥', '✦', '🌱', '💡', '🚀', '⚡', '🎉'];
+
+const QUICK_ACTIONS = [
   {
-    category: 'Create Goals',
-    icon: Target,
-    color: '#ff7a00',
-    prompts: [
-      'Create habit: Morning Gym 4 days a week',
-      'Add goal: Read 20 pages of Atomic Habits daily',
-      'Set deadline: SaaS Product Launch by Oct 31',
-    ],
-  },
-  {
-    category: 'Deep Work & Focus',
+    category: 'Focus',
     icon: Zap,
     color: '#38bdf8',
-    prompts: [
-      'Start a 25m focus sprint on LeetCode',
-      'Focus for 45 minutes on SaaS app',
-    ],
+    prompt: 'Start a 25m focus sprint on LeetCode',
+    shortLabel: '25m Focus Sprint',
   },
   {
-    category: 'Log Progress & Edits',
+    category: 'Goals',
+    icon: Target,
+    color: '#ff7a00',
+    prompt: 'Create habit: Morning Gym 4 days a week',
+    shortLabel: 'Create Gym Habit (4x/wk)',
+  },
+  {
+    category: 'Progress',
     icon: ArrowRight,
     color: '#10b981',
-    prompts: [
-      'I completed 2 LeetCode problems today',
-      'Log +1 to Acads',
-      'Increase my Gym target to 5 days a week',
-    ],
+    prompt: 'I completed 2 LeetCode problems today',
+    shortLabel: 'Log +2 LeetCode',
   },
   {
-    category: 'Insights & Review',
+    category: 'Insights',
     icon: Sparkles,
     color: '#a855f7',
-    prompts: [
-      'How is my momentum rhythm this week?',
-      'Summarize my active goals and progress',
-    ],
+    prompt: 'How is my momentum rhythm this week?',
+    shortLabel: 'Check Momentum Rhythm',
+  },
+  {
+    category: 'Goals',
+    icon: Target,
+    color: '#ff7a00',
+    prompt: 'Add goal: Read 20 pages of Atomic Habits daily',
+    shortLabel: 'Read 20 Pages Daily',
+  },
+  {
+    category: 'Focus',
+    icon: Zap,
+    color: '#38bdf8',
+    prompt: 'Focus for 45 minutes on SaaS app',
+    shortLabel: '45m SaaS Deep Work',
+  },
+  {
+    category: 'Progress',
+    icon: ArrowRight,
+    color: '#10b981',
+    prompt: 'Log +1 to Acads',
+    shortLabel: 'Log +1 Acads',
+  },
+  {
+    category: 'Insights',
+    icon: Sparkles,
+    color: '#a855f7',
+    prompt: 'Summarize my active goals and progress',
+    shortLabel: 'Summarize Commitments',
   },
 ];
+
+// Streaming animated typewriter text component
+const StreamingBubbleText: React.FC<{ text: string; animate?: boolean }> = ({ text, animate = false }) => {
+  const [displayedText, setDisplayedText] = useState(animate ? '' : text);
+  const [isTyping, setIsTyping] = useState(animate);
+
+  useEffect(() => {
+    if (!animate) {
+      setDisplayedText(text);
+      setIsTyping(false);
+      return;
+    }
+
+    const words = text.split(' ');
+    let currentIdx = 0;
+    setDisplayedText('');
+    setIsTyping(true);
+
+    const interval = setInterval(() => {
+      currentIdx += 1;
+      setDisplayedText(words.slice(0, currentIdx).join(' '));
+
+      if (currentIdx >= words.length) {
+        clearInterval(interval);
+        setIsTyping(false);
+      }
+    }, 28);
+
+    return () => clearInterval(interval);
+  }, [text, animate]);
+
+  return (
+    <span>
+      {displayedText}
+      {isTyping && <span className="spirit-cursor">✦</span>}
+    </span>
+  );
+};
 
 export const BeaconCompanionChatModal: React.FC<BeaconCompanionChatModalProps> = ({
   isOpen,
@@ -68,21 +128,23 @@ export const BeaconCompanionChatModal: React.FC<BeaconCompanionChatModalProps> =
     {
       id: 'welcome',
       sender: 'companion',
-      text: 'Hi there! I’m your Beacon companion spirit. ✨ What would you like to build, track, or focus on today? You can choose one of the suggestions below or type any command.',
+      text: 'Hey there! I’m Beacon Spirit. I live right here in your Dynamic Island to keep your deep work burning bright. What are we conquering today? Tap a quick spell below or speak your mind! ✦',
       timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+      isStreaming: false,
     },
   ]);
   const [inputValue, setInputValue] = useState('');
   const [isThinking, setIsThinking] = useState(false);
   const [companionMood, setCompanionMood] = useState<CompanionState>('smiling');
   const [providerName, setProviderName] = useState<string>('AI Brain');
+  const [floatingEmote, setFloatingEmote] = useState<string | null>(null);
+  const [filterCategory, setFilterCategory] = useState<string>('All');
   const chatScrollRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     if (!isOpen) return;
 
-    // Fetch active provider name
     const fetchConfig = async () => {
       try {
         if (window.beacon?.ai) {
@@ -109,6 +171,31 @@ export const BeaconCompanionChatModal: React.FC<BeaconCompanionChatModalProps> =
 
   if (!isOpen) return null;
 
+  const handleSpiritPet = () => {
+    soundEffects.playMilestonePop();
+    const randomEmote = SPIRIT_EMOTES[Math.floor(Math.random() * SPIRIT_EMOTES.length)];
+    setFloatingEmote(randomEmote);
+    setCompanionMood('celebrating');
+
+    setTimeout(() => {
+      setFloatingEmote(null);
+      setCompanionMood('smiling');
+    }, 900);
+  };
+
+  const handleClearHistory = () => {
+    soundEffects.playTickSound();
+    setMessages([
+      {
+        id: `fresh-${Date.now()}`,
+        sender: 'companion',
+        text: 'Clean slate! What should we tackle next? ✦',
+        timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+        isStreaming: true,
+      },
+    ]);
+  };
+
   const handleSendMessage = async (textToSend?: string) => {
     const prompt = (textToSend || inputValue).trim();
     if (!prompt || isThinking) return;
@@ -118,6 +205,7 @@ export const BeaconCompanionChatModal: React.FC<BeaconCompanionChatModalProps> =
       sender: 'user',
       text: prompt,
       timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+      isStreaming: false,
     };
 
     setMessages((prev) => [...prev, userMsg]);
@@ -128,10 +216,9 @@ export const BeaconCompanionChatModal: React.FC<BeaconCompanionChatModalProps> =
 
     try {
       if (!window.beacon?.ai) {
-        throw new Error('AI engine is currently initializing. Please check settings.');
+        throw new Error('AI bridge is initializing. Please restart Beacon or check settings.');
       }
 
-      // Format conversation history for multi-turn orchestrator
       const history = messages
         .filter((m) => m.id !== 'welcome')
         .map((m) => ({
@@ -144,22 +231,24 @@ export const BeaconCompanionChatModal: React.FC<BeaconCompanionChatModalProps> =
       const companionMsg: Message = {
         id: `companion-${Date.now()}`,
         sender: 'companion',
-        text: res.reply || 'All done! I updated your goals. ✦',
+        text: res.reply || 'On it! Updated your goals. ✦',
         actionsTaken: res.actionsTaken,
         timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+        isStreaming: true,
       };
 
       setMessages((prev) => [...prev, companionMsg]);
       setCompanionMood(res.actionsTaken.length > 0 ? 'celebrating' : 'smiling');
       if (res.actionsTaken.length > 0) {
-        soundEffects.playMilestonePop();
+        soundEffects.playGoalFanfare();
       }
     } catch (err: any) {
       const errorMsg: Message = {
         id: `err-${Date.now()}`,
         sender: 'companion',
-        text: `Oops! ${err.message || 'Something went wrong. Please check your API key in settings.'}`,
+        text: `Oops! ${err.message || 'Something went sideways. Please verify your API key in settings.'}`,
         timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+        isStreaming: true,
       };
       setMessages((prev) => [...prev, errorMsg]);
       setCompanionMood('idle');
@@ -178,19 +267,24 @@ export const BeaconCompanionChatModal: React.FC<BeaconCompanionChatModalProps> =
     }
   };
 
+  const visibleActions = filterCategory === 'All'
+    ? QUICK_ACTIONS
+    : QUICK_ACTIONS.filter((q) => q.category === filterCategory);
+
   return (
     <div
       style={{
         position: 'fixed',
         inset: 0,
-        backgroundColor: 'rgba(7, 8, 11, 0.78)',
-        backdropFilter: 'blur(24px)',
-        WebkitBackdropFilter: 'blur(24px)',
+        backgroundColor: 'rgba(5, 6, 8, 0.78)',
+        backdropFilter: 'blur(28px)',
+        WebkitBackdropFilter: 'blur(28px)',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
         zIndex: 9999,
-        padding: '24px',
+        padding: '20px',
+        overflow: 'hidden',
       }}
       onClick={(e) => {
         if (e.target === e.currentTarget) onClose();
@@ -198,40 +292,73 @@ export const BeaconCompanionChatModal: React.FC<BeaconCompanionChatModalProps> =
     >
       <div
         style={{
-          width: '580px',
+          width: '540px',
           maxWidth: '92vw',
-          height: '640px',
+          height: '620px',
           maxHeight: '85vh',
           backgroundColor: 'var(--bg-card, #0e1119)',
-          borderRadius: '26px',
+          borderRadius: '24px',
           borderTop: '1px solid var(--bg-card-border-top, rgba(255, 255, 255, 0.16))',
           borderBottom: '1px solid var(--border-subtle)',
           borderLeft: '1px solid var(--border-subtle)',
           borderRight: '1px solid var(--border-subtle)',
-          boxShadow: 'var(--shadow-lg), 0 24px 60px rgba(0, 0, 0, 0.65)',
+          boxShadow: 'var(--shadow-lg), 0 24px 64px rgba(0, 0, 0, 0.7)',
           display: 'flex',
           flexDirection: 'column',
           overflow: 'hidden',
-          animation: 'modalSlideUp 0.25s var(--ease-spring)',
+          animation: 'springCardIn 0.28s var(--ease-spring)',
         }}
       >
-        {/* Header */}
+        {/* Header with Floating Spirit Avatar & Emote */}
         <div
           style={{
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'space-between',
-            padding: '16px 20px',
+            padding: '14px 18px',
             borderBottom: '1px solid var(--border-subtle)',
             backgroundColor: 'var(--bg-surface, rgba(14, 16, 23, 0.6))',
+            flexShrink: 0,
           }}
         >
-          <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-            <BeaconCompanion state={isThinking ? 'thinking' : companionMood} size="compact" interactive={false} />
-            <div style={{ display: 'flex', flexDirection: 'column' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '12px', minWidth: 0 }}>
+            {/* Interactive mascot with floating bob and click effect */}
+            <div
+              onClick={handleSpiritPet}
+              className="spirit-floating"
+              style={{
+                cursor: 'pointer',
+                position: 'relative',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                padding: '2px',
+              }}
+              title="Pet the spirit! ✨"
+            >
+              <BeaconCompanion state={isThinking ? 'thinking' : companionMood} size="compact" interactive={false} />
+
+              {/* Floating Emote on Click */}
+              {floatingEmote && (
+                <span
+                  style={{
+                    position: 'absolute',
+                    top: '-12px',
+                    right: '-8px',
+                    fontSize: '16px',
+                    animation: 'spiritEmotePop 0.6s var(--ease-spring) forwards',
+                    pointerEvents: 'none',
+                  }}
+                >
+                  {floatingEmote}
+                </span>
+              )}
+            </div>
+
+            <div style={{ display: 'flex', flexDirection: 'column', minWidth: 0 }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                <span style={{ fontSize: '14px', fontWeight: 700, color: 'var(--text-primary)' }}>
-                  Beacon Companion
+                <span style={{ fontSize: '14px', fontWeight: 700, color: 'var(--text-primary)', letterSpacing: '-0.2px' }}>
+                  Beacon Spirit
                 </span>
                 <span
                   style={{
@@ -248,12 +375,24 @@ export const BeaconCompanionChatModal: React.FC<BeaconCompanionChatModalProps> =
                 </span>
               </div>
               <span style={{ fontSize: '11px', color: 'var(--text-muted)' }}>
-                Your autonomous productivity companion
+                {isThinking
+                  ? 'Brewing action plan... 🔮'
+                  : inputValue.trim()
+                  ? 'Listening intently... 💭'
+                  : 'Ready to crush goals ✨'}
               </span>
             </div>
           </div>
 
-          <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '4px', flexShrink: 0 }}>
+            <button
+              onClick={handleClearHistory}
+              className="btn-ghost"
+              style={{ padding: '6px', borderRadius: 'var(--radius-sm)' }}
+              title="Reset Conversation"
+            >
+              <RotateCcw size={14} />
+            </button>
             {onOpenSettings && (
               <button
                 onClick={() => {
@@ -264,7 +403,7 @@ export const BeaconCompanionChatModal: React.FC<BeaconCompanionChatModalProps> =
                 style={{ padding: '6px', borderRadius: 'var(--radius-sm)' }}
                 title="AI Settings"
               >
-                <Settings size={15} />
+                <Settings size={14} />
               </button>
             )}
             <button
@@ -273,39 +412,46 @@ export const BeaconCompanionChatModal: React.FC<BeaconCompanionChatModalProps> =
               style={{ padding: '6px', borderRadius: 'var(--radius-sm)' }}
               title="Close (Esc)"
             >
-              <X size={16} />
+              <X size={15} />
             </button>
           </div>
         </div>
 
-        {/* Chat History & Suggested Action Chips */}
+        {/* Chat History Area (strictly NO horizontal scroll!) */}
         <div
           ref={chatScrollRef}
           style={{
             flex: 1,
             overflowY: 'auto',
-            padding: '18px 20px',
+            overflowX: 'hidden',
+            padding: '16px 18px',
             display: 'flex',
             flexDirection: 'column',
-            gap: '14px',
+            gap: '12px',
+            boxSizing: 'border-box',
+            width: '100%',
           }}
         >
-          {/* Messages */}
           {messages.map((m) => {
             const isUser = m.sender === 'user';
             return (
               <div
                 key={m.id}
+                className="message-enter-anim"
                 style={{
                   display: 'flex',
                   flexDirection: 'column',
                   alignItems: isUser ? 'flex-end' : 'flex-start',
-                  gap: '4px',
+                  gap: '3px',
+                  width: '100%',
+                  boxSizing: 'border-box',
                 }}
               >
                 <div
                   style={{
-                    maxWidth: '82%',
+                    maxWidth: '85%',
+                    wordBreak: 'break-word',
+                    overflowWrap: 'break-word',
                     padding: '10px 14px',
                     borderRadius: isUser ? '16px 16px 4px 16px' : '16px 16px 16px 4px',
                     backgroundColor: isUser ? 'var(--accent-solar, #ff7a00)' : 'var(--bg-sidebar-card, rgba(255, 255, 255, 0.05))',
@@ -314,12 +460,12 @@ export const BeaconCompanionChatModal: React.FC<BeaconCompanionChatModalProps> =
                     fontSize: '13px',
                     lineHeight: 1.45,
                     border: isUser ? 'none' : '1px solid var(--border-subtle)',
-                    boxShadow: isUser ? '0 2px 8px rgba(255, 122, 0, 0.3)' : 'var(--shadow-sm)',
+                    boxShadow: isUser ? '0 2px 10px rgba(255, 122, 0, 0.3)' : 'var(--shadow-sm)',
                   }}
                 >
-                  {m.text}
+                  <StreamingBubbleText text={m.text} animate={m.isStreaming} />
 
-                  {/* Actions Taken Pills */}
+                  {/* Executed Tools Feedback */}
                   {m.actionsTaken && m.actionsTaken.length > 0 && (
                     <div style={{ marginTop: '8px', display: 'flex', flexDirection: 'column', gap: '4px' }}>
                       {m.actionsTaken.map((act, i) => (
@@ -336,9 +482,10 @@ export const BeaconCompanionChatModal: React.FC<BeaconCompanionChatModalProps> =
                             backgroundColor: 'rgba(52, 211, 153, 0.14)',
                             color: '#10b981',
                             border: '1px solid rgba(52, 211, 153, 0.25)',
+                            wordBreak: 'break-word',
                           }}
                         >
-                          <CheckCircle2 size={12} />
+                          <CheckCircle2 size={12} style={{ flexShrink: 0 }} />
                           <span>{act}</span>
                         </div>
                       ))}
@@ -352,15 +499,16 @@ export const BeaconCompanionChatModal: React.FC<BeaconCompanionChatModalProps> =
             );
           })}
 
-          {/* Thinking Indicator */}
+          {/* Thinking Wave Indicator */}
           {isThinking && (
-            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: 'var(--accent-solar, #ff7a00)' }}>
+            <div className="message-enter-anim" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
               <div
                 style={{
-                  padding: '10px 14px',
+                  padding: '9px 14px',
                   borderRadius: '16px 16px 16px 4px',
-                  backgroundColor: 'rgba(255, 122, 0, 0.1)',
-                  border: '1px solid rgba(255, 122, 0, 0.25)',
+                  backgroundColor: 'rgba(255, 122, 0, 0.12)',
+                  border: '1px solid rgba(255, 122, 0, 0.28)',
+                  color: 'var(--accent-solar, #ff7a00)',
                   display: 'flex',
                   alignItems: 'center',
                   gap: '8px',
@@ -368,79 +516,103 @@ export const BeaconCompanionChatModal: React.FC<BeaconCompanionChatModalProps> =
                   fontWeight: 600,
                 }}
               >
-                <Loader2 size={14} className="animate-spin" />
-                <span>Beacon is thinking & updating goals...</span>
+                <Loader2 size={13} className="animate-spin" />
+                <span>Spirit is aligning your goals...</span>
               </div>
             </div>
           )}
 
-          {/* Suggested Actions Divider & Grid (shown when not thinking) */}
+          {/* Suggested Action Spells Section (Zero horizontal spill!) */}
           {!isThinking && (
-            <div style={{ marginTop: '10px', display: 'flex', flexDirection: 'column', gap: '10px' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                <span style={{ fontSize: '10px', fontWeight: 700, letterSpacing: '0.06em', textTransform: 'uppercase', color: 'var(--text-muted)' }}>
-                  What you can ask or do:
+            <div
+              style={{
+                marginTop: '8px',
+                display: 'flex',
+                flexDirection: 'column',
+                gap: '8px',
+                width: '100%',
+                boxSizing: 'border-box',
+              }}
+            >
+              {/* Filter Pills */}
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '6px' }}>
+                <span style={{ fontSize: '10px', fontWeight: 700, letterSpacing: '0.05em', textTransform: 'uppercase', color: 'var(--text-muted)' }}>
+                  Quick Action Spells
                 </span>
-                <div style={{ flex: 1, height: '1px', backgroundColor: 'var(--border-subtle)' }} />
-              </div>
-
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px' }}>
-                {PRE_GENERATED_ACTIONS.map((cat, catIdx) => {
-                  const Icon = cat.icon;
-                  return (
-                    <div
-                      key={catIdx}
+                <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                  {['All', 'Goals', 'Focus', 'Progress', 'Insights'].map((cat) => (
+                    <button
+                      key={cat}
+                      onClick={() => setFilterCategory(cat)}
                       style={{
-                        padding: '10px 12px',
-                        borderRadius: 'var(--radius-md)',
-                        backgroundColor: 'var(--bg-surface-elevated, rgba(255, 255, 255, 0.025))',
-                        border: '1px solid var(--border-subtle)',
-                        display: 'flex',
-                        flexDirection: 'column',
-                        gap: '6px',
+                        fontSize: '10px',
+                        fontWeight: 600,
+                        padding: '2px 7px',
+                        borderRadius: '6px',
+                        border: 'none',
+                        cursor: 'pointer',
+                        backgroundColor: filterCategory === cat ? 'var(--accent-solar, #ff7a00)' : 'var(--btn-ghost-bg, rgba(255, 255, 255, 0.05))',
+                        color: filterCategory === cat ? '#07080b' : 'var(--text-secondary)',
+                        transition: 'all 0.12s ease',
                       }}
                     >
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                        <Icon size={12} color={cat.color} />
-                        <span style={{ fontSize: '11px', fontWeight: 700, color: 'var(--text-primary)' }}>
-                          {cat.category}
-                        </span>
-                      </div>
+                      {cat}
+                    </button>
+                  ))}
+                </div>
+              </div>
 
-                      <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
-                        {cat.prompts.map((promptText, pIdx) => (
-                          <div
-                            key={pIdx}
-                            onClick={() => handleSendMessage(promptText)}
-                            style={{
-                              fontSize: '11px',
-                              color: 'var(--text-secondary)',
-                              padding: '4px 6px',
-                              borderRadius: '4px',
-                              cursor: 'pointer',
-                              backgroundColor: 'transparent',
-                              transition: 'all 0.12s ease',
-                              display: 'flex',
-                              alignItems: 'center',
-                              justifyContent: 'space-between',
-                            }}
-                            onMouseEnter={(e) => {
-                              e.currentTarget.style.backgroundColor = 'rgba(255, 122, 0, 0.12)';
-                              e.currentTarget.style.color = 'var(--accent-solar, #ff7a00)';
-                            }}
-                            onMouseLeave={(e) => {
-                              e.currentTarget.style.backgroundColor = 'transparent';
-                              e.currentTarget.style.color = 'var(--text-secondary)';
-                            }}
-                          >
-                            <span style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-                              ✦ {promptText}
-                            </span>
-                            <ArrowRight size={10} opacity={0.6} />
-                          </div>
-                        ))}
-                      </div>
-                    </div>
+              {/* Flex-wrapping Pills (Guaranteed NO Horizontal Overflow) */}
+              <div
+                style={{
+                  display: 'flex',
+                  flexWrap: 'wrap',
+                  gap: '6px',
+                  width: '100%',
+                  boxSizing: 'border-box',
+                }}
+              >
+                {visibleActions.map((act, idx) => {
+                  const Icon = act.icon;
+                  return (
+                    <button
+                      key={idx}
+                      onClick={() => handleSendMessage(act.prompt)}
+                      style={{
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        gap: '6px',
+                        padding: '6px 10px',
+                        borderRadius: '9999px',
+                        backgroundColor: 'var(--bg-surface-elevated, rgba(255, 255, 255, 0.035))',
+                        border: '1px solid var(--border-subtle)',
+                        color: 'var(--text-secondary)',
+                        fontSize: '11px',
+                        fontWeight: 500,
+                        cursor: 'pointer',
+                        transition: 'all 0.14s ease',
+                        maxWidth: '100%',
+                        boxSizing: 'border-box',
+                      }}
+                      onMouseEnter={(e) => {
+                        e.currentTarget.style.backgroundColor = 'rgba(255, 122, 0, 0.12)';
+                        e.currentTarget.style.borderColor = 'rgba(255, 122, 0, 0.35)';
+                        e.currentTarget.style.color = 'var(--text-primary)';
+                        e.currentTarget.style.transform = 'translateY(-1px)';
+                      }}
+                      onMouseLeave={(e) => {
+                        e.currentTarget.style.backgroundColor = 'var(--bg-surface-elevated, rgba(255, 255, 255, 0.035))';
+                        e.currentTarget.style.borderColor = 'var(--border-subtle)';
+                        e.currentTarget.style.color = 'var(--text-secondary)';
+                        e.currentTarget.style.transform = 'translateY(0)';
+                      }}
+                    >
+                      <Icon size={11} color={act.color} style={{ flexShrink: 0 }} />
+                      <span style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                        {act.shortLabel}
+                      </span>
+                      <ArrowRight size={10} style={{ opacity: 0.5, flexShrink: 0 }} />
+                    </button>
                   );
                 })}
               </div>
@@ -451,12 +623,15 @@ export const BeaconCompanionChatModal: React.FC<BeaconCompanionChatModalProps> =
         {/* Input Bar */}
         <div
           style={{
-            padding: '14px 18px',
+            padding: '12px 16px',
             borderTop: '1px solid var(--border-subtle)',
             backgroundColor: 'var(--bg-surface, rgba(14, 16, 23, 0.6))',
             display: 'flex',
             alignItems: 'center',
-            gap: '10px',
+            gap: '8px',
+            flexShrink: 0,
+            width: '100%',
+            boxSizing: 'border-box',
           }}
         >
           <input
@@ -469,7 +644,7 @@ export const BeaconCompanionChatModal: React.FC<BeaconCompanionChatModalProps> =
             disabled={isThinking}
             style={{
               flex: 1,
-              padding: '10px 14px',
+              padding: '9px 14px',
               borderRadius: '12px',
               backgroundColor: 'var(--search-bg, var(--bg-card))',
               border: '1px solid var(--border-subtle)',
@@ -477,6 +652,13 @@ export const BeaconCompanionChatModal: React.FC<BeaconCompanionChatModalProps> =
               fontSize: '13px',
               outline: 'none',
               fontFamily: 'inherit',
+              transition: 'border-color 0.15s ease',
+            }}
+            onFocus={(e) => {
+              e.currentTarget.style.borderColor = 'rgba(255, 122, 0, 0.5)';
+            }}
+            onBlur={(e) => {
+              e.currentTarget.style.borderColor = 'var(--border-subtle)';
             }}
           />
 
@@ -484,7 +666,7 @@ export const BeaconCompanionChatModal: React.FC<BeaconCompanionChatModalProps> =
             onClick={() => handleSendMessage()}
             disabled={!inputValue.trim() || isThinking}
             style={{
-              padding: '10px 18px',
+              padding: '9px 16px',
               borderRadius: '12px',
               backgroundColor: inputValue.trim() && !isThinking ? 'var(--accent-solar, #ff7a00)' : 'var(--btn-ghost-bg, rgba(255, 255, 255, 0.08))',
               border: 'none',
@@ -496,9 +678,10 @@ export const BeaconCompanionChatModal: React.FC<BeaconCompanionChatModalProps> =
               alignItems: 'center',
               gap: '6px',
               transition: 'all 0.15s ease',
+              flexShrink: 0,
             }}
           >
-            {isThinking ? <Loader2 size={14} className="animate-spin" /> : <Send size={14} />}
+            {isThinking ? <Loader2 size={13} className="animate-spin" /> : <Send size={13} />}
             <span>Send</span>
           </button>
         </div>
