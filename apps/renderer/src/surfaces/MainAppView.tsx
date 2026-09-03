@@ -199,32 +199,48 @@ export const MainAppView: React.FC = () => {
       }}
     >
       <ConfettiCanvas />
-      {/* Bespoke Dark Atmospheric Photo Wallpaper */}
-      <div
-        style={{
-          position: 'absolute',
-          inset: 0,
-          backgroundImage: `url(${atmosphericBg})`,
-          backgroundSize: 'cover',
-          backgroundPosition: 'center top',
-          opacity: 0.22,
-          filter: 'blur(2px)',
-          maskImage: 'linear-gradient(to bottom, rgba(0, 0, 0, 1) 15%, rgba(0, 0, 0, 0.3) 70%, transparent 100%)',
-          WebkitMaskImage: 'linear-gradient(to bottom, rgba(0, 0, 0, 1) 15%, rgba(0, 0, 0, 0.3) 70%, transparent 100%)',
-          pointerEvents: 'none',
-          zIndex: 0,
-        }}
-      />
-      {/* Cinematic Vignette to Deep Obsidian Black */}
-      <div
-        style={{
-          position: 'absolute',
-          inset: 0,
-          background: 'radial-gradient(ellipse at 50% 10%, rgba(7, 8, 11, 0.3) 0%, rgba(7, 8, 11, 0.85) 65%, #07080b 100%)',
-          pointerEvents: 'none',
-          zIndex: 0,
-        }}
-      />
+      {/* Conditional Atmospheric Background */}
+      {theme === 'dark' ? (
+        <>
+          {/* Bespoke Dark Atmospheric Photo Wallpaper */}
+          <div
+            style={{
+              position: 'absolute',
+              inset: 0,
+              backgroundImage: `url(${atmosphericBg})`,
+              backgroundSize: 'cover',
+              backgroundPosition: 'center top',
+              opacity: 0.22,
+              filter: 'blur(2px)',
+              maskImage: 'linear-gradient(to bottom, rgba(0, 0, 0, 1) 15%, rgba(0, 0, 0, 0.3) 70%, transparent 100%)',
+              WebkitMaskImage: 'linear-gradient(to bottom, rgba(0, 0, 0, 1) 15%, rgba(0, 0, 0, 0.3) 70%, transparent 100%)',
+              pointerEvents: 'none',
+              zIndex: 0,
+            }}
+          />
+          {/* Cinematic Vignette to Deep Obsidian Black */}
+          <div
+            style={{
+              position: 'absolute',
+              inset: 0,
+              background: 'radial-gradient(ellipse at 50% 10%, rgba(7, 8, 11, 0.3) 0%, rgba(7, 8, 11, 0.85) 65%, #07080b 100%)',
+              pointerEvents: 'none',
+              zIndex: 0,
+            }}
+          />
+        </>
+      ) : (
+        /* Crystalline Apple HIG Light Mode Background */
+        <div
+          style={{
+            position: 'absolute',
+            inset: 0,
+            background: 'radial-gradient(ellipse at 50% 0%, rgba(255, 122, 0, 0.04) 0%, rgba(244, 245, 248, 0.6) 45%, #f4f5f8 100%)',
+            pointerEvents: 'none',
+            zIndex: 0,
+          }}
+        />
+      )}
       {/* Titlebar / Drag Region */}
       <div
         className="drag-region"
@@ -412,7 +428,7 @@ export const MainAppView: React.FC = () => {
           </div>
           {/* Tabs & Search Bar */}
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '12px' }}>
-            <div style={{ display: 'flex', gap: '4px', backgroundColor: 'rgba(255, 255, 255, 0.04)', padding: '3px', borderRadius: 'var(--radius-md)', border: '1px solid var(--border-subtle)' }}>
+            <div style={{ display: 'flex', gap: '4px', backgroundColor: 'var(--tab-container-bg, rgba(255, 255, 255, 0.04))', padding: '3px', borderRadius: 'var(--radius-md)', border: '1px solid var(--border-subtle)' }}>
               <button
                 onClick={() => setActiveTab('active')}
                 style={{
@@ -420,8 +436,9 @@ export const MainAppView: React.FC = () => {
                   borderRadius: 'var(--radius-sm)',
                   fontSize: '12px',
                   fontWeight: 600,
-                  backgroundColor: activeTab === 'active' ? '#ffffff' : 'transparent',
-                  color: activeTab === 'active' ? '#000000' : 'var(--text-secondary)',
+                  backgroundColor: activeTab === 'active' ? 'var(--tab-active-bg, #ffffff)' : 'transparent',
+                  color: activeTab === 'active' ? 'var(--tab-active-text, #000000)' : 'var(--text-secondary)',
+                  boxShadow: activeTab === 'active' ? 'var(--shadow-sm)' : 'none',
                   border: 'none',
                   cursor: 'pointer',
                   display: 'flex',
@@ -440,8 +457,9 @@ export const MainAppView: React.FC = () => {
                   borderRadius: 'var(--radius-sm)',
                   fontSize: '12px',
                   fontWeight: 600,
-                  backgroundColor: activeTab === 'completed' ? '#ffffff' : 'transparent',
-                  color: activeTab === 'completed' ? '#000000' : 'var(--text-secondary)',
+                  backgroundColor: activeTab === 'completed' ? 'var(--tab-active-bg, #ffffff)' : 'transparent',
+                  color: activeTab === 'completed' ? 'var(--tab-active-text, #000000)' : 'var(--text-secondary)',
+                  boxShadow: activeTab === 'completed' ? 'var(--shadow-sm)' : 'none',
                   border: 'none',
                   cursor: 'pointer',
                   display: 'flex',
@@ -460,8 +478,9 @@ export const MainAppView: React.FC = () => {
                   borderRadius: 'var(--radius-sm)',
                   fontSize: '12px',
                   fontWeight: 600,
-                  backgroundColor: activeTab === 'archived' ? '#ffffff' : 'transparent',
-                  color: activeTab === 'archived' ? '#000000' : 'var(--text-secondary)',
+                  backgroundColor: activeTab === 'archived' ? 'var(--tab-active-bg, #ffffff)' : 'transparent',
+                  color: activeTab === 'archived' ? 'var(--tab-active-text, #000000)' : 'var(--text-secondary)',
+                  boxShadow: activeTab === 'archived' ? 'var(--shadow-sm)' : 'none',
                   border: 'none',
                   cursor: 'pointer',
                   display: 'flex',
@@ -480,8 +499,9 @@ export const MainAppView: React.FC = () => {
                   borderRadius: 'var(--radius-sm)',
                   fontSize: '12px',
                   fontWeight: 600,
-                  backgroundColor: activeTab === 'all' ? '#ffffff' : 'transparent',
-                  color: activeTab === 'all' ? '#000000' : 'var(--text-secondary)',
+                  backgroundColor: activeTab === 'all' ? 'var(--tab-active-bg, #ffffff)' : 'transparent',
+                  color: activeTab === 'all' ? 'var(--tab-active-text, #000000)' : 'var(--text-secondary)',
+                  boxShadow: activeTab === 'all' ? 'var(--shadow-sm)' : 'none',
                   border: 'none',
                   cursor: 'pointer',
                   transition: 'all 0.15s ease',
@@ -503,12 +523,13 @@ export const MainAppView: React.FC = () => {
                   width: '100%',
                   boxSizing: 'border-box',
                   padding: '6px 28px 6px 30px',
-                  backgroundColor: 'rgba(255, 255, 255, 0.04)',
+                  backgroundColor: 'var(--search-bg, var(--bg-surface))',
                   border: '1px solid var(--border-subtle)',
                   borderRadius: 'var(--radius-md)',
                   color: 'var(--text-primary)',
                   fontSize: '12px',
                   outline: 'none',
+                  boxShadow: theme === 'light' ? 'var(--shadow-sm)' : 'none',
                 }}
               />
               {searchQuery && (
@@ -593,7 +614,7 @@ export const MainAppView: React.FC = () => {
           style={{
             width: '280px',
             borderLeft: '1px solid var(--border-subtle)',
-            backgroundColor: 'rgba(7, 8, 11, 0.72)',
+            backgroundColor: 'var(--bg-sidebar, rgba(7, 8, 11, 0.72))',
             backdropFilter: 'blur(24px)',
             WebkitBackdropFilter: 'blur(24px)',
             display: 'flex',
@@ -609,12 +630,13 @@ export const MainAppView: React.FC = () => {
           <div
             style={{
               padding: '12px 14px',
-              backgroundColor: 'rgba(255, 255, 255, 0.025)',
+              backgroundColor: 'var(--bg-sidebar-card, rgba(255, 255, 255, 0.025))',
               borderRadius: 'var(--radius-lg)',
-              borderTop: '1px solid rgba(255, 255, 255, 0.08)',
-              borderBottom: '1px solid rgba(255, 255, 255, 0.03)',
+              borderTop: '1px solid var(--bg-card-border-top, var(--border-subtle))',
+              borderBottom: '1px solid var(--border-subtle)',
               borderLeft: '1px solid var(--border-subtle)',
               borderRight: '1px solid var(--border-subtle)',
+              boxShadow: 'var(--shadow-sm)',
               display: 'flex',
               flexDirection: 'column',
               gap: '10px',
@@ -633,7 +655,7 @@ export const MainAppView: React.FC = () => {
               <GoalProgressRing progressFraction={0.62} size={42} strokeWidth={3.8} color="var(--accent-solar, #ff7a00)" />
               <div style={{ display: 'flex', flexDirection: 'column' }}>
                 <span style={{ fontSize: '10px', color: 'var(--text-secondary)', fontWeight: 500 }}>Deep Work Sprint</span>
-                <span style={{ fontSize: '16px', fontWeight: 700, color: '#ffffff', letterSpacing: '-0.02em' }}>2h 30m</span>
+                <span style={{ fontSize: '16px', fontWeight: 700, color: 'var(--text-primary)', letterSpacing: '-0.02em' }}>2h 30m</span>
                 <span style={{ fontSize: '10px', color: 'var(--text-muted)' }}>Target 4h · 3 sessions</span>
               </div>
             </div>
@@ -646,12 +668,13 @@ export const MainAppView: React.FC = () => {
           <div
             style={{
               padding: '12px 14px',
-              backgroundColor: 'rgba(255, 255, 255, 0.025)',
+              backgroundColor: 'var(--bg-sidebar-card, rgba(255, 255, 255, 0.025))',
               borderRadius: 'var(--radius-lg)',
-              borderTop: '1px solid rgba(255, 255, 255, 0.08)',
-              borderBottom: '1px solid rgba(255, 255, 255, 0.03)',
+              borderTop: '1px solid var(--bg-card-border-top, var(--border-subtle))',
+              borderBottom: '1px solid var(--border-subtle)',
               borderLeft: '1px solid var(--border-subtle)',
               borderRight: '1px solid var(--border-subtle)',
+              boxShadow: 'var(--shadow-sm)',
               display: 'flex',
               flexDirection: 'column',
               gap: '8px',
@@ -673,12 +696,13 @@ export const MainAppView: React.FC = () => {
           <div
             style={{
               padding: '12px 14px',
-              backgroundColor: 'rgba(255, 255, 255, 0.025)',
+              backgroundColor: 'var(--bg-sidebar-card, rgba(255, 255, 255, 0.025))',
               borderRadius: 'var(--radius-lg)',
-              borderTop: '1px solid rgba(255, 255, 255, 0.08)',
-              borderBottom: '1px solid rgba(255, 255, 255, 0.03)',
+              borderTop: '1px solid var(--bg-card-border-top, var(--border-subtle))',
+              borderBottom: '1px solid var(--border-subtle)',
               borderLeft: '1px solid var(--border-subtle)',
               borderRight: '1px solid var(--border-subtle)',
+              boxShadow: 'var(--shadow-sm)',
               display: 'flex',
               flexDirection: 'column',
               gap: '8px',
@@ -700,9 +724,10 @@ export const MainAppView: React.FC = () => {
           <div
             style={{
               padding: '10px 14px',
-              backgroundColor: 'rgba(255, 255, 255, 0.018)',
+              backgroundColor: 'var(--bg-sidebar-card, rgba(255, 255, 255, 0.018))',
               borderRadius: 'var(--radius-md)',
-              border: '1px solid rgba(255, 255, 255, 0.04)',
+              border: '1px solid var(--border-subtle)',
+              boxShadow: 'var(--shadow-sm)',
               display: 'flex',
               flexDirection: 'column',
               gap: '4px',

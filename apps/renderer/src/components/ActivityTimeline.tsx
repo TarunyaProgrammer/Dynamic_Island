@@ -44,9 +44,9 @@ export const ActivityTimeline: React.FC<ActivityTimelineProps> = ({ events, goal
               alignItems: 'center',
               justifyContent: 'space-between',
               padding: '8px 10px',
-              backgroundColor: 'rgba(255, 255, 255, 0.02)',
+              backgroundColor: 'var(--btn-ghost-bg, rgba(255, 255, 255, 0.02))',
               borderRadius: 'var(--radius-md)',
-              border: '1px solid rgba(255, 255, 255, 0.04)',
+              border: '1px solid var(--border-subtle)',
             }}
           >
             <div style={{ display: 'flex', alignItems: 'center', gap: '10px', minWidth: 0 }}>

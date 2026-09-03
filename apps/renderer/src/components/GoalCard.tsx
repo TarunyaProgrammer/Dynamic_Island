@@ -102,7 +102,7 @@ export const GoalCard: React.FC<GoalCardProps> = ({
       case 'work':
         return { bg: 'rgba(255, 122, 0, 0.12)', color: 'var(--accent-solar, #ff7a00)', border: 'rgba(255, 122, 0, 0.25)' };
       default:
-        return { bg: 'rgba(255, 255, 255, 0.06)', color: 'var(--text-secondary)', border: 'rgba(255, 255, 255, 0.08)' };
+        return { bg: 'var(--btn-ghost-bg, rgba(255, 255, 255, 0.06))', color: 'var(--text-secondary)', border: 'var(--border-subtle)' };
     }
   };
 
@@ -110,11 +110,11 @@ export const GoalCard: React.FC<GoalCardProps> = ({
     <div
       onContextMenu={handleContextMenu}
       style={{
-        backgroundColor: 'rgba(255, 255, 255, 0.03)',
+        backgroundColor: 'var(--bg-card, var(--bg-surface))',
         backdropFilter: 'blur(16px)',
         WebkitBackdropFilter: 'blur(16px)',
-        borderTop: '1px solid rgba(255, 255, 255, 0.12)',
-        borderBottom: '1px solid rgba(255, 255, 255, 0.04)',
+        borderTop: '1px solid var(--bg-card-border-top, var(--border-subtle))',
+        borderBottom: '1px solid var(--border-subtle)',
         borderLeft: '1px solid var(--border-subtle)',
         borderRight: '1px solid var(--border-subtle)',
         borderRadius: 'var(--radius-lg)',
@@ -124,7 +124,7 @@ export const GoalCard: React.FC<GoalCardProps> = ({
         gap: '10px',
         position: 'relative',
         transition: 'all 0.2s ease',
-        boxShadow: '0 4px 16px rgba(0, 0, 0, 0.25)',
+        boxShadow: 'var(--shadow-sm)',
       }}
     >
       {/* Header Row */}

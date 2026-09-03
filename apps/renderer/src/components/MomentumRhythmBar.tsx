@@ -117,7 +117,7 @@ export const MomentumRhythmBar: React.FC<{ days?: DayActivity[]; hideHeader?: bo
                     ? 'var(--accent-solar, #ff7a00)'
                     : d.count > 0
                     ? 'rgba(255, 158, 66, 0.38)'
-                    : 'rgba(255, 255, 255, 0.06)',
+                    : 'var(--accent-neutral, rgba(255, 255, 255, 0.06))',
                   backgroundImage: d.isToday
                     ? 'linear-gradient(to top, #ff7a00, #f59e0b)'
                     : isHovered

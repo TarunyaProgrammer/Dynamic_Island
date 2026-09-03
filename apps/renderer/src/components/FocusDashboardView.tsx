@@ -80,9 +80,7 @@ export const FocusDashboardView: React.FC<FocusDashboardViewProps> = ({
         overflow: 'hidden',
         padding: '24px 32px',
         gap: '24px',
-        backgroundColor: 'rgba(7, 8, 11, 0.55)',
-        backdropFilter: 'blur(24px)',
-        WebkitBackdropFilter: 'blur(24px)',
+        backgroundColor: 'transparent',
         boxSizing: 'border-box',
         position: 'relative',
         zIndex: 1,
@@ -97,15 +95,15 @@ export const FocusDashboardView: React.FC<FocusDashboardViewProps> = ({
           alignItems: 'center',
           justifyContent: 'center',
           padding: '28px',
-          backgroundColor: 'rgba(14, 17, 25, 0.90)',
+          backgroundColor: 'var(--bg-card, var(--bg-surface))',
           backdropFilter: 'blur(40px) saturate(180%)',
           WebkitBackdropFilter: 'blur(40px) saturate(180%)',
-          borderTop: '1px solid rgba(255, 255, 255, 0.14)',
-          borderBottom: '1px solid rgba(255, 255, 255, 0.04)',
+          borderTop: '1px solid var(--bg-card-border-top, var(--border-subtle))',
+          borderBottom: '1px solid var(--border-subtle)',
           borderLeft: '1px solid var(--border-subtle)',
           borderRight: '1px solid var(--border-subtle)',
           borderRadius: '24px',
-          boxShadow: '0 20px 50px rgba(0, 0, 0, 0.75), inset 0 1px 0 rgba(255, 255, 255, 0.08)',
+          boxShadow: 'var(--shadow-md)',
           position: 'relative',
           overflow: 'hidden',
         }}
@@ -431,22 +429,22 @@ export const FocusDashboardView: React.FC<FocusDashboardViewProps> = ({
             display: 'flex',
             flexDirection: 'column',
             padding: '20px',
-            backgroundColor: 'rgba(14, 17, 25, 0.90)',
+            backgroundColor: 'var(--bg-card, var(--bg-surface))',
             backdropFilter: 'blur(40px) saturate(180%)',
             WebkitBackdropFilter: 'blur(40px) saturate(180%)',
-            borderTop: '1px solid rgba(255, 255, 255, 0.14)',
-            borderBottom: '1px solid rgba(255, 255, 255, 0.04)',
+            borderTop: '1px solid var(--bg-card-border-top, var(--border-subtle))',
+            borderBottom: '1px solid var(--border-subtle)',
             borderLeft: '1px solid var(--border-subtle)',
             borderRight: '1px solid var(--border-subtle)',
             borderRadius: '20px',
             overflow: 'hidden',
-            boxShadow: '0 20px 50px rgba(0, 0, 0, 0.75)',
+            boxShadow: 'var(--shadow-md)',
           }}
         >
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '14px' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
               <Target size={15} color="var(--accent-solar, #ff7a00)" />
-              <span style={{ fontSize: '13px', fontWeight: 700, color: '#ffffff' }}>Timer Mode / Linked Goal</span>
+              <span style={{ fontSize: '13px', fontWeight: 700, color: 'var(--text-primary)' }}>Timer Mode / Linked Goal</span>
             </div>
             <button onClick={onOpenCreateGoal} className="btn-ghost" style={{ padding: '2px 8px', fontSize: '11px', gap: '4px' }}>
               <Plus size={12} />
@@ -536,11 +534,11 @@ export const FocusDashboardView: React.FC<FocusDashboardViewProps> = ({
                   style={{
                     padding: '12px 14px',
                     borderRadius: '14px',
-                    backgroundColor: isSelected ? 'rgba(255, 122, 0, 0.15)' : 'rgba(24, 28, 38, 0.85)',
+                    backgroundColor: isSelected ? 'rgba(255, 122, 0, 0.15)' : 'var(--bg-card, var(--bg-surface))',
                     backdropFilter: 'blur(16px)',
                     WebkitBackdropFilter: 'blur(16px)',
-                    borderTop: isSelected ? '1px solid rgba(255, 122, 0, 0.55)' : '1px solid rgba(255, 255, 255, 0.14)',
-                    borderBottom: isSelected ? '1px solid rgba(255, 122, 0, 0.3)' : '1px solid rgba(255, 255, 255, 0.04)',
+                    borderTop: isSelected ? '1px solid rgba(255, 122, 0, 0.55)' : '1px solid var(--bg-card-border-top, var(--border-subtle))',
+                    borderBottom: isSelected ? '1px solid rgba(255, 122, 0, 0.3)' : '1px solid var(--border-subtle)',
                     borderLeft: isSelected ? '1px solid rgba(255, 122, 0, 0.45)' : '1px solid var(--border-subtle)',
                     borderRight: isSelected ? '1px solid rgba(255, 122, 0, 0.45)' : '1px solid var(--border-subtle)',
                     cursor: focusState.isActive ? 'default' : 'pointer',
@@ -548,21 +546,21 @@ export const FocusDashboardView: React.FC<FocusDashboardViewProps> = ({
                     alignItems: 'center',
                     justifyContent: 'space-between',
                     gap: '10px',
-                    boxShadow: isSelected ? '0 0 16px rgba(255, 122, 0, 0.18)' : '0 2px 8px rgba(0, 0, 0, 0.35)',
+                    boxShadow: isSelected ? '0 0 16px rgba(255, 122, 0, 0.18)' : 'var(--shadow-sm)',
                     transition: 'all 0.15s ease',
                   }}
                 >
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '2px', minWidth: 0, flex: 1 }}>
-                    <span style={{ fontSize: '13px', fontWeight: 600, color: '#ffffff', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                    <span style={{ fontSize: '13px', fontWeight: 600, color: 'var(--text-primary)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
                       {g.name}
                     </span>
-                    <span style={{ fontSize: '11px', color: 'rgba(255, 255, 255, 0.75)', fontWeight: 500 }}>
+                    <span style={{ fontSize: '11px', color: 'var(--text-secondary)', fontWeight: 500 }}>
                       {g.currentValue} / {g.targetValue} {g.unit || ''}
                     </span>
                   </div>
 
                   <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexShrink: 0 }}>
-                    <span style={{ fontSize: '11px', fontWeight: 700, color: isSelected ? 'var(--accent-solar, #ff7a00)' : '#ffffff' }}>
+                    <span style={{ fontSize: '11px', fontWeight: 700, color: isSelected ? 'var(--accent-solar, #ff7a00)' : 'var(--text-secondary)' }}>
                       {Math.round(frac * 100)}%
                     </span>
                     <GoalProgressRing
@@ -590,28 +588,28 @@ export const FocusDashboardView: React.FC<FocusDashboardViewProps> = ({
           <div
             style={{
               padding: '12px 14px',
-              backgroundColor: 'rgba(24, 28, 38, 0.85)',
+              backgroundColor: 'var(--bg-card, var(--bg-surface))',
               backdropFilter: 'blur(16px)',
               WebkitBackdropFilter: 'blur(16px)',
-              borderTop: '1px solid rgba(255, 255, 255, 0.14)',
-              borderBottom: '1px solid rgba(255, 255, 255, 0.04)',
+              borderTop: '1px solid var(--bg-card-border-top, var(--border-subtle))',
+              borderBottom: '1px solid var(--border-subtle)',
               borderLeft: '1px solid var(--border-subtle)',
               borderRight: '1px solid var(--border-subtle)',
               borderRadius: '16px',
               display: 'flex',
               flexDirection: 'column',
               gap: '4px',
-              boxShadow: '0 4px 16px rgba(0, 0, 0, 0.35)',
+              boxShadow: 'var(--shadow-sm)',
             }}
           >
-            <div style={{ display: 'flex', alignItems: 'center', gap: '6px', color: 'rgba(255, 255, 255, 0.75)', fontSize: '11px', fontWeight: 500 }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '6px', color: 'var(--text-secondary)', fontSize: '11px', fontWeight: 500 }}>
               <Clock size={12} color="var(--accent-solar, #ff7a00)" />
               <span>Independent & Goals</span>
             </div>
-            <span style={{ fontSize: '16px', fontWeight: 800, color: '#ffffff' }}>
+            <span style={{ fontSize: '16px', fontWeight: 800, color: 'var(--text-primary)' }}>
               Universal
             </span>
-            <span style={{ fontSize: '10px', color: 'rgba(255, 255, 255, 0.65)' }}>
+            <span style={{ fontSize: '10px', color: 'var(--text-muted)' }}>
               Supports manual min entry & +5m
             </span>
           </div>
@@ -619,28 +617,28 @@ export const FocusDashboardView: React.FC<FocusDashboardViewProps> = ({
           <div
             style={{
               padding: '12px 14px',
-              backgroundColor: 'rgba(24, 28, 38, 0.85)',
+              backgroundColor: 'var(--bg-card, var(--bg-surface))',
               backdropFilter: 'blur(16px)',
               WebkitBackdropFilter: 'blur(16px)',
-              borderTop: '1px solid rgba(255, 255, 255, 0.14)',
-              borderBottom: '1px solid rgba(255, 255, 255, 0.04)',
+              borderTop: '1px solid var(--bg-card-border-top, var(--border-subtle))',
+              borderBottom: '1px solid var(--border-subtle)',
               borderLeft: '1px solid var(--border-subtle)',
               borderRight: '1px solid var(--border-subtle)',
               borderRadius: '16px',
               display: 'flex',
               flexDirection: 'column',
               gap: '4px',
-              boxShadow: '0 4px 16px rgba(0, 0, 0, 0.35)',
+              boxShadow: 'var(--shadow-sm)',
             }}
           >
-            <div style={{ display: 'flex', alignItems: 'center', gap: '6px', color: 'rgba(255, 255, 255, 0.75)', fontSize: '11px', fontWeight: 500 }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '6px', color: 'var(--text-secondary)', fontSize: '11px', fontWeight: 500 }}>
               <Radio size={12} color="var(--accent-cyan, #38bdf8)" />
               <span>Dynamic Island</span>
             </div>
-            <span style={{ fontSize: '16px', fontWeight: 800, color: '#ffffff' }}>
+            <span style={{ fontSize: '16px', fontWeight: 800, color: 'var(--text-primary)' }}>
               Live Synced
             </span>
-            <span style={{ fontSize: '10px', color: 'rgba(255, 255, 255, 0.65)' }}>
+            <span style={{ fontSize: '10px', color: 'var(--text-muted)' }}>
               Visible in MacBook notch
             </span>
           </div>
