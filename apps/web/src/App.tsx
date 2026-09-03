@@ -6,7 +6,9 @@ import { AppScreenshotsGallery } from "./components/AppScreenshotsGallery";
 import { FeatureGrid } from "./components/FeatureGrid";
 import { SpiritShowcase } from "./components/SpiritShowcase";
 import { TechSpecs } from "./components/TechSpecs";
+import { SoftwareOwnership } from "./components/SoftwareOwnership";
 import { PricingSection } from "./components/PricingSection";
+import { FounderLetter } from "./components/FounderLetter";
 import { FAQSection } from "./components/FAQSection";
 import { Footer } from "./components/Footer";
 import { RazorpayModal } from "./components/RazorpayModal";
@@ -38,13 +40,29 @@ export const App: React.FC = () => {
     }
   };
 
-  const handleSelectPlan = (plan: PricingPlan) => {
+  const handleSelectPlan = () => {
+    const plan: PricingPlan = {
+      id: "lifetime",
+      name: "Pioneer Lifetime License",
+      tagline: "One-time purchase for lifetime personal access",
+      billingPeriod: "one-time",
+      ctaLabel: "Get Pioneer License",
+      priceUSD: 29,
+      priceINR: 2499,
+      features: [
+        "Lifetime personal license",
+        "All 5 native macOS surfaces",
+        "All 6 goal paradigms",
+        "100% offline SQLite WAL",
+        "Free version 1.x updates",
+        "30-day money-back guarantee"
+      ]
+    };
     setSelectedPlan(plan);
     setIsCheckoutOpen(true);
   };
 
   const handleDownloadDMG = () => {
-    // Generate simulated download anchor for macOS dmg
     const a = document.createElement("a");
     a.href = "#";
     a.download = "Beacon-1.0.0-mac-universal.dmg";
@@ -89,12 +107,17 @@ export const App: React.FC = () => {
       {/* Performance & Hardware Specs */}
       <TechSpecs />
 
+      {/* Software Ownership Manifesto (Rental vs. Ownership) */}
+      <SoftwareOwnership />
+
       {/* Pricing & Razorpay Trigger */}
       <PricingSection
         currency={currency}
         onSelectPlan={handleSelectPlan}
-        onDownloadTrial={handleDownloadDMG}
       />
+
+      {/* Founder's Personal Letter & Craft Manifesto */}
+      <FounderLetter />
 
       {/* FAQ */}
       <FAQSection />

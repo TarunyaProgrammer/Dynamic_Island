@@ -1,53 +1,45 @@
 :root {
-  /* Brand Core Palettes */
-  --bg-black: #07080b;
-  --bg-deep: #0a0c12;
-  --bg-surface: #10121b;
-  --bg-card: rgba(18, 21, 32, 0.72);
-  --bg-card-hover: rgba(26, 30, 46, 0.85);
-  
-  /* Semantic Energy Tokens */
+  /* Surface Palette: Pure OLED & Precision Hardware Slate */
+  --bg-black: #08090c;
+  --bg-surface: #0e1017;
+  --bg-surface-elevated: #141722;
+  --bg-card: rgba(255, 255, 255, 0.025);
+  --bg-card-hover: rgba(255, 255, 255, 0.045);
+
+  /* Single Disciplined Accent: Solar Amber */
   --accent-solar: #ff7a00;
-  --accent-solar-hover: #ff9124;
-  --accent-solar-glow: rgba(255, 122, 0, 0.35);
+  --accent-solar-hover: #ff8c1f;
   --accent-solar-subtle: rgba(255, 122, 0, 0.12);
+  --accent-solar-border: rgba(255, 122, 0, 0.35);
 
-  --accent-cyan: #38bdf8;
-  --accent-cyan-glow: rgba(56, 189, 248, 0.35);
-  --accent-cyan-subtle: rgba(56, 189, 248, 0.12);
-
+  /* Functional Status Accents (Used strictly in context, not as background smog) */
   --accent-emerald: #10b981;
-  --accent-emerald-glow: rgba(16, 185, 129, 0.35);
-  --accent-emerald-subtle: rgba(16, 185, 129, 0.12);
-
+  --accent-cyan: #38bdf8;
   --accent-purple: #c084fc;
-  --accent-purple-glow: rgba(192, 132, 252, 0.35);
-  --accent-purple-subtle: rgba(192, 132, 252, 0.12);
 
-  /* Typography Colors */
-  --text-primary: #ffffff;
-  --text-secondary: rgba(255, 255, 255, 0.75);
-  --text-muted: rgba(255, 255, 255, 0.45);
-  --text-subtle: rgba(255, 255, 255, 0.28);
+  /* Restrained Neutral Typography */
+  --text-primary: #ededed;
+  --text-secondary: #9496a1;
+  --text-muted: #5e616f;
+  --text-subtle: #3a3d4a;
 
-  /* Hardware Glass & Borders */
-  --border-glass: rgba(255, 255, 255, 0.1);
-  --border-glass-top: rgba(255, 255, 255, 0.22);
-  --border-glow-solar: rgba(255, 122, 0, 0.4);
-  --glass-blur: blur(28px);
+  /* Precision Hardware Borders & Lines */
+  --border-hairline: rgba(255, 255, 255, 0.08);
+  --border-hairline-bright: rgba(255, 255, 255, 0.16);
+  --border-hairline-card: rgba(255, 255, 255, 0.06);
 
-  /* Typography Font Stacks */
-  --font-display: "Outfit", -apple-system, BlinkMacSystemFont, sans-serif;
-  --font-body: "Inter", -apple-system, BlinkMacSystemFont, sans-serif;
-  --font-mono: "JetBrains Mono", Menlo, monospace;
+  /* Radii */
+  --radius-pill: 100px;
+  --radius-lg: 20px;
+  --radius-md: 14px;
+  --radius-sm: 8px;
 
-  /* Elevation Shadows */
-  --shadow-notch: 0 24px 60px rgba(0, 0, 0, 0.8), 0 0 1px 1px rgba(255, 255, 255, 0.14);
-  --shadow-card: 0 12px 36px rgba(0, 0, 0, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.12);
-  --shadow-card-hover: 0 20px 48px rgba(0, 0, 0, 0.65), 0 0 24px var(--accent-solar-glow), inset 0 1px 0 rgba(255, 255, 255, 0.2);
-  --shadow-solar-btn: 0 8px 24px var(--accent-solar-glow), inset 0 1px 0 rgba(255, 255, 255, 0.35);
+  /* Typography Stacks */
+  --font-display: "Plus Jakarta Sans", -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-body: "Plus Jakarta Sans", -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-mono: "Geist Mono", "JetBrains Mono", Menlo, monospace;
 
-  /* Easing curves */
-  --ease-spring: cubic-bezier(0.16, 1, 0.3, 1);
-  --ease-bounce: cubic-bezier(0.34, 1.56, 0.64, 1);
+  /* Restrained Elevation */
+  --shadow-hud: 0 30px 80px rgba(0, 0, 0, 0.85);
+  --shadow-btn: 0 4px 16px rgba(255, 122, 0, 0.25);
 }

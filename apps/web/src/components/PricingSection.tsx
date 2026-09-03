@@ -1,223 +1,159 @@
 import React from "react";
-import { PricingPlan } from "../types";
-import { Check, Sparkles, Zap, Shield, ArrowRight } from "lucide-react";
+import { Check, Shield, ArrowRight, ShieldCheck, RefreshCw, Key, Laptop } from "lucide-react";
 
 interface PricingSectionProps {
+  onSelectPlan: () => void;
   currency: "INR" | "USD";
-  onSelectPlan: (plan: PricingPlan) => void;
-  onDownloadTrial: () => void;
 }
 
-export const PricingSection: React.FC<PricingSectionProps> = ({ currency, onSelectPlan, onDownloadTrial }) => {
-  const plans: PricingPlan[] = [
-    {
-      id: "annual",
-      name: "Annual Pass",
-      tagline: "For steady focus and committed builders",
-      priceUSD: 19,
-      priceINR: 1499,
-      billingPeriod: "/ year",
-      features: [
-        "Unlimited Goals (All 6 Paradigms)",
-        "Dynamic Island notch overlay",
-        "Interactive Spirit Companion",
-        "Apple Music & Spotify controller",
-        "Global Hotkey (⌘⇧B) popover",
-        "Standard email support",
-      ],
-      ctaLabel: "Get Annual Pass",
-    },
-    {
-      id: "lifetime",
-      name: "Pioneer Lifetime",
-      tagline: "Pay once, own Beacon forever with zero recurring fees",
-      priceUSD: 29,
-      priceINR: 2499,
-      billingPeriod: "one-time payment",
-      popular: true,
-      badge: "MOST POPULAR • FIRST 500 PIONEERS",
-      features: [
-        "Everything in Annual Pass, forever",
-        "Lifetime free updates & major version drops",
-        "Zero subscription fees for life",
-        "Priority VIP Discord access",
-        "Offline local AI companion engine",
-        "Commercial use on up to 3 personal Macs",
-        "14-Day full refund guarantee",
-      ],
-      ctaLabel: "Unlock Lifetime Access",
-    },
-  ];
+export const PricingSection: React.FC<PricingSectionProps> = ({ onSelectPlan, currency }) => {
+  const isINR = currency === "INR";
+  const priceDisplay = isINR ? "₹2,499" : "$29";
 
   return (
-    <section id="pricing" style={{ padding: "100px 0", position: "relative" }}>
-      <div className="container">
-        <div style={{ textAlign: "center", marginBottom: "50px" }}>
-          <span style={{ fontSize: "12px", color: "var(--accent-solar)", fontWeight: 700, letterSpacing: "0.08em", textTransform: "uppercase" }}>
-            SIMPLE, TRANSPARENT INVESTMENT
+    <section id="pricing" style={{ padding: "90px 0", borderBottom: "1px solid var(--border-hairline)" }}>
+      <div className="container" style={{ maxWidth: "860px" }}>
+        {/* Section Header */}
+        <div style={{ textAlign: "center", marginBottom: "48px" }}>
+          <span className="tag-tech" style={{ marginBottom: "12px", display: "inline-flex" }}>
+            <span className="dot" />
+            PERMANENT LIFETIME LICENSE
           </span>
-          <h2
-            style={{
-              fontFamily: "var(--font-display)",
-              fontSize: "clamp(30px, 4vw, 48px)",
-              fontWeight: 800,
-              letterSpacing: "-0.03em",
-              marginTop: "8px",
-            }}
-          >
-            Own Your Focus. <span className="gradient-solar">Zero Subscription Fatigue.</span>
+          <h2 className="display-headline" style={{ fontSize: "clamp(28px, 4vw, 44px)", marginBottom: "12px" }}>
+            Simple, honest pricing.
           </h2>
-          <p style={{ color: "var(--text-secondary)", fontSize: "16px", maxWidth: "600px", margin: "10px auto 0 auto" }}>
-            One payment today gives you permanent lifetime ownership of Beacon on macOS.
+          <p className="text-subhead" style={{ fontSize: "16px", maxWidth: "540px", margin: "0 auto" }}>
+            No subscriptions. No upsells. One single payment for lifetime access across all your personal Macs.
           </p>
         </div>
 
-        {/* Pricing Cards */}
+        {/* Pricing Card */}
         <div
           style={{
-            display: "grid",
-            gridTemplateColumns: "repeat(auto-fit, minmax(320px, 1fr))",
-            gap: "28px",
-            maxWidth: "920px",
-            margin: "0 auto 40px auto",
-          }}
-        >
-          {plans.map((p) => {
-            const isLifetime = p.id === "lifetime";
-            const price = currency === "INR" ? `₹${p.priceINR.toLocaleString()}` : `$${p.priceUSD}`;
-
-            return (
-              <div
-                key={p.id}
-                className="glass-panel"
-                style={{
-                  padding: "36px 32px",
-                  borderRadius: "28px",
-                  position: "relative",
-                  display: "flex",
-                  flexDirection: "column",
-                  justifyContent: "space-between",
-                  gap: "28px",
-                  border: isLifetime ? "1.5px solid var(--accent-solar)" : "1px solid rgba(255, 255, 255, 0.12)",
-                  boxShadow: isLifetime ? "0 20px 60px rgba(0,0,0,0.8), 0 0 32px var(--accent-solar-glow)" : "var(--shadow-card)",
-                }}
-              >
-                {/* Popular Badge */}
-                {p.badge && (
-                  <div
-                    style={{
-                      position: "absolute",
-                      top: "-14px",
-                      left: "50%",
-                      transform: "translateX(-50%)",
-                      padding: "4px 14px",
-                      borderRadius: "100px",
-                      backgroundColor: "var(--accent-solar)",
-                      color: "#07080b",
-                      fontSize: "11px",
-                      fontWeight: 800,
-                      letterSpacing: "0.04em",
-                      whiteSpace: "nowrap",
-                      boxShadow: "0 4px 14px var(--accent-solar-glow)",
-                    }}
-                  >
-                    {p.badge}
-                  </div>
-                )}
-
-                <div>
-                  <h3 style={{ fontSize: "22px", fontWeight: 800, color: "#ffffff", marginBottom: "6px" }}>{p.name}</h3>
-                  <p style={{ fontSize: "13px", color: "var(--text-secondary)", minHeight: "38px" }}>{p.tagline}</p>
-
-                  {/* Price */}
-                  <div style={{ display: "flex", alignItems: "baseline", gap: "8px", margin: "20px 0" }}>
-                    <span
-                      style={{
-                        fontFamily: "var(--font-mono)",
-                        fontSize: "48px",
-                        fontWeight: 900,
-                        color: "#ffffff",
-                        letterSpacing: "-0.04em",
-                      }}
-                    >
-                      {price}
-                    </span>
-                    <span style={{ fontSize: "13px", color: "var(--text-muted)", fontWeight: 500 }}>
-                      {p.billingPeriod}
-                    </span>
-                  </div>
-
-                  {/* Feature Checklist */}
-                  <ul style={{ listStyle: "none", display: "flex", flexDirection: "column", gap: "12px" }}>
-                    {p.features.map((feat, idx) => (
-                      <li key={idx} style={{ display: "flex", alignItems: "center", gap: "10px", fontSize: "13px", color: "rgba(255, 255, 255, 0.85)" }}>
-                        <div style={{ width: "18px", height: "18px", borderRadius: "50%", backgroundColor: isLifetime ? "rgba(255, 122, 0, 0.2)" : "rgba(255, 255, 255, 0.1)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
-                          <Check size={11} color={isLifetime ? "var(--accent-solar)" : "#ffffff"} strokeWidth={3} />
-                        </div>
-                        <span>{feat}</span>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-
-                {/* Checkout Trigger */}
-                <button
-                  type="button"
-                  onClick={() => onSelectPlan(p)}
-                  className={isLifetime ? "btn-solar" : "btn-ghost-glass"}
-                  style={{ width: "100%", padding: "14px", fontSize: "15px", borderRadius: "14px" }}
-                >
-                  <span>{p.ctaLabel}</span>
-                  <ArrowRight size={16} />
-                </button>
-              </div>
-            );
-          })}
-        </div>
-
-        {/* Free Trial Banner */}
-        <div
-          style={{
-            maxWidth: "920px",
+            maxWidth: "600px",
             margin: "0 auto",
-            padding: "20px 28px",
+            backgroundColor: "rgba(14, 16, 23, 0.95)",
             borderRadius: "18px",
-            backgroundColor: "rgba(18, 21, 32, 0.5)",
-            border: "1px solid rgba(255, 255, 255, 0.08)",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "space-between",
-            flexWrap: "wrap",
-            gap: "16px",
+            border: "1px solid rgba(255, 122, 0, 0.4)",
+            boxShadow: "0 30px 80px rgba(0, 0, 0, 0.8), 0 0 30px rgba(255, 122, 0, 0.12)",
+            padding: "clamp(28px, 5vw, 40px)",
+            position: "relative",
           }}
         >
-          <div>
-            <span style={{ fontSize: "14px", fontWeight: 700, color: "#ffffff", display: "block" }}>
-              Just want to test it on your Mac first?
+          {/* Top Badge */}
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "20px" }}>
+            <span style={{ fontSize: "12px", fontWeight: 800, textTransform: "uppercase", letterSpacing: "0.1em", color: "var(--accent-solar)" }}>
+              Pioneer Edition (v1.0)
             </span>
-            <span style={{ fontSize: "12px", color: "var(--text-muted)" }}>
-              Download the free trial version with 3 active goals and full Dynamic Island support.
+            <span style={{ fontSize: "11px", color: "var(--text-muted)", fontFamily: "var(--font-mono)" }}>
+              macOS 12+ (Universal)
             </span>
           </div>
 
+          {/* Price Header */}
+          <div style={{ display: "flex", alignItems: "baseline", gap: "8px", marginBottom: "10px" }}>
+            <span
+              style={{
+                fontFamily: "var(--font-display)",
+                fontSize: "clamp(42px, 6vw, 56px)",
+                fontWeight: 900,
+                color: "#ffffff",
+                letterSpacing: "-0.04em",
+                lineHeight: 1,
+              }}
+            >
+              {priceDisplay}
+            </span>
+            <span style={{ color: "var(--text-muted)", fontSize: "14px", fontWeight: 600 }}>
+              one-time payment
+            </span>
+          </div>
+
+          <p style={{ fontSize: "13px", color: "var(--text-secondary)", marginBottom: "28px", lineHeight: 1.5 }}>
+            Full access to all 5 native macOS surfaces, the 6 behavioral goal engines, and the offline Gemini companion.
+          </p>
+
+          {/* Core Feature List */}
+          <div style={{ display: "flex", flexDirection: "column", gap: "12px", marginBottom: "32px", fontSize: "13px" }}>
+            {[
+              "Lifetime personal license (Use on all your personal Macs)",
+              "Dynamic Island notch overlay + Menu Bar hub + Raycast palette",
+              "All 6 goal paradigms (Habits, Deadlines, Milestones, Quotas)",
+              "100% private offline SQLite WAL database (No accounts)",
+              "Apple Music & Spotify media controller integration",
+              "Free updates and maintenance patches for all of version 1.x",
+              "Instant license key delivery via email and on-screen",
+            ].map((feature, i) => (
+              <div key={i} style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+                <Check size={16} color="var(--accent-solar)" style={{ flexShrink: 0 }} />
+                <span style={{ color: "var(--text-primary)" }}>{feature}</span>
+              </div>
+            ))}
+          </div>
+
+          {/* Big CTA */}
           <button
             type="button"
-            onClick={onDownloadTrial}
-            className="btn-ghost-glass"
-            style={{ padding: "8px 16px", fontSize: "13px" }}
+            onClick={onSelectPlan}
+            className="btn-primary"
+            style={{ width: "100%", padding: "14px", fontSize: "15px", borderRadius: "10px", marginBottom: "20px" }}
           >
-            <span>Download Free DMG</span>
+            <span>Buy Beacon Pioneer — {priceDisplay}</span>
+            <ArrowRight size={16} />
           </button>
+
+          {/* Guarantee Seal Box */}
+          <div
+            style={{
+              padding: "16px",
+              borderRadius: "10px",
+              backgroundColor: "rgba(255, 255, 255, 0.03)",
+              border: "1px solid var(--border-hairline)",
+              display: "flex",
+              alignItems: "center",
+              gap: "12px",
+            }}
+          >
+            <ShieldCheck size={24} color="var(--accent-solar)" style={{ flexShrink: 0 }} />
+            <div style={{ fontSize: "12px", lineHeight: 1.5 }}>
+              <strong style={{ color: "#ffffff", display: "block" }}>
+                30-Day Money-Back Guarantee
+              </strong>
+              <span style={{ color: "var(--text-muted)" }}>
+                Try Beacon risk-free. If it doesn't transform your daily focus on your Mac, email us within 30 days for an immediate 100% refund.
+              </span>
+            </div>
+          </div>
         </div>
 
-        {/* Security & Guarantee Trust Bar */}
-        <div style={{ textAlign: "center", marginTop: "32px", fontSize: "12px", color: "var(--text-muted)", display: "flex", alignItems: "center", justifyContent: "center", gap: "10px", flexWrap: "wrap" }}>
-          <Shield size={14} color="var(--accent-emerald)" />
-          <span>Secured by <b>Razorpay 256-Bit SSL</b> Gateway</span>
-          <span style={{ opacity: 0.3 }}>•</span>
-          <span>Instant License Key Delivery</span>
-          <span style={{ opacity: 0.3 }}>•</span>
-          <span>14-Day No-Questions-Asked Refund Guarantee</span>
+        {/* Security / Payment Trust Marks */}
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            gap: "24px",
+            flexWrap: "wrap",
+            marginTop: "32px",
+            fontSize: "12px",
+            color: "var(--text-muted)",
+            fontFamily: "var(--font-mono)",
+          }}
+        >
+          <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
+            <Shield size={14} color="var(--accent-solar)" />
+            <span>256-bit SSL Encrypted Payment</span>
+          </div>
+          <span>•</span>
+          <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
+            <Key size={14} color="#ededed" />
+            <span>Instant License Key</span>
+          </div>
+          <span>•</span>
+          <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
+            <Laptop size={14} color="#ededed" />
+            <span>Universal Mac Binary</span>
+          </div>
         </div>
       </div>
     </section>
