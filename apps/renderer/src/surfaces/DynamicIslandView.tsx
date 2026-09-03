@@ -92,11 +92,15 @@ export const DynamicIslandView: React.FC = () => {
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [isExpanded, activeTab, focusState, primaryGoal, incrementProgress, startFocus, pauseFocus, resumeFocus, playPause]);
 
-  const handleMouseEnter = () => {
+  const resetCollapseTimer = () => {
     if (collapseTimer.current) {
       clearTimeout(collapseTimer.current);
       collapseTimer.current = null;
     }
+  };
+
+  const handleMouseEnter = () => {
+    resetCollapseTimer();
     setIsExpanded(true);
     window.beacon?.windows?.setIslandExpanded?.(true);
   };
@@ -105,7 +109,7 @@ export const DynamicIslandView: React.FC = () => {
     collapseTimer.current = setTimeout(() => {
       setIsExpanded(false);
       window.beacon?.windows?.setIslandExpanded?.(false);
-    }, 450);
+    }, 600);
   };
 
   // 7-Day Calendar Strip
@@ -132,12 +136,15 @@ export const DynamicIslandView: React.FC = () => {
         paddingTop: '0px',
         backgroundColor: 'transparent',
         boxSizing: 'border-box',
+        pointerEvents: 'none', // outer transparent area never captures clicks/hover
       }}
-      onMouseEnter={handleMouseEnter}
-      onMouseLeave={handleMouseLeave}
     >
       <ConfettiCanvas />
-      {/* Notch Shell Container with Inverted Bezels (Calibrated for 14-inch MacBook Pro: 185x32pt) */}
+      {/* Notch Shell Container — hover here triggers expand/collapse.
+          The window is always 660×180 (no resize). Expansion is pure CSS.
+          pointerEvents: auto so this pill intercepts mouse events even
+          when the Electron window is in setIgnoreMouseEvents(true, {forward:true}) mode,
+          which still delivers mousemove to web content for hover detection. */}
       <div
         style={{
           width: isExpanded ? '640px' : '240px',
@@ -158,15 +165,12 @@ export const DynamicIslandView: React.FC = () => {
           display: 'flex',
           flexDirection: 'column',
           transition: 'all 0.28s cubic-bezier(0.16, 1, 0.3, 1)',
-          cursor: 'pointer',
+          cursor: isExpanded ? 'default' : 'pointer',
           overflow: 'visible',
+          pointerEvents: 'auto', // pill always intercepts events
         }}
-        onClick={() => {
-          if (!isExpanded) {
-            setIsExpanded(true);
-            window.beacon?.windows?.setIslandExpanded?.(true);
-          }
-        }}
+        onMouseEnter={handleMouseEnter}
+        onMouseLeave={handleMouseLeave}
       >
         {/* Seamless Inverted Notch Ear Fillets */}
         {isExpanded && (
@@ -219,11 +223,12 @@ export const DynamicIslandView: React.FC = () => {
         >
           {/* Left Wing / Activity Switcher Tabs */}
           <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-            <div
-              onClick={() => {
-                if (isExpanded) {
-                  setActiveTab('goal');
-                }
+            <button
+              type="button"
+              onClick={(e) => {
+                e.stopPropagation();
+                resetCollapseTimer();
+                setActiveTab('goal');
               }}
               style={{
                 display: 'flex',
@@ -231,21 +236,28 @@ export const DynamicIslandView: React.FC = () => {
                 gap: '5px',
                 padding: '3px 8px',
                 borderRadius: '9999px',
-                backgroundColor: activeTab === 'goal' && isExpanded ? 'rgba(255, 255, 255, 0.14)' : 'transparent',
+                backgroundColor: activeTab === 'goal' && isExpanded ? 'rgba(255, 255, 255, 0.16)' : 'transparent',
                 color: '#ffffff',
                 fontSize: '11px',
                 fontWeight: 600,
+                cursor: 'pointer',
+                border: 'none',
+                outline: 'none',
+                transition: 'all 0.15s ease',
               }}
+              title="Goals View"
             >
               <BeaconLogo size={13} />
               <span>{focusState.isActive ? 'Focus Sprint' : 'Beacon'}</span>
-            </div>
+            </button>
 
             {isExpanded && (
               <>
-                <div
+                <button
+                  type="button"
                   onClick={(e) => {
                     e.stopPropagation();
+                    resetCollapseTimer();
                     setActiveTab('focus');
                   }}
                   style={{
@@ -254,19 +266,26 @@ export const DynamicIslandView: React.FC = () => {
                     gap: '4px',
                     padding: '3px 8px',
                     borderRadius: '9999px',
-                    backgroundColor: activeTab === 'focus' ? 'rgba(255, 255, 255, 0.14)' : 'rgba(255, 255, 255, 0.05)',
+                    backgroundColor: activeTab === 'focus' ? 'rgba(255, 255, 255, 0.16)' : 'rgba(255, 255, 255, 0.06)',
                     color: activeTab === 'focus' ? '#ffffff' : 'rgba(255, 255, 255, 0.65)',
                     fontSize: '11px',
-                    fontWeight: 500,
+                    fontWeight: activeTab === 'focus' ? 600 : 500,
+                    cursor: 'pointer',
+                    border: 'none',
+                    outline: 'none',
+                    transition: 'all 0.15s ease',
                   }}
+                  title="Focus Timer"
                 >
                   <Timer size={11} />
                   <span>{focusState.isActive ? focusTimeStr : 'Focus'}</span>
-                </div>
+                </button>
 
-                <div
+                <button
+                  type="button"
                   onClick={(e) => {
                     e.stopPropagation();
+                    resetCollapseTimer();
                     setActiveTab('media');
                   }}
                   style={{
@@ -275,15 +294,20 @@ export const DynamicIslandView: React.FC = () => {
                     gap: '4px',
                     padding: '3px 8px',
                     borderRadius: '9999px',
-                    backgroundColor: activeTab === 'media' ? 'rgba(255, 255, 255, 0.14)' : 'rgba(255, 255, 255, 0.05)',
+                    backgroundColor: activeTab === 'media' ? 'rgba(255, 255, 255, 0.16)' : 'rgba(255, 255, 255, 0.06)',
                     color: activeTab === 'media' ? '#ffffff' : 'rgba(255, 255, 255, 0.65)',
                     fontSize: '11px',
-                    fontWeight: 500,
+                    fontWeight: activeTab === 'media' ? 600 : 500,
+                    cursor: 'pointer',
+                    border: 'none',
+                    outline: 'none',
+                    transition: 'all 0.15s ease',
                   }}
+                  title="Media Controls"
                 >
                   <Music size={11} />
                   <span>Media</span>
-                </div>
+                </button>
               </>
             )}
           </div>
@@ -306,13 +330,15 @@ export const DynamicIslandView: React.FC = () => {
             ) : (
               <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
                 <button
+                  type="button"
                   onClick={(e) => {
                     e.stopPropagation();
+                    resetCollapseTimer();
                     window.beacon.windows.toggleMain();
                   }}
                   className="btn-ghost"
-                  title="Open Main App"
-                  style={{ padding: '3px 6px', color: 'rgba(255, 255, 255, 0.8)' }}
+                  title="Open Main App (⌘⇧B)"
+                  style={{ padding: '3px 6px', color: 'rgba(255, 255, 255, 0.8)', cursor: 'pointer' }}
                 >
                   <ExternalLink size={12} />
                 </button>
@@ -422,10 +448,30 @@ export const DynamicIslandView: React.FC = () => {
                     </div>
                   </div>
                 ) : (
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
+                  <button
+                    type="button"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      resetCollapseTimer();
+                      window.beacon.windows.toggleMain();
+                    }}
+                    style={{
+                      display: 'flex',
+                      flexDirection: 'column',
+                      gap: '3px',
+                      cursor: 'pointer',
+                      background: 'transparent',
+                      border: 'none',
+                      padding: '4px 6px',
+                      borderRadius: '8px',
+                      textAlign: 'left',
+                      transition: 'background-color 0.15s ease',
+                    }}
+                    title="Open Beacon to Create a Goal"
+                  >
                     <span style={{ fontSize: '12px', fontWeight: 600, color: '#ffffff' }}>No Active Goals</span>
-                    <span style={{ fontSize: '10px', color: 'rgba(255, 255, 255, 0.5)' }}>Click to create one</span>
-                  </div>
+                    <span style={{ fontSize: '10px', color: '#5ac8fa', fontWeight: 500 }}>✦ Click to create one</span>
+                  </button>
                 )}
               </div>
             )}
@@ -755,21 +801,32 @@ export const DynamicIslandView: React.FC = () => {
                 <span style={{ fontSize: '13px', fontWeight: 700, color: '#ffffff' }}>{monthName}</span>
                 <div style={{ display: 'flex', gap: '4px' }}>
                   {calendarDays.map((c, i) => (
-                    <div
+                    <button
                       key={i}
+                      type="button"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        resetCollapseTimer();
+                        window.beacon.windows.toggleMain();
+                      }}
                       style={{
                         display: 'flex',
                         flexDirection: 'column',
                         alignItems: 'center',
-                        padding: '2px 4px',
+                        padding: '3px 5px',
                         borderRadius: '6px',
-                        backgroundColor: c.isToday ? 'rgba(255, 255, 255, 0.2)' : 'transparent',
+                        backgroundColor: c.isToday ? 'rgba(255, 255, 255, 0.22)' : 'transparent',
                         color: c.isToday ? '#ffffff' : 'rgba(255, 255, 255, 0.4)',
+                        border: 'none',
+                        cursor: 'pointer',
+                        outline: 'none',
+                        transition: 'all 0.15s ease',
                       }}
+                      title={c.isToday ? 'Today (Click to open Beacon)' : `Day ${c.date} (Click to open Beacon)`}
                     >
                       <span style={{ fontSize: '8px', fontWeight: 500, textTransform: 'uppercase' }}>{c.dayName}</span>
                       <span style={{ fontSize: '10px', fontWeight: c.isToday ? 700 : 500 }}>{c.date}</span>
-                    </div>
+                    </button>
                   ))}
                 </div>
               </div>
@@ -793,6 +850,11 @@ export const DynamicIslandView: React.FC = () => {
 
             {/* Column 3: Overall Progress Ring & Quick Actions */}
             <div
+              onClick={(e) => {
+                e.stopPropagation();
+                resetCollapseTimer();
+                window.beacon.windows.toggleMain();
+              }}
               style={{
                 display: 'flex',
                 alignItems: 'center',
@@ -801,7 +863,10 @@ export const DynamicIslandView: React.FC = () => {
                 backgroundColor: 'rgba(255, 255, 255, 0.03)',
                 border: '1px solid rgba(255, 255, 255, 0.06)',
                 borderRadius: '16px',
+                cursor: 'pointer',
+                transition: 'background-color 0.15s ease',
               }}
+              title="Open Beacon Main Dashboard"
             >
               <div style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
                 <span style={{ fontSize: '10px', color: 'rgba(255, 255, 255, 0.5)', fontWeight: 500 }}>Overall</span>
