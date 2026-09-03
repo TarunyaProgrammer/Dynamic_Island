@@ -672,17 +672,18 @@ export const DynamicIslandView: React.FC = () => {
                   display: 'flex',
                   alignItems: 'center',
                   gap: '10px',
-                  padding: '8px 12px',
+                  padding: '8px 10px',
                   backgroundColor: 'rgba(255, 255, 255, 0.05)',
                   border: '1px solid rgba(255, 255, 255, 0.08)',
                   borderRadius: '16px',
                   minWidth: 0,
+                  overflow: 'hidden',
                 }}
               >
                 <div
                   style={{
-                    width: '42px',
-                    height: '42px',
+                    width: '38px',
+                    height: '38px',
                     borderRadius: '10px',
                     backgroundColor: 'rgba(255, 255, 255, 0.08)',
                     border: '1px solid rgba(255, 255, 255, 0.12)',
@@ -692,7 +693,7 @@ export const DynamicIslandView: React.FC = () => {
                     flexShrink: 0,
                   }}
                 >
-                  <Music size={20} color="#ffffff" />
+                  <Music size={18} color="#ffffff" />
                 </div>
 
                 <div style={{ display: 'flex', flexDirection: 'column', flex: 1, minWidth: 0, gap: '2px' }}>
@@ -706,7 +707,7 @@ export const DynamicIslandView: React.FC = () => {
                       textOverflow: 'ellipsis',
                     }}
                   >
-                    {mediaState.title}
+                    {mediaState.title || 'No Media Playing'}
                   </span>
                   <span
                     style={{
@@ -717,7 +718,7 @@ export const DynamicIslandView: React.FC = () => {
                       textOverflow: 'ellipsis',
                     }}
                   >
-                    {mediaState.artist} {mediaState.album ? `• ${mediaState.album}` : ''}
+                    {mediaState.artist || 'System Audio'} {mediaState.album ? `• ${mediaState.album}` : ''}
                   </span>
 
                   {/* Playback Progress */}
@@ -732,51 +733,59 @@ export const DynamicIslandView: React.FC = () => {
                   )}
 
                   {/* Playback Controls */}
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginTop: '2px' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginTop: '2px', minWidth: 0 }}>
                     <button
+                      type="button"
                       onClick={(e) => {
                         e.stopPropagation();
+                        resetCollapseTimer();
                         previousTrack();
                       }}
                       className="btn-ghost"
-                      style={{ padding: '2px 4px' }}
+                      style={{ padding: '2px 4px', cursor: 'pointer' }}
                       title="Previous Track"
                     >
                       <SkipBack size={11} />
                     </button>
                     <button
+                      type="button"
                       onClick={(e) => {
                         e.stopPropagation();
+                        resetCollapseTimer();
                         playPause();
                       }}
                       className="btn-ghost"
-                      style={{ padding: '2px 8px', backgroundColor: 'rgba(255, 255, 255, 0.14)', color: '#ffffff' }}
+                      style={{ padding: '2px 8px', backgroundColor: 'rgba(255, 255, 255, 0.14)', color: '#ffffff', cursor: 'pointer' }}
                       title={mediaState.isPlaying ? 'Pause' : 'Play'}
                     >
                       {mediaState.isPlaying ? <Pause size={11} /> : <Play size={11} />}
                     </button>
                     <button
+                      type="button"
                       onClick={(e) => {
                         e.stopPropagation();
+                        resetCollapseTimer();
                         nextTrack();
                       }}
                       className="btn-ghost"
-                      style={{ padding: '2px 4px' }}
+                      style={{ padding: '2px 4px', cursor: 'pointer' }}
                       title="Next Track"
                     >
                       <SkipForward size={11} />
                     </button>
 
                     {/* Quick Volume Steppers */}
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '3px', marginLeft: 'auto' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '2px', marginLeft: 'auto', flexShrink: 0 }}>
                       <Volume2 size={10} color="rgba(255, 255, 255, 0.5)" />
                       <button
+                        type="button"
                         onClick={(e) => {
                           e.stopPropagation();
+                          resetCollapseTimer();
                           setVolume(Math.max(0, (mediaState.volume ?? 50) - 10));
                         }}
                         className="btn-ghost"
-                        style={{ padding: '1px 4px', fontSize: '9px' }}
+                        style={{ padding: '1px 3px', fontSize: '9px', cursor: 'pointer' }}
                         title="Volume Down (-10%)"
                       >
                         -
@@ -785,12 +794,14 @@ export const DynamicIslandView: React.FC = () => {
                         {mediaState.volume ?? 50}%
                       </span>
                       <button
+                        type="button"
                         onClick={(e) => {
                           e.stopPropagation();
+                          resetCollapseTimer();
                           setVolume(Math.min(100, (mediaState.volume ?? 50) + 10));
                         }}
                         className="btn-ghost"
-                        style={{ padding: '1px 4px', fontSize: '9px' }}
+                        style={{ padding: '1px 3px', fontSize: '9px', cursor: 'pointer' }}
                         title="Volume Up (+10%)"
                       >
                         +
