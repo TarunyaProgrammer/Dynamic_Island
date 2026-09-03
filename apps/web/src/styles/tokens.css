@@ -1,0 +1,53 @@
+:root {
+  /* Brand Core Palettes */
+  --bg-black: #07080b;
+  --bg-deep: #0a0c12;
+  --bg-surface: #10121b;
+  --bg-card: rgba(18, 21, 32, 0.72);
+  --bg-card-hover: rgba(26, 30, 46, 0.85);
+  
+  /* Semantic Energy Tokens */
+  --accent-solar: #ff7a00;
+  --accent-solar-hover: #ff9124;
+  --accent-solar-glow: rgba(255, 122, 0, 0.35);
+  --accent-solar-subtle: rgba(255, 122, 0, 0.12);
+
+  --accent-cyan: #38bdf8;
+  --accent-cyan-glow: rgba(56, 189, 248, 0.35);
+  --accent-cyan-subtle: rgba(56, 189, 248, 0.12);
+
+  --accent-emerald: #10b981;
+  --accent-emerald-glow: rgba(16, 185, 129, 0.35);
+  --accent-emerald-subtle: rgba(16, 185, 129, 0.12);
+
+  --accent-purple: #c084fc;
+  --accent-purple-glow: rgba(192, 132, 252, 0.35);
+  --accent-purple-subtle: rgba(192, 132, 252, 0.12);
+
+  /* Typography Colors */
+  --text-primary: #ffffff;
+  --text-secondary: rgba(255, 255, 255, 0.75);
+  --text-muted: rgba(255, 255, 255, 0.45);
+  --text-subtle: rgba(255, 255, 255, 0.28);
+
+  /* Hardware Glass & Borders */
+  --border-glass: rgba(255, 255, 255, 0.1);
+  --border-glass-top: rgba(255, 255, 255, 0.22);
+  --border-glow-solar: rgba(255, 122, 0, 0.4);
+  --glass-blur: blur(28px);
+
+  /* Typography Font Stacks */
+  --font-display: "Outfit", -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-body: "Inter", -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-mono: "JetBrains Mono", Menlo, monospace;
+
+  /* Elevation Shadows */
+  --shadow-notch: 0 24px 60px rgba(0, 0, 0, 0.8), 0 0 1px 1px rgba(255, 255, 255, 0.14);
+  --shadow-card: 0 12px 36px rgba(0, 0, 0, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.12);
+  --shadow-card-hover: 0 20px 48px rgba(0, 0, 0, 0.65), 0 0 24px var(--accent-solar-glow), inset 0 1px 0 rgba(255, 255, 255, 0.2);
+  --shadow-solar-btn: 0 8px 24px var(--accent-solar-glow), inset 0 1px 0 rgba(255, 255, 255, 0.35);
+
+  /* Easing curves */
+  --ease-spring: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-bounce: cubic-bezier(0.34, 1.56, 0.64, 1);
+}
