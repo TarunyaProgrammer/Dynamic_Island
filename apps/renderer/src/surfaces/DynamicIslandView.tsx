@@ -162,7 +162,10 @@ export const DynamicIslandView: React.FC = () => {
           overflow: 'visible',
         }}
         onClick={() => {
-          if (!isExpanded) setIsExpanded(true);
+          if (!isExpanded) {
+            setIsExpanded(true);
+            window.beacon?.windows?.setIslandExpanded?.(true);
+          }
         }}
       >
         {/* Seamless Inverted Notch Ear Fillets */}

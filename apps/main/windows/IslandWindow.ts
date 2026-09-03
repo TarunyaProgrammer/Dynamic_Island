@@ -27,10 +27,10 @@ export class IslandWindowController {
       frame: false,
       transparent: true,
       hasShadow: false,
-      resizable: false,
+      resizable: true,
       alwaysOnTop: true,
       skipTaskbar: true,
-      focusable: false,
+      focusable: true,
       roundedCorners: false,
       backgroundColor: '#00000000',
       webPreferences: {
@@ -71,6 +71,7 @@ export class IslandWindowController {
     const x = Math.round(primary.bounds.x + (primary.bounds.width - width) / 2);
     const y = primary.bounds.y;
 
+    this.window.setResizable(true);
     this.window.setBounds({ x, y, width, height }, false);
   }
 
