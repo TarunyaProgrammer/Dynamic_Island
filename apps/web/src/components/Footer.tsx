@@ -1,5 +1,5 @@
 import React from "react";
-import { ShieldCheck, Globe, Code2 } from "lucide-react";
+import { ShieldCheck, Globe, Code2, Sparkles } from "lucide-react";
 
 export const Footer: React.FC = () => {
   return (
@@ -7,7 +7,7 @@ export const Footer: React.FC = () => {
       style={{
         borderTop: "1px solid rgba(255, 255, 255, 0.08)",
         backgroundColor: "#050608",
-        padding: "60px 0 40px 0",
+        padding: "64px 0 40px 0",
         position: "relative",
       }}
     >
@@ -23,50 +23,94 @@ export const Footer: React.FC = () => {
           }}
         >
           {/* Brand Col */}
-          <div style={{ maxWidth: "340px" }}>
+          <div style={{ maxWidth: "360px" }}>
             <div style={{ display: "flex", alignItems: "center", gap: "10px", marginBottom: "12px" }}>
-              <img src="/logo.png" alt="Beacon" style={{ width: "32px", height: "32px", borderRadius: "8px" }} />
-              <span style={{ fontFamily: "var(--font-display)", fontSize: "20px", fontWeight: 800, color: "#ffffff" }}>
-                Beacon
-              </span>
+              <img src="/logo.png" alt="Beacon Logo" style={{ width: "36px", height: "36px", borderRadius: "10px", boxShadow: "0 0 16px rgba(255, 122, 0, 0.35)" }} />
+              <div>
+                <span style={{ fontFamily: "var(--font-display)", fontSize: "20px", fontWeight: 800, color: "#ffffff", display: "block", lineHeight: 1.1 }}>
+                  Beacon
+                </span>
+                <span style={{ fontSize: "10px", color: "var(--accent-solar)", fontWeight: 700, letterSpacing: "0.04em", textTransform: "uppercase" }}>
+                  macOS Dynamic Island
+                </span>
+              </div>
             </div>
-            <p style={{ fontSize: "13px", color: "var(--text-muted)", lineHeight: 1.6 }}>
-              The intentional Dynamic Island HUD & AI companion workspace engineered exclusively for macOS. Built for high-performance engineers, designers, and deep-work purists.
+            <p style={{ fontSize: "13px", color: "var(--text-muted)", lineHeight: 1.6, marginBottom: "16px" }}>
+              The intentional Dynamic Island HUD & AI companion workspace engineered exclusively for macOS. Built for high-performance engineers, founders, and deep-work purists.
             </p>
+            {/* Creator Attribution */}
+            <div style={{ display: "inline-flex", alignItems: "center", gap: "8px", padding: "6px 12px", borderRadius: "10px", backgroundColor: "rgba(255, 255, 255, 0.04)", border: "1px solid rgba(255, 255, 255, 0.08)" }}>
+              <span style={{ fontSize: "12px", color: "var(--text-secondary)" }}>Created by</span>
+              <a
+                href="https://github.com/tarunyaprogrammer"
+                target="_blank"
+                rel="noopener noreferrer"
+                style={{ fontSize: "12px", fontWeight: 700, color: "var(--accent-solar)", textDecoration: "none" }}
+              >
+                Tarunya Kesharwani
+              </a>
+            </div>
           </div>
 
-          {/* Links Col 1 */}
+          {/* Links Col 1: Product */}
           <div>
             <span style={{ fontSize: "12px", fontWeight: 700, color: "#ffffff", letterSpacing: "0.04em", textTransform: "uppercase", display: "block", marginBottom: "14px" }}>
               Product
             </span>
             <ul style={{ listStyle: "none", display: "flex", flexDirection: "column", gap: "8px", fontSize: "13px", color: "var(--text-secondary)" }}>
               <li><a href="#simulator" style={{ color: "inherit", textDecoration: "none" }}>Dynamic Island</a></li>
+              <li><a href="#gallery" style={{ color: "inherit", textDecoration: "none" }}>macOS Surfaces</a></li>
               <li><a href="#features" style={{ color: "inherit", textDecoration: "none" }}>6 Goal Paradigms</a></li>
               <li><a href="#spirit" style={{ color: "inherit", textDecoration: "none" }}>Spirit AI Engine</a></li>
               <li><a href="#specs" style={{ color: "inherit", textDecoration: "none" }}>Hardware Specs</a></li>
-              <li><a href="#pricing" style={{ color: "inherit", textDecoration: "none" }}>Lifetime License</a></li>
+              <li><a href="#pricing" style={{ color: "inherit", textDecoration: "none" }}>Pioneer Lifetime Deal</a></li>
             </ul>
           </div>
 
-          {/* Links Col 2 */}
+          {/* Links Col 2: Connect with Creator */}
           <div>
             <span style={{ fontSize: "12px", fontWeight: 700, color: "#ffffff", letterSpacing: "0.04em", textTransform: "uppercase", display: "block", marginBottom: "14px" }}>
-              Engineering
+              Connect & Developer
             </span>
-            <ul style={{ listStyle: "none", display: "flex", flexDirection: "column", gap: "8px", fontSize: "13px", color: "var(--text-secondary)" }}>
-              <li><span>SQLite WAL Local</span></li>
-              <li><span>Apple Silicon ARM64</span></li>
-              <li><span>Zero Battery Drain</span></li>
-              <li><span>Apple Music & Spotify</span></li>
-              <li><a href="https://beacon.tarunya.me" style={{ color: "var(--accent-solar)", textDecoration: "none" }}>beacon.tarunya.me</a></li>
+            <ul style={{ listStyle: "none", display: "flex", flexDirection: "column", gap: "10px", fontSize: "13px" }}>
+              <li>
+                <a
+                  href="https://github.com/tarunyaprogrammer"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  style={{ display: "inline-flex", alignItems: "center", gap: "6px", color: "#ffffff", textDecoration: "none", fontWeight: 500 }}
+                >
+                  <Code2 size={14} color="var(--accent-solar)" />
+                  <span>GitHub (@tarunyaprogrammer)</span>
+                </a>
+              </li>
+              <li>
+                <a
+                  href="https://www.linkedin.com/in/tarunyakesharwani/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  style={{ display: "inline-flex", alignItems: "center", gap: "6px", color: "#ffffff", textDecoration: "none", fontWeight: 500 }}
+                >
+                  <Globe size={14} color="var(--accent-cyan)" />
+                  <span>LinkedIn (Tarunya Kesharwani)</span>
+                </a>
+              </li>
+              <li>
+                <a
+                  href="https://beacon.tarunya.me"
+                  style={{ display: "inline-flex", alignItems: "center", gap: "6px", color: "var(--accent-solar)", textDecoration: "none", fontWeight: 600 }}
+                >
+                  <Sparkles size={14} />
+                  <span>beacon.tarunya.me</span>
+                </a>
+              </li>
             </ul>
           </div>
 
-          {/* Links Col 3 */}
+          {/* Links Col 3: Status & Gateway */}
           <div>
             <span style={{ fontSize: "12px", fontWeight: 700, color: "#ffffff", letterSpacing: "0.04em", textTransform: "uppercase", display: "block", marginBottom: "14px" }}>
-              Status & Gateway
+              Gateway & Security
             </span>
             <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
               <div style={{ display: "inline-flex", alignItems: "center", gap: "6px", fontSize: "12px", color: "var(--accent-emerald)" }}>
@@ -75,8 +119,11 @@ export const Footer: React.FC = () => {
               </div>
               <div style={{ display: "inline-flex", alignItems: "center", gap: "6px", fontSize: "12px", color: "var(--accent-solar)" }}>
                 <ShieldCheck size={14} />
-                <span>Razorpay Checkout Active</span>
+                <span>Razorpay 256-Bit SSL Checkout</span>
               </div>
+              <span style={{ fontSize: "11px", color: "var(--text-muted)" }}>
+                Cards • UPI • NetBanking • Apple Pay
+              </span>
             </div>
           </div>
         </div>
@@ -95,8 +142,21 @@ export const Footer: React.FC = () => {
             color: "var(--text-muted)",
           }}
         >
-          <span>© {new Date().getFullYear()} Beacon Workspace. Crafted with craft for macOS by <a href="https://tarunya.me" target="_blank" rel="noopener noreferrer" style={{ color: "#ffffff", textDecoration: "none", fontWeight: 600 }}>Tarunya Kesh</a>.</span>
-          <span>Hosted on <b>beacon.tarunya.me</b></span>
+          <span>
+            © {new Date().getFullYear()} Beacon Workspace Inc. Architected with craft for macOS by{" "}
+            <a
+              href="https://www.linkedin.com/in/tarunyakesharwani/"
+              target="_blank"
+              rel="noopener noreferrer"
+              style={{ color: "#ffffff", textDecoration: "none", fontWeight: 600 }}
+            >
+              Tarunya Kesharwani
+            </a>
+            .
+          </span>
+          <span>
+            Target Domain: <a href="https://beacon.tarunya.me" style={{ color: "var(--accent-solar)", textDecoration: "none", fontWeight: 600 }}>beacon.tarunya.me</a>
+          </span>
         </div>
       </div>
     </footer>

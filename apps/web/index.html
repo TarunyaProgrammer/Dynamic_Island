@@ -3,31 +3,58 @@
   <head>
     <meta charset="UTF-8" />
     <link rel="icon" type="image/png" href="/logo.png" />
+    <link rel="apple-touch-icon" href="/logo.png" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     
     <!-- Primary Meta Tags -->
-    <title>Beacon — The Intentional Dynamic Island & Companion for macOS</title>
-    <meta name="title" content="Beacon — The Intentional Dynamic Island & Companion for macOS" />
-    <meta name="description" content="Turn your MacBook notch into a living hardware companion. Track goals with 6 behavioral paradigms, execute focus sprints, and command an offline AI companion right from your Mac." />
-    <meta name="keywords" content="macOS Dynamic Island, MacBook Notch app, macOS productivity, focus timer, habit tracker Mac, offline AI macOS, Beacon" />
-    <meta name="author" content="Tarunya Kesh" />
-    <link rel="canonical" href="https://beacon.tarunya.me" />
+    <title>Beacon — The Intentional Dynamic Island & AI Companion for macOS</title>
+    <meta name="title" content="Beacon — The Intentional Dynamic Island & AI Companion for macOS" />
+    <meta name="description" content="Turn your MacBook notch into a living hardware companion. Track goals across 6 behavioral paradigms, execute focus sprints, and command an offline AI companion right from your Mac. By Tarunya Kesharwani." />
+    <meta name="keywords" content="macOS Dynamic Island, MacBook Notch app, macOS productivity, focus timer, habit tracker Mac, offline AI macOS, Beacon, Tarunya Kesharwani, better habit tracker, deep work" />
+    <meta name="author" content="Tarunya Kesharwani" />
+    <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />
+    <link rel="canonical" href="https://beacon.tarunya.me/" />
 
-    <!-- Open Graph / Facebook -->
+    <!-- Google Search Console Site Verification Slot -->
+    <!-- Replace content with your actual Google Search Console verification token -->
+    <meta name="google-site-verification" content="GSC_VERIFICATION_TOKEN_BEACON" />
+
+    <!-- Open Graph / Facebook / LinkedIn Graph Tags -->
     <meta property="og:type" content="website" />
     <meta property="og:url" content="https://beacon.tarunya.me/" />
-    <meta property="og:title" content="Beacon — The Intentional Dynamic Island & Companion for macOS" />
-    <meta property="og:description" content="Turn your MacBook notch into a living hardware companion. Track goals, execute focus sprints, and command an offline AI companion right from your Mac." />
-    <meta property="og:image" content="https://beacon.tarunya.me/logo.png" />
+    <meta property="og:site_name" content="Beacon" />
+    <meta property="og:title" content="Beacon — The Intentional Dynamic Island & AI Companion for macOS" />
+    <meta property="og:description" content="Turn your MacBook notch into a living hardware companion. Track goals across 6 behavioral paradigms, execute focus sprints, and command an offline AI companion right from your Mac." />
+    <meta property="og:image" content="https://beacon.tarunya.me/og-image.png" />
+    <meta property="og:image:secure_url" content="https://beacon.tarunya.me/og-image.png" />
+    <meta property="og:image:type" content="image/png" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content="Beacon — The Intentional Dynamic Island & AI Companion for macOS by Tarunya Kesharwani" />
 
-    <!-- Twitter -->
-    <meta property="twitter:card" content="summary_large_image" />
-    <meta property="twitter:url" content="https://beacon.tarunya.me/" />
-    <meta property="twitter:title" content="Beacon — The Intentional Dynamic Island & Companion for macOS" />
-    <meta property="twitter:description" content="Turn your MacBook notch into a living hardware companion. Track goals, execute focus sprints, and command an offline AI companion right from your Mac." />
-    <meta property="twitter:image" content="https://beacon.tarunya.me/logo.png" />
+    <!-- Twitter Card Tags -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:site" content="@tarunyakesharwani" />
+    <meta name="twitter:creator" content="@tarunyakesharwani" />
+    <meta name="twitter:url" content="https://beacon.tarunya.me/" />
+    <meta name="twitter:title" content="Beacon — The Intentional Dynamic Island & AI Companion for macOS" />
+    <meta name="twitter:description" content="Turn your MacBook notch into a living hardware companion. Track goals across 6 behavioral paradigms, execute focus sprints, and command an offline AI companion right from your Mac." />
+    <meta name="twitter:image" content="https://beacon.tarunya.me/og-image.png" />
 
-    <!-- Google Fonts: Inter & Outfit for luxury typography -->
+    <!-- Google Analytics (GA4) Global Site Tag Slot -->
+    <!-- Replace G-BEACONID with your live Measurement ID -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-BEACONID"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'G-BEACONID', {
+        send_page_view: true,
+        cookie_flags: 'SameSite=None;Secure'
+      });
+    </script>
+
+    <!-- Google Fonts: Inter & Outfit & JetBrains Mono -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Outfit:wght@400;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
@@ -35,20 +62,52 @@
     <!-- Official Razorpay Checkout SDK -->
     <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
 
-    <!-- Schema.org Software Application structured data -->
+    <!-- Comprehensive Linked Data Graph (Schema.org JSON-LD) -->
     <script type="application/ld+json">
     {
       "@context": "https://schema.org",
-      "@type": "SoftwareApplication",
-      "name": "Beacon",
-      "operatingSystem": "macOS 12+",
-      "applicationCategory": "ProductivityApplication",
-      "offers": {
-        "@type": "Offer",
-        "price": "29.00",
-        "priceCurrency": "USD"
-      },
-      "description": "Turn your MacBook notch into an intentional hardware Dynamic Island and AI companion workspace."
+      "@graph": [
+        {
+          "@type": "SoftwareApplication",
+          "@id": "https://beacon.tarunya.me/#app",
+          "name": "Beacon",
+          "operatingSystem": "macOS 12+",
+          "applicationCategory": "ProductivityApplication",
+          "offers": {
+            "@type": "Offer",
+            "price": "29.00",
+            "priceCurrency": "USD",
+            "url": "https://beacon.tarunya.me/#pricing",
+            "availability": "https://schema.org/InStock"
+          },
+          "description": "Turn your MacBook notch into an intentional hardware Dynamic Island and AI companion workspace.",
+          "author": {
+            "@id": "https://beacon.tarunya.me/#creator"
+          },
+          "screenshot": "https://beacon.tarunya.me/assets/dashboard-clean.png",
+          "image": "https://beacon.tarunya.me/logo.png"
+        },
+        {
+          "@type": "Person",
+          "@id": "https://beacon.tarunya.me/#creator",
+          "name": "Tarunya Kesharwani",
+          "url": "https://github.com/tarunyaprogrammer",
+          "sameAs": [
+            "https://www.linkedin.com/in/tarunyakesharwani/",
+            "https://github.com/tarunyaprogrammer"
+          ],
+          "jobTitle": "Founder & Software Architect"
+        },
+        {
+          "@type": "WebSite",
+          "@id": "https://beacon.tarunya.me/#website",
+          "url": "https://beacon.tarunya.me/",
+          "name": "Beacon",
+          "publisher": {
+            "@id": "https://beacon.tarunya.me/#creator"
+          }
+        }
+      ]
     }
     </script>
   </head>
