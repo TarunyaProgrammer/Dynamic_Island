@@ -7,11 +7,11 @@ export const FAQSection: React.FC = () => {
   const faqs = [
     {
       q: "Does Beacon drain my MacBook battery?",
-      a: "Not at all. Beacon was engineered from the ground up for energy conservation. When the notch is collapsed, rendering throttles to 0 FPS and idle CPU drops to under 0.1%. It has zero background web-view bloat.",
+      a: "No. Beacon was engineered from the ground up for energy conservation. When the notch is collapsed, rendering throttles to 0 FPS and idle CPU drops to under 0.1%. It has zero background web-view bloat.",
     },
     {
-      q: "What if my Mac doesn't have a camera notch (e.g. Mac mini, Studio, or older MacBook)?",
-      a: "Beacon has native notch-geometry adaptation. If your Mac doesn't have a physical camera notch, Beacon renders a gorgeous, floating Dynamic Island pill pinned at the top center of your display with full hover and click interactions.",
+      q: "What if my Mac doesn't have a camera notch (e.g. Mac mini, Studio, or iMac)?",
+      a: "Beacon features automatic screen geometry detection. If your Mac doesn't have a physical camera notch, Beacon renders a floating Dynamic Island capsule pinned at the top center of your display with full hover and click interactions.",
     },
     {
       q: "How does the Razorpay checkout and license delivery work?",
@@ -19,50 +19,49 @@ export const FAQSection: React.FC = () => {
     },
     {
       q: "Is my personal data and habit schedule kept private?",
-      a: "Yes, 100%. Beacon does not require an account, has zero cloud tracking, and stores all your data in a local SQLite database in Write-Ahead Logging (WAL) mode right on your physical drive.",
+      a: "Yes, 100%. Beacon does not require an account, has zero cloud tracking, and stores all your data in a local SQLite database in Write-Ahead Logging (WAL) mode right on your physical hard drive.",
     },
     {
       q: "Can I use one license on multiple personal Macs?",
-      a: "Yes! A Pioneer Lifetime License grants you activation rights on up to 3 personal Mac computers (work machine, personal laptop, desktop Mac).",
+      a: "Yes. A Pioneer Lifetime License grants you activation rights on up to 3 personal Mac computers (work laptop, personal MacBook, desktop Mac).",
     },
     {
       q: "What is your refund policy?",
-      a: "We offer a 14-day no-questions-asked money-back guarantee. If Beacon doesn't dramatically improve your daily focus, simply reach out to support and we will issue a full refund immediately.",
+      a: "We offer a 30-day unconditional money-back guarantee. If Beacon doesn't earn its place on your Mac, email us for a 100% refund, no questions asked.",
     },
   ];
 
   return (
-    <section id="faq" style={{ padding: "80px 0", position: "relative" }}>
-      <div className="container" style={{ maxWidth: "780px" }}>
+    <section id="faq" style={{ padding: "90px 0", backgroundColor: "var(--bg-canvas-subtle)" }}>
+      <div className="container" style={{ maxWidth: "800px" }}>
         <div style={{ textAlign: "center", marginBottom: "48px" }}>
-          <span style={{ fontSize: "12px", color: "var(--accent-solar)", fontWeight: 700, letterSpacing: "0.08em", textTransform: "uppercase" }}>
+          <span className="eyebrow-wispr" style={{ display: "block", marginBottom: "12px" }}>
             FREQUENTLY ASKED QUESTIONS
           </span>
           <h2
+            className="serif-headline"
             style={{
-              fontFamily: "var(--font-display)",
-              fontSize: "clamp(28px, 4vw, 40px)",
-              fontWeight: 800,
-              letterSpacing: "-0.03em",
-              marginTop: "8px",
+              fontSize: "clamp(30px, 4.5vw, 48px)",
+              color: "var(--text-ink)",
             }}
           >
-            Everything You Need to Know
+            Everything you need to know.
           </h2>
         </div>
 
-        <div style={{ display: "flex", flexDirection: "column", gap: "14px" }}>
+        <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
           {faqs.map((f, i) => {
             const isOpen = openIdx === i;
             return (
               <div
                 key={i}
-                className="glass-panel"
                 style={{
+                  backgroundColor: "#FFFFFF",
                   borderRadius: "16px",
+                  border: "1px solid var(--border-subtle)",
+                  boxShadow: isOpen ? "var(--shadow-card)" : "var(--shadow-sm)",
                   overflow: "hidden",
                   transition: "all 0.2s ease",
-                  backgroundColor: isOpen ? "rgba(22, 26, 40, 0.85)" : "rgba(18, 21, 32, 0.6)",
                 }}
               >
                 <button
@@ -76,27 +75,37 @@ export const FAQSection: React.FC = () => {
                     justifyContent: "space-between",
                     background: "none",
                     border: "none",
-                    color: "#ffffff",
+                    color: "var(--text-ink)",
                     textAlign: "left",
                     cursor: "pointer",
-                    fontSize: "15px",
+                    fontSize: "16px",
                     fontWeight: 700,
                   }}
                 >
                   <span>{f.q}</span>
                   <ChevronDown
                     size={18}
-                    color="var(--accent-solar)"
+                    color="var(--accent-forest)"
                     style={{
                       transform: isOpen ? "rotate(180deg)" : "rotate(0deg)",
-                      transition: "transform 0.25s var(--ease-spring)",
+                      transition: "transform 0.25s cubic-bezier(0.16, 1, 0.3, 1)",
                       flexShrink: 0,
+                      marginLeft: "16px",
                     }}
                   />
                 </button>
 
                 {isOpen && (
-                  <div style={{ padding: "0 24px 20px 24px", fontSize: "14px", color: "var(--text-secondary)", lineHeight: 1.6 }}>
+                  <div
+                    style={{
+                      padding: "0 24px 20px 24px",
+                      fontSize: "14px",
+                      color: "var(--text-body)",
+                      lineHeight: 1.65,
+                      borderTop: "1px solid var(--border-subtle)",
+                      paddingTop: "16px",
+                    }}
+                  >
                     {f.a}
                   </div>
                 )}

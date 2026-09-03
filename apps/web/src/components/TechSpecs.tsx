@@ -6,7 +6,7 @@ export const TechSpecs: React.FC = () => {
     {
       icon: Cpu,
       title: "0.1% Idle CPU Usage",
-      detail: "Hardware-accelerated Electron runtime with idle process suspension. You won't see it on your battery monitor.",
+      detail: "Hardware-accelerated Electron runtime with idle process suspension. It won't register on your macOS battery monitor.",
     },
     {
       icon: Zap,
@@ -16,7 +16,7 @@ export const TechSpecs: React.FC = () => {
     {
       icon: HardDrive,
       title: "45 MB RAM Footprint",
-      detail: "Lightweight isolated multi-window architecture. Closes and unloads hidden surfaces when not actively in use.",
+      detail: "Isolated multi-window architecture. Closes and unloads hidden surfaces when not actively in use.",
     },
     {
       icon: ShieldCheck,
@@ -26,18 +26,18 @@ export const TechSpecs: React.FC = () => {
   ];
 
   return (
-    <section style={{ padding: "80px 0", borderBottom: "1px solid var(--border-hairline)" }}>
+    <section style={{ padding: "90px 0", backgroundColor: "var(--bg-canvas-subtle)" }}>
       <div className="container">
-        <div style={{ maxWidth: "680px", marginBottom: "40px" }}>
-          <span className="tag-tech" style={{ marginBottom: "12px", display: "inline-flex" }}>
-            <span className="dot" />
+        <div style={{ maxWidth: "680px", marginBottom: "44px" }}>
+          <span className="eyebrow-wispr" style={{ display: "block", marginBottom: "12px" }}>
             ENGINEERED EFFICIENCY
           </span>
-          <h2 className="display-headline" style={{ fontSize: "clamp(26px, 3.5vw, 42px)", marginBottom: "12px" }}>
-            Engineered to respect your Mac's battery.
+          <h2 className="serif-headline" style={{ fontSize: "clamp(30px, 4.5vw, 48px)", marginBottom: "12px" }}>
+            Engineered to respect<br />
+            <span className="serif-italic">your Mac's battery.</span>
           </h2>
           <p className="text-subhead" style={{ fontSize: "16px" }}>
-            We built Beacon because bloated Electron menu apps that chew 15% CPU are unacceptable.
+            We built Beacon because bloated menu apps that chew 15% CPU are unacceptable on Apple Silicon.
           </p>
         </div>
 
@@ -45,20 +45,40 @@ export const TechSpecs: React.FC = () => {
           style={{
             display: "grid",
             gridTemplateColumns: "repeat(auto-fit, minmax(260px, 1fr))",
-            gap: "16px",
+            gap: "20px",
           }}
         >
           {specs.map((s, idx) => {
             const Icon = s.icon;
             return (
-              <div key={idx} className="card-hardware">
-                <div style={{ width: "32px", height: "32px", borderRadius: "6px", backgroundColor: "rgba(255, 255, 255, 0.04)", border: "1px solid var(--border-hairline)", display: "flex", alignItems: "center", justifyContent: "center", marginBottom: "16px" }}>
-                  <Icon size={16} color="var(--accent-solar)" />
+              <div
+                key={idx}
+                style={{
+                  backgroundColor: "#FFFFFF",
+                  border: "1px solid var(--border-subtle)",
+                  borderRadius: "16px",
+                  padding: "24px",
+                  boxShadow: "var(--shadow-card)",
+                }}
+              >
+                <div
+                  style={{
+                    width: "36px",
+                    height: "36px",
+                    borderRadius: "8px",
+                    backgroundColor: "var(--bg-canvas)",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    marginBottom: "16px",
+                  }}
+                >
+                  <Icon size={18} color="var(--accent-forest)" />
                 </div>
-                <h3 style={{ fontSize: "15px", fontWeight: 700, color: "#ffffff", marginBottom: "6px" }}>
+                <h3 style={{ fontSize: "16px", fontWeight: 700, color: "var(--text-ink)", marginBottom: "6px" }}>
                   {s.title}
                 </h3>
-                <p style={{ fontSize: "13px", color: "var(--text-secondary)", lineHeight: 1.55 }}>
+                <p style={{ fontSize: "14px", color: "var(--text-body)", lineHeight: 1.55 }}>
                   {s.detail}
                 </p>
               </div>
