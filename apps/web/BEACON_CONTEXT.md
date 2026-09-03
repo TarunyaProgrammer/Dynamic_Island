@@ -26,7 +26,42 @@ Modern knowledge workers, developers, and founders suffer from catastrophic cont
 
 ---
 
-## 2. Visual World & Design Tokens
+## 2. The 5 Core Application Surfaces
+
+Beacon consists of 5 tightly synchronized native macOS surfaces:
+
+### Surface 1: The Main Obsidian Command Dashboard (`dashboard-full.png`)
+- **Header**: macOS native traffic lights, `[Goals]` and `[Focus Mode]` navigation, `[✨ AI Brain]` launcher, theme toggle, and `+ New Goal`.
+- **Hero Spirit Greeting**: Shows personalized greeting, commitment ratios ("You've kept 3 of 6 commitments this week"), daily completion %, consistency score, and quick `[💬 Talk to Spirit]` trigger.
+- **Goal Cards**: Shows progress circle, status badges (`✦ SURGING`), category tags (`Learning`, `Health`), current vs target metrics, deadline countdowns, focus sprint buttons, and inline quick-increment buttons (`[+10]`, `[+1]`).
+- **Right Intelligence Sidebar**:
+  - `TODAY'S FOCUS`: Total sprint time (`2h 30m`), target completion, and smooth deep-work spline waveform.
+  - `WEEKLY RHYTHM`: 7-day momentum bar chart showing daily pacing (`+14% Pace`).
+  - `RECENT ACTIVITY`: Real-time chronological audit trail of logged increments and sprint completions.
+
+### Surface 2: The Hardware Dynamic Island (`dynamic-island-desktop.png`)
+- Snaps directly beneath the MacBook camera notch.
+- Expands from a compact `200px` pill to a `640px × 146px` solid obsidian HUD on hover.
+- 3-column architecture: Contextual card (`Beacon` / `Focus` / `Media`), 7-day calendar strip with Solar Amber today pill, and circular overall progress ring.
+
+### Surface 3: The Menu Bar Hub (`menubar-hub.png`)
+- Tray popover accessible with a single click from the macOS system menu bar.
+- Glanceable summary (e.g. `13% Complete • 6 active • 5 logged today`).
+- Allows 1-click progress logging across all active goals without taking over your display or interrupting full-screen applications.
+
+### Surface 4: The Command Engine HUD (`command-engine.png`)
+- Spotlight / Raycast-style floating keyboard palette.
+- Instant fuzzy search across all goals, habits, and focus modes.
+- Natural command ergonomics: `+1 [name]`, `new [name]`, keyboard selection with arrow keys (`↑↓`) and `↵ Enter` to increment.
+
+### Surface 5: The Beacon Spirit AI Companion (`spirit-companion-chat.png`)
+- Conversational companion interface powered by Google Gemini with multi-tier automatic failover.
+- Features quick-action spell pills (`25m Focus Sprint`, `Create Gym Habit (4x/wk)`, `Check Momentum Rhythm`, `Log +2 LeetCode`).
+- Real-time word-by-word streaming with human speech pauses.
+
+---
+
+## 3. Visual World & Design Tokens
 
 ### The Hardware Aesthetic
 Beacon rejects flat corporate styling and generic utility design in favor of **Apple-grade hardware glassmorphism**:
@@ -37,17 +72,9 @@ Beacon rejects flat corporate styling and generic utility design in favor of **A
   - **Emerald Green (`#10B981`)**: Checkmarks, completed streaks, active system indicators.
   - **Royal Violet (`#C084FC`)**: Global media player (Apple Music & Spotify) and Spirit AI companion.
 
-### Dynamic Island Dimensions & Physics
-- **Collapsed Notch**: `200px × 32px` (Snaps directly behind the MacBook hardware notch bezel).
-- **Expanded HUD**: `640px × 146px` (Custom spring easing `cubic-bezier(0.16, 1, 0.3, 1)` with 60fps GPU acceleration).
-- **3-Column Layout**:
-  - *Column 1 (Contextual Tab)*: Switches between `Beacon` (Primary goal with `[+10]` quick action), `Focus` (Running sprint timer with pause/play), and `Media` (Track title, artist, play/pause scrub).
-  - *Column 2 (Rhythm & Streak)*: 7-day calendar strip with glowing Amber today badge (`#FF7A00`) and streak flame counter (`14d streak 🔥`).
-  - *Column 3 (Overall Ring)*: Solar Amber circular SVG progress ring with bold percentage readout.
-
 ---
 
-## 3. The 6 Goal Paradigms (Engineered for Real Humans)
+## 4. The 6 Goal Paradigms (Engineered for Real Humans)
 
 | Paradigm | Psychology & Use Case | Key Engine Attributes | Notch HUD Representation |
 |---|---|---|---|
@@ -60,7 +87,7 @@ Beacon rejects flat corporate styling and generic utility design in favor of **A
 
 ---
 
-## 4. Beacon Spirit AI Companion Engine
+## 5. Beacon Spirit AI Companion Engine
 
 ### Architecture
 - **Single Abstraction Layer**: App communicates with `AIOrchestrator`, which supports local and cloud LLM providers without vendor lock-in.
@@ -83,7 +110,7 @@ Beacon rejects flat corporate styling and generic utility design in favor of **A
 
 ---
 
-## 5. macOS System Integration & Performance
+## 6. macOS System Integration & Performance
 
 - **Global Hotkey (`⌘⇧B`)**: Electron global shortcut triggers immediate overlay toggle without task switching.
 - **Zero Battery Drain**:
@@ -96,7 +123,7 @@ Beacon rejects flat corporate styling and generic utility design in favor of **A
 
 ---
 
-## 6. Business, Pricing & Razorpay Gateway
+## 7. Business, Pricing & Razorpay Gateway
 
 ### Positioning
 - **Target URL**: `https://beacon.tarunya.me`
@@ -118,42 +145,42 @@ Beacon rejects flat corporate styling and generic utility design in favor of **A
 
 ---
 
-## 7. Project & Repository Layout
+## 8. File Tree Reference
 
 ```
-/Users/tarunyakesh/Desktop/
-├── Beacon - Starup/                  # Main macOS Native Desktop Application
-│   ├── apps/
-│   │   ├── main/                    # Electron Main Process (Window manager, global hotkeys, IPC)
-│   │   ├── preload/                 # Preload contextBridge (Type-safe IPC APIs)
-│   │   ├── renderer/                # React 19 UI (Notch HUD, Main Dashboard, Settings)
-│   │   └── web/                     # Mirrored Marketing Website (Vite + React 19)
-│   ├── packages/
-│   │   ├── core/                    # Goal Engine, FocusManager, ActivityEngine, AI Orchestrator
-│   │   └── database/                # SQLite WAL schema, DDL migrations, repositories
-│   └── Logo.png                     # Master macOS App Icon Asset
-│
-└── Beacon - WebBranding/            # Standalone High-Traffic Marketing & Checkout Site (beacon.tarunya.me)
-    ├── dist/                        # Production optimized static build (<80 kB gzipped)
-    ├── public/                      # Favicons, logo, robots.txt, sitemap.xml
-    ├── src/
-    │   ├── components/
-    │   │   ├── Navbar.tsx           # Glass header with currency toggle & Get Beacon CTA
-    │   │   ├── HeroSection.tsx      # High-impact headline, DMG download pill, metrics
-    │   │   ├── IslandSimulator.tsx  # Interactive MacBook Notch (Hover/click, tabs, [+10] problems)
-    │   │   ├── FeatureGrid.tsx      # 6 Behavioral Paradigms & macOS integrations
-    │   │   ├── SpiritShowcase.tsx   # Beacon Spirit pet mascot & interactive action spells
-    │   │   ├── TechSpecs.tsx        # Benchmarks (0.1% CPU, 45MB RAM, <16ms latency)
-    │   │   ├── PricingSection.tsx   # Tier cards (Lifetime Pioneer & Annual)
-    │   │   ├── RazorpayModal.tsx    # Secure Razorpay checkout & test simulator
-    │   │   ├── LicenseSuccessModal.tsx # Post-payment confetti, license key & DMG download
-    │   │   ├── FAQSection.tsx       # Battery, non-notch Macs, and refund questions
-    │   │   └── Footer.tsx           # Branding, credits to Tarunya Kesh, status pill
-    │   ├── services/
-    │   │   └── razorpay.ts          # Razorpay SDK bridge & cryptographical key generator
-    │   └── styles/
-    │       ├── tokens.css           # Hardware color tokens, glass shaders, spring easings
-    │       └── global.css           # Reset, typography, animations
-    ├── BEACON_CONTEXT.md            # This Master Document
-    └── README.md                    # Deployment guide for Vercel / Cloudflare Pages
+/Users/tarunyakesh/Desktop/Beacon - WebBranding/
+├── dist/                          # Production static build (<80 kB gzipped)
+├── public/
+│   ├── assets/
+│   │   ├── dashboard-full.png     # Surface 1: Full Main Dashboard
+│   │   ├── dynamic-island-desktop.png # Surface 2: Hardware Dynamic Island on Desktop
+│   │   ├── menubar-hub.png        # Surface 3: Menu Bar Popover Hub
+│   │   ├── command-engine.png     # Surface 4: Spotlight Command Engine
+│   │   └── spirit-companion-chat.png # Surface 5: Spirit AI Companion Modal
+│   ├── logo.png                   # High-res master icon
+│   ├── robots.txt                 # Search engine crawler permissions
+│   └── sitemap.xml                # SEO sitemap
+├── src/
+│   ├── components/
+│   │   ├── Navbar.tsx             # Sticky glass header with currency switcher
+│   │   ├── HeroSection.tsx        # High-impact title, DMG download, hardware pills
+│   │   ├── IslandSimulator.tsx    # Playable interactive MacBook Notch HUD
+│   │   ├── AppScreenshotsGallery.tsx # Interactive real macOS app gallery
+│   │   ├── FeatureGrid.tsx        # The 6 Goal Paradigms & architecture cards
+│   │   ├── SpiritShowcase.tsx     # Beacon Spirit pet companion & spell simulator
+│   │   ├── TechSpecs.tsx          # 0.1% CPU, 45MB RAM, <16ms latency benchmarks
+│   │   ├── PricingSection.tsx     # Lifetime Pioneer & Annual plan cards
+│   │   ├── RazorpayModal.tsx      # Razorpay payment modal with Sandbox toggle
+│   │   ├── LicenseSuccessModal.tsx# Confetti celebration & license key delivery
+│   │   ├── FAQSection.tsx         # Common buyer questions and refund policy
+│   │   └── Footer.tsx             # Credits, links, live status pill
+│   ├── services/
+│   │   └── razorpay.ts            # Razorpay checkout bridge & license key generator
+│   ├── styles/
+│   │   ├── tokens.css             # Obsidian, Solar Amber, Cyan, Purple tokens
+│   │   └── global.css             # Glass panels, animations, typography
+│   └── types/
+│       └── index.ts               # TypeScript interfaces
+├── BEACON_CONTEXT.md              # Complete Master Product & Architecture Reference
+└── README.md                      # Vercel & Cloudflare Pages deployment instructions
 ```
