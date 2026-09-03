@@ -25,6 +25,10 @@ export const AISettingsModal: React.FC<AISettingsModalProps> = ({ isOpen, onClos
 
     const loadConfig = async () => {
       try {
+        if (!window.beacon?.ai) {
+          console.warn('window.beacon.ai not available yet');
+          return;
+        }
         const summary = await window.beacon.ai.getConfig();
         setConfig(summary);
         setSelectedProvider(summary.activeProvider);
@@ -47,6 +51,14 @@ export const AISettingsModal: React.FC<AISettingsModalProps> = ({ isOpen, onClos
   const isCurrentProviderConfigured = currentProviderConfig?.isConfigured && !isKeyDirty;
 
   const handleTestConnection = async () => {
+    if (!window.beacon?.ai) {
+      setTestResult({
+        success: false,
+        error: 'AI bridge unavailable. Please restart Beacon.',
+      });
+      return;
+    }
+
     setTesting(true);
     setTestResult(null);
     try {
@@ -68,6 +80,11 @@ export const AISettingsModal: React.FC<AISettingsModalProps> = ({ isOpen, onClos
   };
 
   const handleSaveAndClose = async () => {
+    if (!window.beacon?.ai) {
+      onClose();
+      return;
+    }
+
     setSaving(true);
     try {
       if (isKeyDirty && apiKeyInput.trim()) {

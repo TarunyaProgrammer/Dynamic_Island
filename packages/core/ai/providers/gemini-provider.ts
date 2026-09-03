@@ -14,12 +14,12 @@ export class GeminiProvider extends BaseAIProvider {
     }
     switch (profile) {
       case 'fast':
-        return 'gemini-2.0-flash';
+        return 'gemini-flash-lite-latest';
       case 'powerful':
-        return 'gemini-1.5-pro';
+        return 'gemini-pro-latest';
       case 'balanced':
       default:
-        return 'gemini-1.5-flash';
+        return 'gemini-flash-latest';
     }
   }
 
@@ -27,7 +27,7 @@ export class GeminiProvider extends BaseAIProvider {
     const start = Date.now();
     try {
       const apiKey = await this.getApiKey();
-      const testModel = 'gemini-1.5-flash';
+      const testModel = 'gemini-flash-latest';
       const url = `${this.apiBase}/${testModel}:generateContent?key=${apiKey}`;
 
       const res = await this.fetchWithTimeout(
@@ -47,10 +47,19 @@ export class GeminiProvider extends BaseAIProvider {
 
       if (!res.ok) {
         const errorText = await res.text();
+        let message = `HTTP ${res.status}`;
+        try {
+          const parsed = JSON.parse(errorText);
+          if (parsed?.error?.message) {
+            message = parsed.error.message;
+          }
+        } catch {
+          message = errorText.slice(0, 120);
+        }
         return {
           success: false,
           latencyMs,
-          error: `Gemini returned HTTP ${res.status}: ${errorText.slice(0, 120)}`,
+          error: `Gemini: ${message}`,
           modelUsed: testModel,
         };
       }
