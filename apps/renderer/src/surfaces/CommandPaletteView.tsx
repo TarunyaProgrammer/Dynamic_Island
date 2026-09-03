@@ -1,13 +1,15 @@
 // apps/renderer/src/surfaces/CommandPaletteView.tsx
 import React, { useState, useEffect, useRef } from 'react';
 import { useGoals } from '../hooks/useGoals';
-import { Search, Plus, Command, ArrowRight } from 'lucide-react';
+import { Search, Plus, Command, ArrowRight, Sparkles, Loader2, CheckCircle2 } from 'lucide-react';
 import { GoalProgressRing } from '../components/GoalProgressRing';
 
 export const CommandPaletteView: React.FC = () => {
   const { goals, incrementProgress, createGoal } = useGoals('active');
   const [query, setQuery] = useState('');
   const [selectedIndex, setSelectedIndex] = useState(0);
+  const [isThinking, setIsThinking] = useState(false);
+  const [aiResponse, setAiResponse] = useState<string | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
   // Auto-focus and reset state on window focus
@@ -15,6 +17,8 @@ export const CommandPaletteView: React.FC = () => {
     const handleFocus = () => {
       setQuery('');
       setSelectedIndex(0);
+      setIsThinking(false);
+      setAiResponse(null);
       inputRef.current?.focus();
     };
 
@@ -46,7 +50,26 @@ export const CommandPaletteView: React.FC = () => {
     window.beacon.windows.togglePalette();
   };
 
+  const handleExecuteAI = async (text: string) => {
+    if (!text.trim() || isThinking) return;
+    setIsThinking(true);
+    setAiResponse(null);
+    try {
+      const result = await window.beacon.ai.executePrompt(text.trim());
+      setAiResponse(result.reply);
+      setTimeout(() => {
+        window.beacon.windows.togglePalette();
+      }, 2200);
+    } catch (err: any) {
+      setAiResponse(`Error: ${err.message || 'AI request failed'}`);
+    } finally {
+      setIsThinking(false);
+    }
+  };
+
   const handleKeyDown = async (e: React.KeyboardEvent) => {
+    if (isThinking) return;
+
     if (e.key === 'ArrowDown') {
       e.preventDefault();
       setSelectedIndex((prev) => (prev + 1) % Math.max(1, filteredGoals.length));
@@ -56,6 +79,7 @@ export const CommandPaletteView: React.FC = () => {
     } else if (e.key === 'Enter') {
       e.preventDefault();
       const trimmed = query.trim();
+      if (!trimmed) return;
 
       // Check for quick creation syntax: "new [title]"
       if (trimmed.toLowerCase().startsWith('new ')) {
@@ -67,9 +91,12 @@ export const CommandPaletteView: React.FC = () => {
         }
       }
 
-      // Execute on selected goal
-      if (filteredGoals[selectedIndex]) {
+      // If goals match and index is valid, execute progress on selected goal
+      if (filteredGoals.length > 0 && filteredGoals[selectedIndex]) {
         await handleExecute(filteredGoals[selectedIndex].id);
+      } else {
+        // Natural language query -> pass to Beacon Companion AI!
+        await handleExecuteAI(trimmed);
       }
     }
   };
@@ -128,7 +155,79 @@ export const CommandPaletteView: React.FC = () => {
       </div>
 
       {/* Goal Results List */}
-      <div style={{ flex: 1, overflowY: 'auto', padding: '8px 10px', display: 'flex', flexDirection: 'column', gap: '4px' }}>
+      <div style={{ flex: 1, overflowY: 'auto', padding: '8px 10px', display: 'flex', flexDirection: 'column', gap: '6px' }}>
+        {/* Active AI Processing State */}
+        {isThinking && (
+          <div
+            style={{
+              padding: '14px 16px',
+              backgroundColor: 'rgba(255, 122, 0, 0.12)',
+              borderRadius: 'var(--radius-md)',
+              border: '1px solid rgba(255, 122, 0, 0.35)',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '10px',
+              color: 'var(--accent-solar, #ff7a00)',
+              fontSize: '13px',
+              fontWeight: 600,
+            }}
+          >
+            <Loader2 size={16} className="animate-spin" />
+            <span>Beacon Companion is planning & executing...</span>
+          </div>
+        )}
+
+        {/* AI Response Card */}
+        {aiResponse && (
+          <div
+            style={{
+              padding: '14px 16px',
+              backgroundColor: 'rgba(52, 211, 153, 0.12)',
+              borderRadius: 'var(--radius-md)',
+              border: '1px solid rgba(52, 211, 153, 0.35)',
+              display: 'flex',
+              flexDirection: 'column',
+              gap: '4px',
+            }}
+          >
+            <div style={{ display: 'flex', alignItems: 'center', gap: '6px', color: '#34d399', fontSize: '11px', fontWeight: 700 }}>
+              <CheckCircle2 size={14} />
+              <span>BEACON COMPANION</span>
+            </div>
+            <p style={{ margin: 0, fontSize: '13px', color: '#ffffff', lineHeight: 1.4 }}>
+              {aiResponse}
+            </p>
+          </div>
+        )}
+
+        {/* Natural Language Prompt Suggestion Card */}
+        {query.trim().length > 2 && !isThinking && !aiResponse && !query.trim().toLowerCase().startsWith('new ') && (
+          <div
+            onClick={() => handleExecuteAI(query.trim())}
+            style={{
+              padding: '10px 14px',
+              backgroundColor: 'rgba(255, 122, 0, 0.08)',
+              borderRadius: 'var(--radius-md)',
+              border: '1px solid rgba(255, 122, 0, 0.25)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              cursor: 'pointer',
+              transition: 'all 0.15s ease',
+            }}
+          >
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <Sparkles size={14} color="var(--accent-solar, #ff7a00)" />
+              <span style={{ fontSize: '12px', color: '#ffffff' }}>
+                Ask Beacon Companion: <strong>"{query.trim()}"</strong>
+              </span>
+            </div>
+            <span style={{ fontSize: '10px', color: 'var(--accent-solar, #ff7a00)', fontWeight: 600 }}>
+              Press ↵
+            </span>
+          </div>
+        )}
+
         {query.trim().toLowerCase().startsWith('new ') && (
           <div
             style={{
@@ -149,10 +248,10 @@ export const CommandPaletteView: React.FC = () => {
           </div>
         )}
 
-        {filteredGoals.length === 0 && !query.trim().startsWith('new ') ? (
+        {filteredGoals.length === 0 && !query.trim().startsWith('new ') && !isThinking && !aiResponse && query.trim().length <= 2 ? (
           <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', flex: 1, color: 'var(--text-muted)', gap: '6px' }}>
             <Command size={20} opacity={0.4} />
-            <span style={{ fontSize: '12px' }}>No matching goals found. Type "new [title]" to create one.</span>
+            <span style={{ fontSize: '12px' }}>Type any natural language command or search goals...</span>
           </div>
         ) : (
           filteredGoals.map((g, idx) => {

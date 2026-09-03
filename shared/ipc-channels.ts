@@ -58,6 +58,14 @@ export const IPC_CHANNELS = {
   // Companion Presence
   COMPANION_EMIT: 'beacon:companion:emit',
 
+  // AI & Companion Intelligence
+  AI_GET_CONFIG: 'beacon:ai:get-config',
+  AI_UPDATE_CONFIG: 'beacon:ai:update-config',
+  AI_SET_KEY: 'beacon:ai:set-key',
+  AI_REMOVE_KEY: 'beacon:ai:remove-key',
+  AI_TEST_CONNECTION: 'beacon:ai:test-connection',
+  AI_EXECUTE_PROMPT: 'beacon:ai:execute-prompt',
+
   // Broadcast Events (Main -> Renderer)
   EVENT_GOALS_CHANGED: 'beacon:event:goals-changed',
   EVENT_SETTINGS_CHANGED: 'beacon:event:settings-changed',

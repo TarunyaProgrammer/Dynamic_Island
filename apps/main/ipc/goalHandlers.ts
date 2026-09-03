@@ -13,6 +13,8 @@ import { MainWindowController } from '../windows/MainWindow';
 import { PaletteWindowController } from '../windows/PaletteWindow';
 import { IslandWindowController } from '../windows/IslandWindow';
 import { TrayPopoverController } from '../windows/TrayPopoverWindow';
+import { CredentialRepository } from '@database/repository/credential-repository';
+import { registerAIHandlers } from './aiHandlers';
 
 export function registerIpcHandlers(
   goalService: GoalService,
@@ -37,6 +39,10 @@ export function registerIpcHandlers(
       }
     }
   };
+
+  // Initialize AI Orchestrator & Credential Vault
+  const credentialRepo = new CredentialRepository((settingsRepo as any).db);
+  registerAIHandlers(goalService, focusManager, settingsRepo, credentialRepo, broadcastGoalsChanged);
 
   const broadcastSettingsChanged = (settings: AppSettings) => {
     for (const win of BrowserWindow.getAllWindows()) {

@@ -208,3 +208,5 @@ export class FocusSessionManager {
     }
   }
 }
+
+export { FocusSessionManager as FocusManager };

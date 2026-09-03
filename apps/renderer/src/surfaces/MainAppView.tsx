@@ -12,17 +12,19 @@ import { ConfettiCanvas } from '../components/ConfettiCanvas';
 import { triggerLightPulse } from '../components/LightBeamFeedback';
 import { ConfirmationModal } from '../components/ConfirmationModal';
 import { soundEffects } from '../utils/audio';
-import { Plus, Undo2, Redo2, Layers, CheckCircle2, Archive, Timer, Search, X, Sun, Moon } from 'lucide-react';
+import { Plus, Undo2, Redo2, Layers, CheckCircle2, Archive, Timer, Search, X, Sun, Moon, Sparkles } from 'lucide-react';
 import { FocusDashboardView } from '../components/FocusDashboardView';
 import { useCompanion } from '../hooks/useCompanion';
 import { SolarHorizonGraph } from '../components/SolarHorizonGraph';
 import { MomentumRhythmBar } from '../components/MomentumRhythmBar';
+import { AISettingsModal } from '../components/AISettingsModal';
 import atmosphericBg from '../assets/atmospheric_bg.jpg';
 
 export const MainAppView: React.FC = () => {
   const [viewMode, setViewMode] = useState<'goals' | 'focus'>('goals');
   const [activeTab, setActiveTab] = useState<GoalStatus | 'all'>('active');
   const [searchQuery, setSearchQuery] = useState('');
+  const [showAISettings, setShowAISettings] = useState(false);
   const [isEditorOpen, setIsEditorOpen] = useState(false);
   const [editingGoal, setEditingGoal] = useState<Goal | null>(null);
   const [goalToDelete, setGoalToDelete] = useState<Goal | null>(null);
@@ -293,6 +295,26 @@ export const MainAppView: React.FC = () => {
         </div>
 
         <div className="no-drag" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+          <button
+            onClick={() => setShowAISettings(true)}
+            className="btn-ghost"
+            title="AI Companion Intelligence Settings"
+            style={{
+              padding: '5px 9px',
+              borderRadius: 'var(--radius-sm)',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '5px',
+              fontSize: '11px',
+              fontWeight: 600,
+              color: 'var(--accent-solar, #ff7a00)',
+              backgroundColor: 'rgba(255, 122, 0, 0.08)',
+              border: '1px solid rgba(255, 122, 0, 0.22)',
+            }}
+          >
+            <Sparkles size={12} color="var(--accent-solar, #ff7a00)" />
+            <span>AI Brain</span>
+          </button>
           <button
             onClick={toggleTheme}
             className="btn-ghost"
@@ -715,6 +737,12 @@ export const MainAppView: React.FC = () => {
         isDestructive={true}
         onConfirm={handleConfirmDelete}
         onCancel={() => setGoalToDelete(null)}
+      />
+
+      {/* AI Intelligence & Provider Settings Modal */}
+      <AISettingsModal
+        isOpen={showAISettings}
+        onClose={() => setShowAISettings(false)}
       />
     </div>
   );

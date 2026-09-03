@@ -71,6 +71,16 @@ export interface BeaconApi {
     emit: (event: CompanionEvent) => Promise<void>;
   };
 
+  // AI & Natural Language Companion
+  ai: {
+    getConfig: () => Promise<import('@core/ai/types').AIConfigSummary>;
+    updateConfig: (partial: Partial<import('@core/ai/types').AIConfig>) => Promise<import('@core/ai/types').AIConfigSummary>;
+    setKey: (provider: import('@core/ai/types').AIProviderId, key: string) => Promise<boolean>;
+    removeKey: (provider: import('@core/ai/types').AIProviderId) => Promise<boolean>;
+    testConnection: (provider: import('@core/ai/types').AIProviderId) => Promise<import('@core/ai/types').ConnectionResult>;
+    executePrompt: (prompt: string, history?: import('@core/ai/types').ChatMessage[]) => Promise<import('@core/ai/types').AIPromptResult>;
+  };
+
   // Window Controls
   windows: {
     toggleMain: () => Promise<void>;

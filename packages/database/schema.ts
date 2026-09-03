@@ -59,12 +59,19 @@ CREATE TABLE IF NOT EXISTS goal_checkins (
   skip_reason TEXT,
   note TEXT,
   timestamp TEXT NOT NULL,
-  FOREIGN KEY (goal_id) REFERENCES goals(id) ON DELETE CASCADE
+  FOREIGN KEY (goal_id) REFERENCES goals(id) ON DELETE CASCADE,
+  UNIQUE(goal_id, date)
 );
 
 CREATE TABLE IF NOT EXISTS settings (
   key TEXT PRIMARY KEY,
   value TEXT NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS credentials (
+  key TEXT PRIMARY KEY,
+  encrypted_data TEXT NOT NULL,
+  updated_at TEXT NOT NULL
 );
 `;
 

@@ -72,6 +72,16 @@ const api: BeaconApi = {
     emit: (event: CompanionEvent) => ipcRenderer.invoke(IPC_CHANNELS.COMPANION_EMIT, event),
   },
 
+  ai: {
+    getConfig: () => ipcRenderer.invoke(IPC_CHANNELS.AI_GET_CONFIG),
+    updateConfig: (partial: any) => ipcRenderer.invoke(IPC_CHANNELS.AI_UPDATE_CONFIG, partial),
+    setKey: (provider: any, key: string) => ipcRenderer.invoke(IPC_CHANNELS.AI_SET_KEY, provider, key),
+    removeKey: (provider: any) => ipcRenderer.invoke(IPC_CHANNELS.AI_REMOVE_KEY, provider),
+    testConnection: (provider: any) => ipcRenderer.invoke(IPC_CHANNELS.AI_TEST_CONNECTION, provider),
+    executePrompt: (prompt: string, history?: any[]) =>
+      ipcRenderer.invoke(IPC_CHANNELS.AI_EXECUTE_PROMPT, prompt, history),
+  },
+
   windows: {
     toggleMain: () => ipcRenderer.invoke(IPC_CHANNELS.WINDOW_TOGGLE_MAIN),
     togglePalette: () => ipcRenderer.invoke(IPC_CHANNELS.WINDOW_TOGGLE_PALETTE),
