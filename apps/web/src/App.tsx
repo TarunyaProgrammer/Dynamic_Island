@@ -6,6 +6,7 @@ import { AppScreenshotsGallery } from "./components/AppScreenshotsGallery";
 import { FeatureGrid } from "./components/FeatureGrid";
 import { SpiritShowcase } from "./components/SpiritShowcase";
 import { TechSpecs } from "./components/TechSpecs";
+import { EditorialManifestoStatement } from "./components/EditorialManifestoStatement";
 import { SoftwareOwnership } from "./components/SoftwareOwnership";
 import { PricingSection } from "./components/PricingSection";
 import { FounderLetter } from "./components/FounderLetter";
@@ -107,6 +108,9 @@ export const App: React.FC = () => {
 
       {/* Performance & Hardware Specs */}
       <TechSpecs />
+
+      {/* Custom Editorial Typographic Lockup with Dynamic Island Pills */}
+      <EditorialManifestoStatement />
 
       {/* Software Ownership Manifesto (Rental vs. Ownership) */}
       <SoftwareOwnership />
