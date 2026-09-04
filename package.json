@@ -1,6 +1,6 @@
 {
   "name": "beacon",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "Minimalist macOS Goal Operating Layer — Glance, Update, Move On",
   "main": "dist-electron/main/index.js",
   "type": "module",
@@ -51,9 +51,22 @@
     "appId": "com.beacon.beacon",
     "productName": "Beacon",
     "icon": "assets/Beacon.png",
+    "asar": true,
     "directories": {
       "output": "release"
     },
+    "publish": {
+      "provider": "github",
+      "owner": "TarunyaProgrammer",
+      "repo": "Dynamic_Island"
+    },
+    "afterSign": "scripts/notarize.js",
+    "extraResources": [
+      "assets/Beacon.png",
+      "assets/icon.icns",
+      "assets/menubar-icon.png",
+      "assets/menubar-icon@2x.png"
+    ],
     "files": [
       "dist/**/*",
       "dist-electron/**/*",
@@ -85,7 +98,9 @@
       "entitlementsInherit": "build/entitlements.mac.inherit.plist",
       "extendInfo": {
         "NSAppleEventsUsageDescription": "Beacon needs automation permission to detect currently playing tracks and provide media playback controls in the Dynamic Island.",
-        "NSSystemAdministrationUsageDescription": "Beacon needs permission to provide global keyboard shortcuts and ambient media controls."
+        "NSSystemAdministrationUsageDescription": "Beacon needs permission to provide global keyboard shortcuts and ambient media controls.",
+        "NSAccessibilityUsageDescription": "Beacon needs accessibility access to listen for global hotkeys (⌘⇧B) to open the Command Palette from anywhere.",
+        "NSUserNotificationsUsageDescription": "Beacon sends subtle alerts when focus sessions and habit streaks are completed."
       }
     }
   }

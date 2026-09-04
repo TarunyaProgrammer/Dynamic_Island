@@ -44,6 +44,7 @@ export class DatabaseConnection {
       db.pragma('journal_mode = WAL');
       db.pragma('foreign_keys = ON');
       db.pragma('synchronous = NORMAL');
+      db.pragma('cache_size = -32000'); // 32MB page cache for instant queries
 
       // Initialize base schema (CREATE TABLE IF NOT EXISTS — idempotent)
       db.exec(SCHEMA_SQL);
