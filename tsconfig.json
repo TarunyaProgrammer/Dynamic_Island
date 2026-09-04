@@ -28,5 +28,11 @@
     "shared/**/*",
     "vite.config.ts",
     "vitest.config.ts"
+  ],
+  "exclude": [
+    "apps/web",
+    "node_modules",
+    "dist",
+    "dist-electron"
   ]
 }

@@ -65,11 +65,11 @@ export class TrayController {
   }
 
   private createDefaultIcon(): Electron.NativeImage {
-    // 16x16 minimalist monochrome macOS status bar icon (circle with center dot)
+    // 16x16 crisp monochrome vector template of the faceted Beacon "B" glyph
     const svg = `
-      <svg width="16" height="16" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg">
-        <circle cx="8" cy="8" r="6" stroke="black" stroke-width="1.75" fill="none"/>
-        <circle cx="8" cy="8" r="2.25" fill="black"/>
+      <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M3 2.2C3 1.8 3.3 1.5 3.7 1.5H8.2C10.7 1.5 12.5 3.1 12.5 5.2C12.5 6.4 11.8 7.4 10.7 8C12.1 8.6 13 9.7 13 11.1C13 13.3 11 14.5 8.4 14.5H3.7C3.3 14.5 3 14.2 3 13.8V2.2Z" fill="black"/>
+        <path d="M5 3.4V7.2H8C9.2 7.2 10.2 6.4 10.2 5.3C10.2 4.2 9.2 3.4 8 3.4H5ZM5 8.6V12.6H8.3C9.7 12.6 10.7 11.8 10.7 10.6C10.7 9.4 9.7 8.6 8.3 8.6H5Z" fill="white"/>
       </svg>
     `;
     const image = nativeImage.createFromBuffer(Buffer.from(svg), { scaleFactor: 2.0 });

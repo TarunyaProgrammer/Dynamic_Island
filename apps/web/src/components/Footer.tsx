@@ -26,7 +26,7 @@ export const Footer: React.FC = () => {
           {/* Brand Col */}
           <div style={{ maxWidth: "340px" }}>
             <div style={{ display: "flex", alignItems: "center", gap: "10px", marginBottom: "14px" }}>
-              <img src="/logo.png" alt="Beacon" style={{ width: "30px", height: "30px", objectFit: "contain" }} />
+              <img src="/logo.png" alt="Beacon" style={{ width: "30px", height: "30px", borderRadius: "7px", objectFit: "contain" }} />
               <span style={{ fontSize: "16px", fontWeight: 800, color: "var(--text-ink)" }}>Beacon</span>
             </div>
             <p style={{ lineHeight: 1.6, color: "var(--text-body)", fontSize: "13px" }}>

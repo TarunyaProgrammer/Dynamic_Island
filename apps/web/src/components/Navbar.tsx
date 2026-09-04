@@ -73,6 +73,7 @@ export const Navbar: React.FC<NavbarProps> = ({
             style={{
               width: "28px",
               height: "28px",
+              borderRadius: "6px",
               objectFit: "contain",
             }}
           />

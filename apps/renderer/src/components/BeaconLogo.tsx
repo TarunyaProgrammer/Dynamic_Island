@@ -18,6 +18,7 @@ export const BeaconLogo: React.FC<BeaconLogoProps> = ({ size = 18, className, st
       style={{
         width: `${size}px`,
         height: `${size}px`,
+        borderRadius: `${Math.round(size * 0.22)}px`,
         objectFit: 'contain',
         display: 'inline-block',
         verticalAlign: 'middle',
