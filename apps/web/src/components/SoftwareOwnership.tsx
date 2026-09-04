@@ -1,5 +1,5 @@
 import React from "react";
-import { Check, X, ShieldCheck, Heart, Sparkles, DollarSign } from "lucide-react";
+import { Check, X, ShieldCheck } from "lucide-react";
 
 export const SoftwareOwnership: React.FC = () => {
   return (

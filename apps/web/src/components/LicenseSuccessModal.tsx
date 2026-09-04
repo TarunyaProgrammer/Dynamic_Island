@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { CheckCircle, Copy, Check, Download, Sparkles, X, Shield } from "lucide-react";
+import { CheckCircle, Copy, Check, Download, X } from "lucide-react";
 import confetti from "canvas-confetti";
 import { LicenseReceipt } from "../types";
 

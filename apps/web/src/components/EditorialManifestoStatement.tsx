@@ -1,5 +1,5 @@
 import React from "react";
-import { Sparkles, Flame, ShieldCheck } from "lucide-react";
+import { ShieldCheck } from "lucide-react";
 
 export const EditorialManifestoStatement: React.FC = () => {
   return (

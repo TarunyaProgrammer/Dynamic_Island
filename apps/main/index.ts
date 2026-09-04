@@ -1,3 +1,8 @@
+// Copyright (c) 2026 Tarunya K. All Rights Reserved.
+// Proprietary and confidential. Unauthorized use, copying, modification,
+// or distribution of this file, via any medium, is strictly prohibited.
+// See LICENSE in the root of this repository.
+
 import { app, session, powerMonitor, nativeImage, systemPreferences } from 'electron';
 import path from 'path';
 import { fileURLToPath } from 'url';
@@ -12,6 +17,7 @@ import { PaletteWindowController } from './windows/PaletteWindow';
 import { TrayController } from './tray/TrayController';
 import { ShortcutManager } from './shortcuts/ShortcutManager';
 import { registerIpcHandlers } from './ipc/goalHandlers';
+import fs from 'fs';
 
 // Setup __dirname for ES module scope
 const __filename = fileURLToPath(import.meta.url);
@@ -19,7 +25,7 @@ const __dirname = path.dirname(__filename);
 
 const isDev = process.env.NODE_ENV !== 'production' && !app.isPackaged;
 const RENDERER_URL = process.env.VITE_DEV_SERVER_URL;
-import fs from 'fs';
+
 const PRELOAD_PATH = fs.existsSync(path.join(__dirname, '../preload/index.cjs'))
   ? path.join(__dirname, '../preload/index.cjs')
   : path.join(__dirname, '../preload/index.js');
@@ -110,30 +116,61 @@ app.on('second-instance', () => {
 });
 
 app.whenReady().then(async () => {
-  // Security: Deny all unsolicited web permission requests (mic, camera, geolocation)
+  // ─── Security: Content Security Policy ──────────────────────────────────────
+  // Restrict what content can be loaded in any renderer. Blocks eval(),
+  // remote scripts, and inline event handlers outside trusted self-origin.
+  session.defaultSession.webRequest.onHeadersReceived((details, callback) => {
+    const csp = isDev
+      // Development: allow Vite HMR WebSocket and eval (V8 dev tools need it)
+      ? "default-src 'self'; script-src 'self' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; connect-src 'self' ws://localhost:* http://localhost:*; img-src 'self' data: blob:; font-src 'self' data:;"
+      // Production: strict — no eval, no remote resources
+      : "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; connect-src 'self'; img-src 'self' data: blob:; font-src 'self' data:;";
+
+    callback({
+      responseHeaders: {
+        ...details.responseHeaders,
+        'Content-Security-Policy': [csp],
+      },
+    });
+  });
+
+  // ─── Security: Deny unsolicited web permission requests ─────────────────────
+  // Prevents any renderer from requesting mic, camera, geolocation, etc.
   session.defaultSession.setPermissionRequestHandler((_webContents, _permission, callback) => {
     callback(false);
   });
 
-  // Performance: Pause background services on macOS sleep and resume on wake
+  // ─── Performance: React to macOS sleep/wake cycle ───────────────────────────
   powerMonitor.on('suspend', () => {
-    // macOS sleep
+    // Future: pause AI polling / media polling on macOS sleep
   });
 
   powerMonitor.on('resume', () => {
-    // macOS wake
+    // Future: resume services on macOS wake
   });
 
-  // Request macOS Accessibility permissions if needed
+  // ─── macOS Accessibility: Deferred, non-blocking check ──────────────────────
+  // We check trust status WITHOUT prompting (false). If the user tries a feature
+  // that needs accessibility (e.g. global shortcut fails), the renderer sends
+  // an IPC event that triggers a user-initiated dialog. We never pop a system
+  // dialog automatically at startup — that is poor macOS UX per HIG.
   if (process.platform === 'darwin') {
     try {
-      systemPreferences.isTrustedAccessibilityClient(true);
+      // false = query only, does not trigger a system permission dialog
+      const trusted = systemPreferences.isTrustedAccessibilityClient(false);
+      if (!trusted) {
+        // Store status — ShortcutManager will surface an in-app nudge if needed
+        process.env.BEACON_ACCESSIBILITY_TRUSTED = 'false';
+      } else {
+        process.env.BEACON_ACCESSIBILITY_TRUSTED = 'true';
+      }
     } catch {
-      // Non-blocking catch
+      // Graceful fallback — accessibility is optional for core functionality
+      process.env.BEACON_ACCESSIBILITY_TRUSTED = 'unknown';
     }
   }
 
-  // Dock icon visibility on macOS
+  // ─── Dock icon on macOS ─────────────────────────────────────────────────────
   if (process.platform === 'darwin' && app.dock) {
     try {
       const candidatePaths = [
@@ -149,7 +186,7 @@ app.whenReady().then(async () => {
         }
       }
     } catch {
-      // Graceful fallback if asset path isn't resolved
+      // Graceful fallback if asset path isn't resolved in packaged app
     }
     app.dock.show();
   }
@@ -163,7 +200,7 @@ app.whenReady().then(async () => {
 });
 
 app.on('window-all-closed', () => {
-  // Keep alive on macOS for menu-bar & dynamic island
+  // macOS convention: keep app alive in menu bar and dynamic island
   if (process.platform !== 'darwin') {
     app.quit();
   }

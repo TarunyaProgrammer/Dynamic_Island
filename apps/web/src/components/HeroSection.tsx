@@ -1,5 +1,5 @@
 import React from "react";
-import { Apple, ArrowRight, Check, Flame, Users, Sparkles } from "lucide-react";
+import { Apple, ArrowRight, Check, Flame } from "lucide-react";
 
 interface HeroSectionProps {
   onOpenPricing: () => void;

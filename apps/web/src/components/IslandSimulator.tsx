@@ -1,16 +1,9 @@
 import React, { useState, useEffect } from "react";
 import { NotchTab } from "../types";
 import { 
-  Sparkles, 
-  Play, 
-  Pause, 
-  Music2, 
-  Check, 
+  Music2,
   Flame, 
   Search, 
-  Command,
-  Layout,
-  Layers,
   BatteryCharging,
   Pin,
   Compass
@@ -26,13 +19,13 @@ export const IslandSimulator: React.FC = () => {
 
   // Interactive Goal State
   const [goalProgress, setGoalProgress] = useState(61);
-  const [goalName, setGoalName] = useState("Launch SaaS App");
+  const [goalName] = useState("Launch SaaS App");
   const [focusSeconds, setFocusSeconds] = useState(25 * 60 - 42); // 24:18
   const [isFocusRunning, setIsFocusRunning] = useState(true);
-  const [isPlayingMusic, setIsPlayingMusic] = useState(true);
-  const [streakDays, setStreakDays] = useState(14);
+  const [isPlayingMusic] = useState(true);
+  const [streakDays] = useState(14);
   const [completedFlash, setCompletedFlash] = useState(false);
-  const [currentTime, setCurrentTime] = useState("10:24 AM");
+  const [currentTime] = useState("10:24 AM");
 
   const isExpanded = isHovered || isPinned;
 

@@ -30,7 +30,10 @@ export class PaletteWindowController {
         preload: preloadPath,
         contextIsolation: true,
         nodeIntegration: false,
-        sandbox: false,
+        sandbox: false,            // Required: better-sqlite3 native module cannot run in sandbox
+        webSecurity: true,          // Enforce same-origin policy
+        allowRunningInsecureContent: false, // Block mixed HTTP/HTTPS content
+        spellcheck: false,          // Unnecessary feature — removes IPC overhead
       },
     });
 

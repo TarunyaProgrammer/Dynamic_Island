@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Sparkles, MessageCircle, X } from "lucide-react";
+import { X } from "lucide-react";
 
 export const BeaconSpiritCompanion: React.FC = () => {
   const [currentSection, setCurrentSection] = useState<string>("hero");

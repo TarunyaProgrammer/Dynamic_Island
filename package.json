@@ -27,7 +27,6 @@
   "dependencies": {
     "@types/ws": "^8.18.1",
     "better-sqlite3": "^11.8.1",
-    "clsx": "^2.1.1",
     "lucide-react": "^1.16.0",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
