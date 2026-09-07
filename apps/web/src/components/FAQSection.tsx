@@ -56,7 +56,9 @@ export const FAQSection: React.FC = () => {
               <div
                 key={i}
                 style={{
-                  backgroundColor: "#FFFFFF",
+                  backgroundColor: "var(--bg-card)",
+                  backdropFilter: "blur(16px)",
+                  WebkitBackdropFilter: "blur(16px)",
                   borderRadius: "16px",
                   border: "1px solid var(--border-subtle)",
                   boxShadow: isOpen ? "var(--shadow-card)" : "var(--shadow-sm)",

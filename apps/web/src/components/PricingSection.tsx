@@ -54,15 +54,15 @@ export const PricingSection: React.FC<PricingSectionProps> = ({ onSelectPlan, cu
           </p>
         </div>
 
-        {/* Pure Optical White Pricing Card with Obsidian Frame & Launch Urgency */}
+        {/* Pure Obsidian Glass Pricing Card with Solar Amber Frame & Launch Urgency */}
         <div
           style={{
             maxWidth: "600px",
             margin: "0 auto",
-            backgroundColor: "#FFFFFF",
+            backgroundColor: "var(--bg-card-elevated, #0C0D12)",
             borderRadius: "24px",
-            border: "2px solid var(--accent-obsidian)",
-            boxShadow: "0 20px 60px rgba(15, 17, 23, 0.12), 0 0 30px rgba(217, 119, 6, 0.08)",
+            border: "1px solid rgba(255, 122, 0, 0.4)",
+            boxShadow: "0 24px 80px rgba(0, 0, 0, 0.8), 0 0 40px rgba(255, 122, 0, 0.18), inset 0 1px 0 rgba(255, 255, 255, 0.15)",
             padding: "clamp(24px, 5vw, 44px)",
             position: "relative",
           }}
@@ -75,7 +75,8 @@ export const PricingSection: React.FC<PricingSectionProps> = ({ onSelectPlan, cu
               justifyContent: "space-between",
               padding: "10px 16px",
               borderRadius: "12px",
-              backgroundColor: "#0F1117",
+              backgroundColor: "rgba(255, 122, 0, 0.12)",
+              border: "1px solid rgba(255, 122, 0, 0.25)",
               color: "#FFFFFF",
               marginBottom: "24px",
               flexWrap: "wrap",
@@ -113,7 +114,7 @@ export const PricingSection: React.FC<PricingSectionProps> = ({ onSelectPlan, cu
                 gap: "5px",
                 padding: "4px 10px",
                 borderRadius: "100px",
-                backgroundColor: "rgba(15, 17, 23, 0.04)",
+                backgroundColor: "rgba(255, 255, 255, 0.06)",
                 border: "1px solid var(--border-subtle)",
                 color: "var(--text-ink)",
                 fontSize: "11px",
@@ -221,13 +222,14 @@ export const PricingSection: React.FC<PricingSectionProps> = ({ onSelectPlan, cu
             style={{
               padding: "16px 20px",
               borderRadius: "12px",
-              backgroundColor: "var(--bg-canvas-subtle)",
+              backgroundColor: "rgba(255, 255, 255, 0.04)",
+              border: "1px solid var(--border-subtle)",
               display: "flex",
               alignItems: "center",
               gap: "14px",
             }}
           >
-            <ShieldCheck size={28} color="var(--accent-obsidian)" style={{ flexShrink: 0 }} />
+            <ShieldCheck size={28} color="var(--accent-solar)" style={{ flexShrink: 0 }} />
             <div style={{ fontSize: "13px", lineHeight: 1.5 }}>
               <strong style={{ color: "var(--text-ink)", display: "block" }}>
                 Unconditional 30-Day Money-Back Guarantee

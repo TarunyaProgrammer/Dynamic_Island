@@ -8,7 +8,7 @@ export const DEFAULT_SETTINGS: AppSettings = {
   autoCollapseDelay: 3.0,
   showInAllSpaces: true,
   globalShortcut: 'CommandOrControl+Shift+B',
-  theme: 'system',
+  theme: 'dark',
 };
 
 export class SettingsRepository {

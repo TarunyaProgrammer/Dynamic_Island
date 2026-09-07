@@ -642,7 +642,7 @@ export const GoalEditorModal: React.FC<GoalEditorModalProps> = ({
                 style={{ accentColor: 'var(--accent-beacon)', width: '15px', height: '15px', cursor: 'pointer' }}
               />
               <span style={{ fontSize: '12px', color: 'var(--text-secondary)', display: 'inline-flex', alignItems: 'center', gap: '5px' }}>
-                <Sparkles size={13} color="var(--accent-cyan)" />
+                <Sparkles size={13} color="#ffffff" />
                 Enable light streak tracking for this goal
               </span>
             </label>
@@ -670,9 +670,9 @@ export const GoalEditorModal: React.FC<GoalEditorModalProps> = ({
                         fontSize: '10px',
                         fontWeight: 600,
                         borderRadius: '4px',
-                        backgroundColor: streakType === 'daily' ? 'rgba(90, 200, 250, 0.2)' : 'rgba(255, 255, 255, 0.06)',
-                        color: streakType === 'daily' ? 'var(--accent-cyan)' : 'var(--text-muted)',
-                        border: `1px solid ${streakType === 'daily' ? 'rgba(90, 200, 250, 0.4)' : 'transparent'}`,
+                        backgroundColor: streakType === 'daily' ? 'rgba(255, 255, 255, 0.14)' : 'rgba(255, 255, 255, 0.04)',
+                        color: streakType === 'daily' ? '#ffffff' : 'var(--text-muted)',
+                        border: `1px solid ${streakType === 'daily' ? 'rgba(255, 255, 255, 0.3)' : 'transparent'}`,
                         cursor: 'pointer',
                       }}
                     >
@@ -686,9 +686,9 @@ export const GoalEditorModal: React.FC<GoalEditorModalProps> = ({
                         fontSize: '10px',
                         fontWeight: 600,
                         borderRadius: '4px',
-                        backgroundColor: streakType === 'scheduled' ? 'rgba(90, 200, 250, 0.2)' : 'rgba(255, 255, 255, 0.06)',
-                        color: streakType === 'scheduled' ? 'var(--accent-cyan)' : 'var(--text-muted)',
-                        border: `1px solid ${streakType === 'scheduled' ? 'rgba(90, 200, 250, 0.4)' : 'transparent'}`,
+                        backgroundColor: streakType === 'scheduled' ? 'rgba(255, 255, 255, 0.14)' : 'rgba(255, 255, 255, 0.04)',
+                        color: streakType === 'scheduled' ? '#ffffff' : 'var(--text-muted)',
+                        border: `1px solid ${streakType === 'scheduled' ? 'rgba(255, 255, 255, 0.3)' : 'transparent'}`,
                         cursor: 'pointer',
                       }}
                     >
@@ -702,9 +702,9 @@ export const GoalEditorModal: React.FC<GoalEditorModalProps> = ({
                         fontSize: '10px',
                         fontWeight: 600,
                         borderRadius: '4px',
-                        backgroundColor: streakType === 'period_threshold' ? 'rgba(90, 200, 250, 0.2)' : 'rgba(255, 255, 255, 0.06)',
-                        color: streakType === 'period_threshold' ? 'var(--accent-cyan)' : 'var(--text-muted)',
-                        border: `1px solid ${streakType === 'period_threshold' ? 'rgba(90, 200, 250, 0.4)' : 'transparent'}`,
+                        backgroundColor: streakType === 'period_threshold' ? 'rgba(255, 255, 255, 0.14)' : 'rgba(255, 255, 255, 0.04)',
+                        color: streakType === 'period_threshold' ? '#ffffff' : 'var(--text-muted)',
+                        border: `1px solid ${streakType === 'period_threshold' ? 'rgba(255, 255, 255, 0.3)' : 'transparent'}`,
                         cursor: 'pointer',
                       }}
                     >
@@ -738,7 +738,7 @@ export const GoalEditorModal: React.FC<GoalEditorModalProps> = ({
                           backgroundColor: 'rgba(255, 255, 255, 0.05)',
                           border: '1px solid var(--border-subtle)',
                           borderRadius: 'var(--radius-sm)',
-                          color: 'var(--accent-cyan)',
+                          color: 'var(--text-primary)',
                           fontSize: '13px',
                           fontWeight: 700,
                         }}

@@ -108,7 +108,7 @@ export const CommandPaletteView: React.FC = () => {
         flexDirection: 'column',
         height: '100vh',
         width: '100vw',
-        backgroundColor: '#0a0a0c',
+        backgroundColor: '#000000',
         border: '1px solid rgba(255, 255, 255, 0.12)',
         borderRadius: '18px',
         overflow: 'hidden',
@@ -124,7 +124,7 @@ export const CommandPaletteView: React.FC = () => {
           gap: '10px',
           padding: '16px 20px',
           borderBottom: '1px solid var(--border-subtle)',
-          backgroundColor: '#121216',
+          backgroundColor: '#08080a',
           position: 'relative',
           zIndex: 1,
         }}
@@ -161,13 +161,13 @@ export const CommandPaletteView: React.FC = () => {
           <div
             style={{
               padding: '14px 16px',
-              backgroundColor: 'rgba(255, 122, 0, 0.12)',
+              backgroundColor: 'rgba(255, 255, 255, 0.05)',
               borderRadius: 'var(--radius-md)',
-              border: '1px solid rgba(255, 122, 0, 0.35)',
+              border: '1px solid rgba(255, 255, 255, 0.15)',
               display: 'flex',
               alignItems: 'center',
               gap: '10px',
-              color: 'var(--accent-solar, #ff7a00)',
+              color: '#ffffff',
               fontSize: '13px',
               fontWeight: 600,
             }}
@@ -182,15 +182,15 @@ export const CommandPaletteView: React.FC = () => {
           <div
             style={{
               padding: '14px 16px',
-              backgroundColor: 'rgba(52, 211, 153, 0.12)',
+              backgroundColor: 'rgba(255, 255, 255, 0.04)',
               borderRadius: 'var(--radius-md)',
-              border: '1px solid rgba(52, 211, 153, 0.35)',
+              border: '1px solid var(--border-subtle)',
               display: 'flex',
               flexDirection: 'column',
               gap: '4px',
             }}
           >
-            <div style={{ display: 'flex', alignItems: 'center', gap: '6px', color: '#34d399', fontSize: '11px', fontWeight: 700 }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '6px', color: '#ffffff', fontSize: '11px', fontWeight: 700 }}>
               <CheckCircle2 size={14} />
               <span>BEACON COMPANION</span>
             </div>
@@ -206,9 +206,9 @@ export const CommandPaletteView: React.FC = () => {
             onClick={() => handleExecuteAI(query.trim())}
             style={{
               padding: '10px 14px',
-              backgroundColor: 'rgba(255, 122, 0, 0.08)',
+              backgroundColor: 'rgba(255, 255, 255, 0.05)',
               borderRadius: 'var(--radius-md)',
-              border: '1px solid rgba(255, 122, 0, 0.25)',
+              border: '1px solid rgba(255, 255, 255, 0.15)',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'space-between',
@@ -217,12 +217,12 @@ export const CommandPaletteView: React.FC = () => {
             }}
           >
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-              <Sparkles size={14} color="var(--accent-solar, #ff7a00)" />
+              <Sparkles size={14} color="#ffffff" />
               <span style={{ fontSize: '12px', color: '#ffffff' }}>
                 Ask Beacon Companion: <strong>"{query.trim()}"</strong>
               </span>
             </div>
-            <span style={{ fontSize: '10px', color: 'var(--accent-solar, #ff7a00)', fontWeight: 600 }}>
+            <span style={{ fontSize: '10px', color: 'rgba(255, 255, 255, 0.7)', fontWeight: 600 }}>
               Press ↵
             </span>
           </div>
@@ -232,13 +232,13 @@ export const CommandPaletteView: React.FC = () => {
           <div
             style={{
               padding: '10px 12px',
-              backgroundColor: 'rgba(52, 211, 153, 0.12)',
+              backgroundColor: 'rgba(255, 255, 255, 0.04)',
               borderRadius: 'var(--radius-md)',
-              border: '1px solid rgba(52, 211, 153, 0.3)',
+              border: '1px solid var(--border-subtle)',
               display: 'flex',
               alignItems: 'center',
               gap: '8px',
-              color: 'var(--accent-emerald)',
+              color: '#ffffff',
               fontSize: '13px',
               fontWeight: 500,
             }}
@@ -297,8 +297,9 @@ export const CommandPaletteView: React.FC = () => {
                     style={{
                       fontSize: '11px',
                       fontWeight: 600,
-                      color: 'var(--accent-emerald)',
-                      backgroundColor: 'rgba(52, 211, 153, 0.15)',
+                      color: 'var(--text-primary)',
+                      backgroundColor: 'rgba(255, 255, 255, 0.08)',
+                      border: '1px solid var(--border-subtle)',
                       padding: '2px 8px',
                       borderRadius: 'var(--radius-sm)',
                     }}

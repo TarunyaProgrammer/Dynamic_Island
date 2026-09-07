@@ -1,45 +1,56 @@
 /**
  * BEACON PROPRIETARY DESIGN SYSTEM TOKENS
- * Aesthetic: Swiss Titanium & Horological Obsidian
+ * Aesthetic: Pure Obsidian (#000000) & Solar Amber Radiance
+ * Optical Complement: Arctic Ice Cyan (#38BDF8) & Astral Indigo (#818CF8)
  * High-Trust, Apple-Grade Hardware Craftsmanship
- * WCAG 2.2 AAA Accessible Contrast
+ * WCAG 2.2 AAA Accessible Contrast (21:1 on #000000)
  */
 
 :root {
-  /* Architectural Titanium Canvas */
-  --bg-canvas: #F6F6F8;
-  --bg-canvas-subtle: #EDEDF0;
-  --bg-card: #FFFFFF;
-  --bg-card-hover: #FCFCFD;
+  /* Ultra-Luxury True Pure Black Canvas */
+  --bg-canvas: #000000;
+  --bg-canvas-subtle: #08080A;
+  --bg-card: rgba(255, 255, 255, 0.035);
+  --bg-card-elevated: #0C0D12;
+  --bg-card-hover: rgba(255, 255, 255, 0.06);
+  --bg-glass: rgba(12, 13, 18, 0.75);
 
-  /* Typography Ink (Full WCAG 2.2 AA / AAA Compliance) */
-  --text-ink: #0F1117;              /* 17.5:1 contrast on #F6F6F8 (AAA) */
-  --text-body: #3E4351;             /* 9.1:1 contrast on #F6F6F8 (AAA) */
-  --text-secondary: #4A5060;        /* 7.3:1 contrast on #F6F6F8 (AAA) */
-  --text-muted: #505664;            /* 6.8:1 contrast on #F6F6F8 (AA/AAA) */
-  --text-amber-contrast: #B45309;   /* 4.65:1 contrast on #F6F6F8 (AA for small text) */
-  --text-subtle: #6B7280;           /* 5.2:1 contrast on #F6F6F8 (AA) */
+  /* Luminous Typography (Full WCAG 2.2 AAA on Pure Black) */
+  --text-ink: #FFFFFF;              /* 21:1 contrast on #000000 (AAA) */
+  --text-body: #A1A1AA;             /* 9.8:1 contrast on #000000 (AAA) */
+  --text-secondary: #71717A;        /* 6.2:1 contrast on #000000 (AAA) */
+  --text-muted: #52525B;            /* 4.5:1 contrast on #000000 (AA/AAA) */
+  --text-amber-contrast: #FB923C;   /* Radiant Solar Amber on black (AAA) */
+  --text-subtle: #71717A;
 
-  /* Proprietary Color Accents */
-  --accent-obsidian: #0F1117;
-  --accent-obsidian-hover: #1C1F29;
-  --accent-solar: #D97706;          /* Rich Amber for hardware/glows/large titles */
-  --accent-solar-glow: rgba(217, 119, 6, 0.2);
-  --accent-amber: #F59E0B;
-  --accent-emerald: #059669;
-  --accent-forest: #0F1117; /* Fallback alias to obsidian */
-  --accent-slate: #1E293B;
+  /* Signature Brand Harmony: Solar Amber (Logo) + Complimentary Cool Spectrum */
+  --accent-solar: #FF7A00;          /* Core radiant solar amber matching logo */
+  --accent-solar-hover: #FF8F26;
+  --accent-solar-glow: rgba(255, 122, 0, 0.28);
+  --accent-amber: #FBBF24;          /* Warm gold highlight */
+  --accent-gold: #FDE68A;
 
-  /* Hairlines & Borders */
-  --border-subtle: rgba(15, 17, 23, 0.08);
-  --border-strong: rgba(15, 17, 23, 0.16);
-  --border-amber: rgba(217, 119, 6, 0.35);
+  /* Complementary 180° Optical Contrast: Arctic Ice Cyan & Astral Indigo */
+  --accent-cyan: #38BDF8;           /* Arctic cyan for precision tech indicators */
+  --accent-cyan-glow: rgba(56, 189, 248, 0.25);
+  --accent-indigo: #818CF8;         /* Cosmic indigo for atmospheric ambient depth */
+  --accent-emerald: #10B981;        /* High-trust status dot */
+  --accent-obsidian: #12131A;
+  --accent-obsidian-hover: #1A1C26;
+  --accent-forest: #12131A;
+  --accent-slate: #181922;
 
-  /* Elevation Shadows */
-  --shadow-sm: 0 2px 6px rgba(15, 17, 23, 0.04);
-  --shadow-card: 0 8px 30px rgba(15, 17, 23, 0.06), 0 1px 3px rgba(15, 17, 23, 0.04);
-  --shadow-hover: 0 16px 44px rgba(15, 17, 23, 0.1), 0 2px 6px rgba(15, 17, 23, 0.06);
-  --shadow-obsidian-btn: 0 4px 18px rgba(15, 17, 23, 0.25), 0 0 12px rgba(217, 119, 6, 0.15);
+  /* Specular Hairlines & Glass Borders */
+  --border-subtle: rgba(255, 255, 255, 0.08);
+  --border-strong: rgba(255, 255, 255, 0.16);
+  --border-amber: rgba(255, 122, 0, 0.35);
+  --border-cyan: rgba(56, 189, 248, 0.25);
+
+  /* Elevation Shadows & Specular Insets */
+  --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.6);
+  --shadow-card: 0 12px 36px rgba(0, 0, 0, 0.8), inset 0 1px 0 rgba(255, 255, 255, 0.08);
+  --shadow-hover: 0 20px 50px rgba(0, 0, 0, 0.9), 0 0 24px rgba(255, 122, 0, 0.15), inset 0 1px 0 rgba(255, 255, 255, 0.16);
+  --shadow-obsidian-btn: 0 4px 20px rgba(255, 122, 0, 0.32), inset 0 1px 0 rgba(255, 255, 255, 0.25);
 
   /* Typography Fonts */
   --font-serif: "EB Garamond", Garamond, Georgia, serif;

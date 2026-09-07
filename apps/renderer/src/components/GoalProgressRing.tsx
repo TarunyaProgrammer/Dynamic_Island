@@ -14,7 +14,7 @@ export const GoalProgressRing: React.FC<GoalProgressRingProps> = ({
   size = 48,
   strokeWidth = 4,
   showText = true,
-  color = 'var(--accent-solar, #ff7a00)',
+  color = '#ffffff',
 }) => {
   const radius = (size - strokeWidth) / 2;
   const circumference = 2 * Math.PI * radius;
@@ -39,7 +39,7 @@ export const GoalProgressRing: React.FC<GoalProgressRingProps> = ({
           cx={size / 2}
           cy={size / 2}
           r={radius}
-          stroke={clampedFraction >= 1.0 ? '#10b981' : color}
+          stroke={clampedFraction >= 1.0 ? 'var(--accent-solar, #ff7a00)' : color}
           strokeWidth={strokeWidth}
           strokeDasharray={circumference}
           strokeDashoffset={strokeDashoffset}

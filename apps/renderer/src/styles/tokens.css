@@ -1,56 +1,55 @@
 /* apps/renderer/src/styles/tokens.css - Beacon Design System Tokens */
 
-:root,
-[data-theme="dark"] {
+:root {
   /* Typography Hierarchy (Apple SF Pro & SF Mono) */
   --font-sans: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'SF Pro Display', 'Inter', sans-serif;
   --font-mono: 'SF Mono', SFMono-Regular, Menlo, Monaco, Consolas, monospace;
 
-  /* Signature Deep Obsidian Dark Palette */
-  --bg-app: #07080b;
-  --bg-surface: #0e1017;
-  --bg-surface-elevated: #151821;
-  --bg-surface-hover: #1c202c;
-  --bg-surface-active: #252a3a;
-  --bg-glass: rgba(14, 16, 23, 0.75);
+  /* Signature True Pure Black & Deep Obsidian Palette */
+  --bg-app: #000000;
+  --bg-surface: #000000;
+  --bg-surface-elevated: #08080a;
+  --bg-surface-hover: #111115;
+  --bg-surface-active: #18181e;
+  --bg-glass: rgba(0, 0, 0, 0.85);
   --bg-glass-active: rgba(255, 255, 255, 0.08);
 
   /* Card & Surface Tokens */
-  --bg-card: rgba(255, 255, 255, 0.03);
-  --bg-card-border-top: rgba(255, 255, 255, 0.12);
-  --bg-card-hover: rgba(255, 255, 255, 0.05);
-  --bg-sidebar: rgba(7, 8, 11, 0.72);
-  --bg-sidebar-card: rgba(255, 255, 255, 0.025);
+  --bg-card: rgba(255, 255, 255, 0.025);
+  --bg-card-border-top: rgba(255, 255, 255, 0.10);
+  --bg-card-hover: rgba(255, 255, 255, 0.045);
+  --bg-sidebar: rgba(0, 0, 0, 0.82);
+  --bg-sidebar-card: rgba(255, 255, 255, 0.02);
   --tab-container-bg: rgba(255, 255, 255, 0.04);
   --tab-active-bg: #ffffff;
   --tab-active-text: #000000;
   --search-bg: rgba(255, 255, 255, 0.04);
-  --btn-ghost-bg: rgba(255, 255, 255, 0.06);
+  --btn-ghost-bg: rgba(255, 255, 255, 0.05);
 
   /* Subtle Crisp Hairline Borders */
-  --border-subtle: rgba(255, 255, 255, 0.06);
-  --border-glass: rgba(255, 255, 255, 0.10);
-  --border-focus: rgba(255, 122, 0, 0.5);
+  --border-subtle: rgba(255, 255, 255, 0.07);
+  --border-glass: rgba(255, 255, 255, 0.12);
+  --border-focus: rgba(255, 255, 255, 0.35);
   --border-accent: rgba(255, 122, 0, 0.35);
 
   /* Text Colors */
   --text-primary: #ffffff;
-  --text-secondary: #8e909d;
-  --text-muted: #535562;
-  --text-inverse: #07080b;
+  --text-secondary: #9a9ca8;
+  --text-muted: #5e606e;
+  --text-inverse: #000000;
 
-  /* Disciplined Dual Accent Palette: Solar Amber (Primary) + Ice Cyan (Secondary) */
+  /* Disciplined Minimalist Palette: Solar Amber Touchpoint + Monochrome */
   --accent-beacon: #ff7a00;
   --accent-beacon-hover: #ff912b;
   --accent-primary: #ff7a00;
   --accent-solar: #ff7a00;
   --accent-solar-glow: rgba(255, 122, 0, 0.22);
   --accent-amber: #ff7a00;
-  --accent-cyan: #38bdf8;
-  --accent-secondary: #38bdf8;
+  --accent-cyan: #ffffff;
+  --accent-secondary: #ffffff;
   --accent-emerald: #ff7a00;
-  --accent-rose: #ef4444;
-  --accent-neutral: #222530;
+  --accent-rose: #f43f5e;
+  --accent-neutral: rgba(255, 255, 255, 0.10);
 
   /* Button Tokens */
   --btn-primary-bg: #ffffff;
@@ -75,63 +74,4 @@
   --ease-spring: cubic-bezier(0.16, 1, 0.3, 1);
   --transition-fast: 160ms var(--ease-spring);
   --transition-normal: 240ms var(--ease-spring);
-}
-
-[data-theme="light"] {
-  /* Pristine Crystalline Light Palette (Apple HIG) */
-  --bg-app: #f4f5f8;
-  --bg-surface: #ffffff;
-  --bg-surface-elevated: #ffffff;
-  --bg-surface-hover: #f0f2f6;
-  --bg-surface-active: #e4e7ee;
-  --bg-glass: rgba(255, 255, 255, 0.90);
-  --bg-glass-active: rgba(0, 0, 0, 0.05);
-
-  /* Card & Surface Tokens for Light Mode */
-  --bg-card: #ffffff;
-  --bg-card-border-top: rgba(0, 0, 0, 0.06);
-  --bg-card-hover: #fafbfc;
-  --bg-sidebar: #f8f9fc;
-  --bg-sidebar-card: #ffffff;
-  --tab-container-bg: rgba(0, 0, 0, 0.06);
-  --tab-active-bg: #ffffff;
-  --tab-active-text: #111318;
-  --search-bg: #ffffff;
-  --btn-ghost-bg: rgba(0, 0, 0, 0.05);
-
-  /* Subtle Crisp Hairline Borders */
-  --border-subtle: rgba(0, 0, 0, 0.08);
-  --border-glass: rgba(0, 0, 0, 0.12);
-  --border-focus: rgba(255, 122, 0, 0.5);
-  --border-accent: rgba(255, 122, 0, 0.35);
-
-  /* Text Colors */
-  --text-primary: #111318;
-  --text-secondary: #5a5e6d;
-  --text-muted: #8b90a0;
-  --text-inverse: #ffffff;
-
-  /* Disciplined Dual Accent Palette: Solar Amber + Ice Cyan */
-  --accent-beacon: #ff7a00;
-  --accent-beacon-hover: #e06c00;
-  --accent-primary: #ff7a00;
-  --accent-solar: #ff7a00;
-  --accent-solar-glow: rgba(255, 122, 0, 0.18);
-  --accent-amber: #ff7a00;
-  --accent-cyan: #0284c7;
-  --accent-secondary: #0284c7;
-  --accent-emerald: #ff7a00;
-  --accent-rose: #dc2626;
-  --accent-neutral: #e2e5ec;
-
-  /* Button Tokens */
-  --btn-primary-bg: #111318;
-  --btn-primary-text: #ffffff;
-  --btn-primary-hover: #262a36;
-
-  /* Elevation Shadows & Inset Highlights */
-  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.05), 0 1px 2px rgba(0, 0, 0, 0.03);
-  --shadow-md: 0 4px 14px rgba(0, 0, 0, 0.07);
-  --shadow-lg: 0 12px 28px rgba(0, 0, 0, 0.09);
-  --shadow-glass: 0 4px 20px 0 rgba(0, 0, 0, 0.05), inset 0 1px 0 0 rgba(255, 255, 255, 0.9);
 }

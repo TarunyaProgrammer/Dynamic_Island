@@ -80,8 +80,9 @@ export const SoftwareOwnership: React.FC = () => {
             className="card-editorial"
             style={{
               padding: "36px",
-              border: "2px solid var(--accent-obsidian)",
-              boxShadow: "0 16px 44px rgba(15, 17, 23, 0.1), 0 0 24px rgba(217, 119, 6, 0.08)",
+              backgroundColor: "var(--bg-card-elevated, #0C0D12)",
+              border: "1px solid rgba(255, 122, 0, 0.4)",
+              boxShadow: "0 16px 50px rgba(0, 0, 0, 0.8), 0 0 30px rgba(255, 122, 0, 0.15)",
               display: "flex",
               flexDirection: "column",
               justifyContent: "space-between",

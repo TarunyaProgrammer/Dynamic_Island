@@ -61,7 +61,7 @@ body {
   font-weight: 400;
 }
 
-/* Hardware Obsidian Button (The Authoritative Apple / Leica / Linear Standard) */
+/* Hardware Radiant Solar Amber Button */
 .btn-obsidian {
   display: inline-flex;
   align-items: center;
@@ -69,25 +69,24 @@ body {
   gap: 8px;
   padding: 13px 24px;
   border-radius: var(--radius-pill);
-  background-color: var(--accent-obsidian);
-  color: #FFFFFF !important;
+  background: linear-gradient(135deg, #FF8A1E 0%, #EA580C 100%);
+  color: #000000 !important;
   font-size: 14px;
-  font-weight: 600;
+  font-weight: 700;
   text-decoration: none;
   cursor: pointer;
-  border: 1px solid var(--border-amber);
-  box-shadow: var(--shadow-obsidian-btn);
+  border: 1px solid rgba(255, 255, 255, 0.35);
+  box-shadow: 0 4px 20px rgba(255, 122, 0, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.4);
   transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .btn-obsidian:hover {
-  background-color: var(--accent-obsidian-hover);
-  border-color: var(--accent-solar);
-  box-shadow: 0 8px 28px rgba(15, 17, 23, 0.32), 0 0 16px rgba(217, 119, 6, 0.25);
+  filter: brightness(1.1);
+  box-shadow: 0 8px 30px rgba(255, 122, 0, 0.55), inset 0 1px 0 rgba(255, 255, 255, 0.5);
   transform: translateY(-1.5px);
 }
 
-/* Crisp White Button */
+/* Sleek Dark Obsidian Glass Button */
 .btn-white {
   display: inline-flex;
   align-items: center;
@@ -95,27 +94,31 @@ body {
   gap: 8px;
   padding: 13px 22px;
   border-radius: var(--radius-pill);
-  background-color: #FFFFFF;
-  color: var(--text-ink) !important;
+  background-color: rgba(255, 255, 255, 0.05);
+  color: #FFFFFF !important;
   font-size: 14px;
   font-weight: 600;
   text-decoration: none;
   cursor: pointer;
-  border: 1px solid var(--border-strong);
+  border: 1px solid var(--border-subtle);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
   box-shadow: var(--shadow-sm);
   transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .btn-white:hover {
-  background-color: #FAFAFB;
-  border-color: var(--text-ink);
-  box-shadow: var(--shadow-card);
+  background-color: rgba(255, 255, 255, 0.09);
+  border-color: rgba(255, 122, 0, 0.4);
+  box-shadow: 0 0 18px rgba(255, 122, 0, 0.18);
   transform: translateY(-1.5px);
 }
 
-/* Swiss Editorial White Card */
+/* Pure Obsidian Glass Card */
 .card-editorial {
-  background-color: #FFFFFF;
+  background-color: var(--bg-card);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
   border: 1px solid var(--border-subtle);
   border-radius: var(--radius-xl);
   box-shadow: var(--shadow-card);
@@ -123,7 +126,7 @@ body {
 }
 
 .card-editorial:hover {
-  border-color: var(--border-strong);
+  border-color: rgba(255, 122, 0, 0.35);
   box-shadow: var(--shadow-hover);
   transform: translateY(-2px);
 }
@@ -135,12 +138,12 @@ body {
   gap: 8px;
   padding: 8px 16px;
   border-radius: var(--radius-pill);
-  background-color: #0F1117;
+  background-color: rgba(255, 122, 0, 0.12);
   color: #FFFFFF;
   border: 1px solid var(--border-amber);
   font-size: 13px;
   font-weight: 600;
-  box-shadow: 0 8px 24px rgba(15, 17, 23, 0.25);
+  box-shadow: 0 8px 24px rgba(255, 122, 0, 0.2);
 }
 
 .floating-white-badge {
@@ -149,8 +152,8 @@ body {
   gap: 8px;
   padding: 8px 16px;
   border-radius: var(--radius-pill);
-  background-color: #FFFFFF;
-  color: var(--text-ink);
+  background-color: rgba(255, 255, 255, 0.06);
+  color: #FFFFFF;
   border: 1px solid var(--border-subtle);
   font-size: 13px;
   font-weight: 600;

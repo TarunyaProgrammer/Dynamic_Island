@@ -8,11 +8,13 @@ import { Play, Pause, Square, Plus, Target, Radio, Clock, Zap, X, CheckCircle2 }
 
 interface FocusDashboardViewProps {
   goals: Goal[];
+  initialGoalId?: string;
   onOpenCreateGoal: () => void;
 }
 
 export const FocusDashboardView: React.FC<FocusDashboardViewProps> = ({
   goals,
+  initialGoalId = '',
   onOpenCreateGoal,
 }) => {
   const {
@@ -25,10 +27,17 @@ export const FocusDashboardView: React.FC<FocusDashboardViewProps> = ({
     stopFocus,
     extendFocus,
   } = useActivities();
-  const [selectedGoalId, setSelectedGoalId] = useState<string>('');
+  const [selectedGoalId, setSelectedGoalId] = useState<string>(initialGoalId);
   const [selectedDuration, setSelectedDuration] = useState<number>(25);
 
   const activeGoals = goals.filter((g) => g.status === 'active');
+
+  // If initialGoalId prop updates, reflect it
+  useEffect(() => {
+    if (initialGoalId && !focusState.isActive) {
+      setSelectedGoalId(initialGoalId);
+    }
+  }, [initialGoalId, focusState.isActive]);
 
   // If focus session is running on a goal, reflect that goal
   useEffect(() => {
@@ -137,10 +146,10 @@ export const FocusDashboardView: React.FC<FocusDashboardViewProps> = ({
                 alignItems: 'center',
                 justifyContent: 'center',
                 marginBottom: '16px',
-                boxShadow: '0 0 30px rgba(52, 211, 153, 0.35)',
+                boxShadow: '0 0 30px rgba(255, 122, 0, 0.35)',
               }}
             >
-              <CheckCircle2 size={28} color="#34d399" strokeWidth={1.5} />
+              <CheckCircle2 size={28} color="var(--accent-solar, #ff7a00)" strokeWidth={1.5} />
             </div>
 
             <h3 style={{ fontSize: '22px', fontWeight: 800, color: '#ffffff', marginBottom: '8px', letterSpacing: '-0.3px' }}>
@@ -150,12 +159,12 @@ export const FocusDashboardView: React.FC<FocusDashboardViewProps> = ({
             <p style={{ fontSize: '14px', color: 'rgba(255, 255, 255, 0.7)', maxWidth: '340px', lineHeight: 1.5, marginBottom: '24px' }}>
               {lastCompletedSession.goalName ? (
                 <>
-                  Logged <strong style={{ color: '#34d399' }}>+{lastCompletedSession.durationMinutes} mins</strong> toward{' '}
+                  Logged <strong style={{ color: 'var(--accent-solar, #ff7a00)' }}>+{lastCompletedSession.durationMinutes} mins</strong> toward{' '}
                   <strong style={{ color: '#ffffff' }}>{lastCompletedSession.goalName}</strong>.
                 </>
               ) : (
                 <>
-                  Awesome job! You finished a <strong style={{ color: '#34d399' }}>{lastCompletedSession.durationMinutes}-minute</strong> focus session.
+                  Awesome job! You finished a <strong style={{ color: 'var(--accent-solar, #ff7a00)' }}>{lastCompletedSession.durationMinutes}-minute</strong> focus session.
                 </>
               )}
             </p>
@@ -443,7 +452,7 @@ export const FocusDashboardView: React.FC<FocusDashboardViewProps> = ({
         >
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '14px' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-              <Target size={15} color="var(--accent-solar, #ff7a00)" />
+              <Target size={15} color="#ffffff" />
               <span style={{ fontSize: '13px', fontWeight: 700, color: 'var(--text-primary)' }}>Timer Mode / Linked Goal</span>
             </div>
             <button onClick={onOpenCreateGoal} className="btn-ghost" style={{ padding: '2px 8px', fontSize: '11px', gap: '4px' }}>
@@ -463,19 +472,19 @@ export const FocusDashboardView: React.FC<FocusDashboardViewProps> = ({
               style={{
                 padding: '12px 14px',
                 borderRadius: '14px',
-                backgroundColor: !selectedGoalId ? 'rgba(255, 122, 0, 0.15)' : 'rgba(24, 28, 38, 0.85)',
+                backgroundColor: !selectedGoalId ? 'rgba(255, 255, 255, 0.08)' : 'rgba(24, 28, 38, 0.85)',
                 backdropFilter: 'blur(16px)',
                 WebkitBackdropFilter: 'blur(16px)',
-                borderTop: !selectedGoalId ? '1px solid rgba(255, 122, 0, 0.55)' : '1px solid rgba(255, 255, 255, 0.14)',
-                borderBottom: !selectedGoalId ? '1px solid rgba(255, 122, 0, 0.3)' : '1px solid rgba(255, 255, 255, 0.04)',
-                borderLeft: !selectedGoalId ? '1px solid rgba(255, 122, 0, 0.45)' : '1px solid var(--border-subtle)',
-                borderRight: !selectedGoalId ? '1px solid rgba(255, 122, 0, 0.45)' : '1px solid var(--border-subtle)',
+                borderTop: !selectedGoalId ? '1px solid rgba(255, 255, 255, 0.25)' : '1px solid rgba(255, 255, 255, 0.14)',
+                borderBottom: !selectedGoalId ? '1px solid rgba(255, 255, 255, 0.12)' : '1px solid rgba(255, 255, 255, 0.04)',
+                borderLeft: !selectedGoalId ? '1px solid rgba(255, 255, 255, 0.18)' : '1px solid var(--border-subtle)',
+                borderRight: !selectedGoalId ? '1px solid rgba(255, 255, 255, 0.18)' : '1px solid var(--border-subtle)',
                 cursor: focusState.isActive ? 'default' : 'pointer',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'space-between',
                 gap: '10px',
-                boxShadow: !selectedGoalId ? '0 0 16px rgba(255, 122, 0, 0.18)' : '0 2px 8px rgba(0, 0, 0, 0.35)',
+                boxShadow: !selectedGoalId ? '0 0 16px rgba(255, 255, 255, 0.08)' : '0 2px 8px rgba(0, 0, 0, 0.35)',
                 transition: 'all 0.15s ease',
               }}
             >
@@ -485,14 +494,14 @@ export const FocusDashboardView: React.FC<FocusDashboardViewProps> = ({
                     width: '32px',
                     height: '32px',
                     borderRadius: '8px',
-                    backgroundColor: !selectedGoalId ? 'rgba(255, 122, 0, 0.25)' : 'rgba(255, 255, 255, 0.08)',
+                    backgroundColor: !selectedGoalId ? 'rgba(255, 255, 255, 0.15)' : 'rgba(255, 255, 255, 0.08)',
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
                     flexShrink: 0,
                   }}
                 >
-                  <Zap size={15} color={!selectedGoalId ? 'var(--accent-solar, #ff7a00)' : '#ffffff'} />
+                  <Zap size={15} color="#ffffff" />
                 </div>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
                   <span style={{ fontSize: '13px', fontWeight: 600, color: '#ffffff' }}>Independent Quick Timer</span>
@@ -507,7 +516,7 @@ export const FocusDashboardView: React.FC<FocusDashboardViewProps> = ({
                     fontWeight: 700,
                     padding: '2px 8px',
                     borderRadius: '6px',
-                    backgroundColor: 'var(--accent-solar, #ff7a00)',
+                    backgroundColor: '#ffffff',
                     color: '#07080b',
                     letterSpacing: '0.04em',
                   }}
@@ -521,7 +530,7 @@ export const FocusDashboardView: React.FC<FocusDashboardViewProps> = ({
             {activeGoals.map((g) => {
               const isSelected = (selectedGoalId === g.id);
               const frac = g.targetValue > 0 ? Math.min(1.0, g.currentValue / g.targetValue) : 0;
-              const ringColor = frac >= 0.5 ? 'var(--accent-solar, #ff7a00)' : 'var(--accent-cyan, #38bdf8)';
+              const ringColor = frac >= 1.0 ? 'var(--accent-solar, #ff7a00)' : '#ffffff';
 
               return (
                 <div
@@ -534,19 +543,19 @@ export const FocusDashboardView: React.FC<FocusDashboardViewProps> = ({
                   style={{
                     padding: '12px 14px',
                     borderRadius: '14px',
-                    backgroundColor: isSelected ? 'rgba(255, 122, 0, 0.15)' : 'var(--bg-card, var(--bg-surface))',
+                    backgroundColor: isSelected ? 'rgba(255, 255, 255, 0.08)' : 'var(--bg-card, var(--bg-surface))',
                     backdropFilter: 'blur(16px)',
                     WebkitBackdropFilter: 'blur(16px)',
-                    borderTop: isSelected ? '1px solid rgba(255, 122, 0, 0.55)' : '1px solid var(--bg-card-border-top, var(--border-subtle))',
-                    borderBottom: isSelected ? '1px solid rgba(255, 122, 0, 0.3)' : '1px solid var(--border-subtle)',
-                    borderLeft: isSelected ? '1px solid rgba(255, 122, 0, 0.45)' : '1px solid var(--border-subtle)',
-                    borderRight: isSelected ? '1px solid rgba(255, 122, 0, 0.45)' : '1px solid var(--border-subtle)',
+                    borderTop: isSelected ? '1px solid rgba(255, 255, 255, 0.25)' : '1px solid var(--bg-card-border-top, var(--border-subtle))',
+                    borderBottom: isSelected ? '1px solid rgba(255, 255, 255, 0.12)' : '1px solid var(--border-subtle)',
+                    borderLeft: isSelected ? '1px solid rgba(255, 255, 255, 0.18)' : '1px solid var(--border-subtle)',
+                    borderRight: isSelected ? '1px solid rgba(255, 255, 255, 0.18)' : '1px solid var(--border-subtle)',
                     cursor: focusState.isActive ? 'default' : 'pointer',
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'space-between',
                     gap: '10px',
-                    boxShadow: isSelected ? '0 0 16px rgba(255, 122, 0, 0.18)' : 'var(--shadow-sm)',
+                    boxShadow: isSelected ? '0 0 16px rgba(255, 255, 255, 0.08)' : 'var(--shadow-sm)',
                     transition: 'all 0.15s ease',
                   }}
                 >
@@ -560,7 +569,7 @@ export const FocusDashboardView: React.FC<FocusDashboardViewProps> = ({
                   </div>
 
                   <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexShrink: 0 }}>
-                    <span style={{ fontSize: '11px', fontWeight: 700, color: isSelected ? 'var(--accent-solar, #ff7a00)' : 'var(--text-secondary)' }}>
+                    <span style={{ fontSize: '11px', fontWeight: 700, color: isSelected ? '#ffffff' : 'var(--text-secondary)' }}>
                       {Math.round(frac * 100)}%
                     </span>
                     <GoalProgressRing
@@ -603,7 +612,7 @@ export const FocusDashboardView: React.FC<FocusDashboardViewProps> = ({
             }}
           >
             <div style={{ display: 'flex', alignItems: 'center', gap: '6px', color: 'var(--text-secondary)', fontSize: '11px', fontWeight: 500 }}>
-              <Clock size={12} color="var(--accent-solar, #ff7a00)" />
+              <Clock size={12} color="#ffffff" />
               <span>Independent & Goals</span>
             </div>
             <span style={{ fontSize: '16px', fontWeight: 800, color: 'var(--text-primary)' }}>
@@ -632,7 +641,7 @@ export const FocusDashboardView: React.FC<FocusDashboardViewProps> = ({
             }}
           >
             <div style={{ display: 'flex', alignItems: 'center', gap: '6px', color: 'var(--text-secondary)', fontSize: '11px', fontWeight: 500 }}>
-              <Radio size={12} color="var(--accent-cyan, #38bdf8)" />
+              <Radio size={12} color="#ffffff" />
               <span>Dynamic Island</span>
             </div>
             <span style={{ fontSize: '16px', fontWeight: 800, color: 'var(--text-primary)' }}>

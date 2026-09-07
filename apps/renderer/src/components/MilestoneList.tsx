@@ -66,9 +66,9 @@ export const MilestoneList: React.FC<MilestoneListProps> = ({
                 height: 16,
                 borderRadius: 4,
                 border: m.isCompleted
-                  ? '1px solid var(--accent-emerald)'
+                  ? '1px solid var(--accent-solar, #ff7a00)'
                   : '1px solid rgba(255, 255, 255, 0.25)',
-                backgroundColor: m.isCompleted ? 'var(--accent-emerald)' : 'transparent',
+                backgroundColor: m.isCompleted ? 'var(--accent-solar, #ff7a00)' : 'transparent',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',

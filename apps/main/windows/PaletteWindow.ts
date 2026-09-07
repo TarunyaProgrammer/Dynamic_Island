@@ -37,6 +37,13 @@ export class PaletteWindowController {
       },
     });
 
+    // Forward web console messages to terminal in dev mode
+    this.window.webContents.on('console-message', (_event, level, message) => {
+      if (level >= 2 || process.env.NODE_ENV !== 'production') {
+        console.log('[Palette Web]', message);
+      }
+    });
+
     if (rendererUrl) {
       this.window.loadURL(`${rendererUrl}?surface=palette`);
     } else {

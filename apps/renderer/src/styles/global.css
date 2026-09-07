@@ -32,7 +32,7 @@ input, textarea, button, select {
 button:focus-visible,
 input:focus-visible,
 select:focus-visible {
-  outline: 2px solid rgba(52, 211, 153, 0.6) !important;
+  outline: 2px solid rgba(255, 255, 255, 0.35) !important;
   outline-offset: 1px;
 }
 
@@ -64,8 +64,14 @@ input, textarea {
   -webkit-app-region: drag;
 }
 
-.no-drag {
-  -webkit-app-region: no-drag;
+.no-drag,
+.no-drag *,
+.drag-region button,
+.drag-region button *,
+.drag-region a,
+.drag-region input,
+.drag-region select {
+  -webkit-app-region: no-drag !important;
 }
 
 /* Glass Surface Utility */
@@ -163,7 +169,7 @@ input, textarea {
   50% {
     opacity: 1;
     transform: scale(1.02);
-    box-shadow: 0 0 14px rgba(90, 200, 250, 0.4), 0 0 20px rgba(124, 108, 255, 0.25);
+    box-shadow: 0 0 14px rgba(255, 122, 0, 0.3), 0 0 20px rgba(255, 255, 255, 0.12);
   }
   100% {
     opacity: 1;
@@ -173,10 +179,10 @@ input, textarea {
 
 @keyframes lightGlowSubtle {
   0%, 100% {
-    box-shadow: 0 0 6px rgba(90, 200, 250, 0.12);
+    box-shadow: 0 0 6px rgba(255, 255, 255, 0.08);
   }
   50% {
-    box-shadow: 0 0 16px rgba(90, 200, 250, 0.28), 0 0 22px rgba(124, 108, 255, 0.18);
+    box-shadow: 0 0 16px rgba(255, 122, 0, 0.2), 0 0 20px rgba(255, 255, 255, 0.08);
   }
 }
 
@@ -191,11 +197,11 @@ input, textarea {
 @keyframes celebrationPulse {
   0%, 100% {
     transform: scale(1);
-    box-shadow: 0 0 20px rgba(52, 211, 153, 0.3);
+    box-shadow: 0 0 18px rgba(255, 122, 0, 0.3);
   }
   50% {
     transform: scale(1.03);
-    box-shadow: 0 0 45px rgba(52, 211, 153, 0.6), 0 0 60px rgba(56, 189, 248, 0.4);
+    box-shadow: 0 0 36px rgba(255, 122, 0, 0.5), 0 0 50px rgba(255, 255, 255, 0.15);
   }
 }
 
@@ -246,8 +252,8 @@ input, textarea {
 }
 
 .hover-glow:hover {
-  box-shadow: 0 0 20px rgba(168, 85, 247, 0.25), 0 10px 30px rgba(0, 0, 0, 0.8) !important;
-  border-color: rgba(255, 255, 255, 0.2) !important;
+  box-shadow: 0 0 16px rgba(255, 255, 255, 0.08), 0 10px 30px rgba(0, 0, 0, 0.9) !important;
+  border-color: rgba(255, 255, 255, 0.18) !important;
   transform: translateY(-2px);
 }
 

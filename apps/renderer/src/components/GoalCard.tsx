@@ -19,6 +19,7 @@ interface GoalCardProps {
   onEdit: (goal: Goal) => void;
   onUpdateStreak?: (goalId: string, currentStreak: number, bestStreak: number) => void;
   onMenuToggle?: (isOpen: boolean) => void;
+  onOpenFocusMode?: (goalId: string) => void;
   compact?: boolean;
 }
 
@@ -34,6 +35,7 @@ export const GoalCard: React.FC<GoalCardProps> = ({
   onEdit,
   onUpdateStreak,
   onMenuToggle,
+  onOpenFocusMode,
   compact = false,
 }) => {
   const [expanded, setExpanded] = useState(false);
@@ -94,22 +96,17 @@ export const GoalCard: React.FC<GoalCardProps> = ({
   };
 
   const handleFocusMode = () => {
-    window.location.hash = '#focus';
+    if (onOpenFocusMode) {
+      onOpenFocusMode(goal.id);
+    } else {
+      window.location.hash = '#focus';
+    }
   };
 
-  const ringColor = fraction >= 0.5 ? 'var(--accent-solar, #ff7a00)' : 'var(--accent-cyan, #38bdf8)';
+  const ringColor = isComplete ? 'var(--accent-solar, #ff7a00)' : '#ffffff';
 
-  const getAreaStyle = (area?: string) => {
-    switch (area?.toLowerCase()) {
-      case 'learning':
-        return { bg: 'rgba(56, 189, 248, 0.12)', color: 'var(--accent-cyan, #38bdf8)', border: 'rgba(56, 189, 248, 0.25)' };
-      case 'health':
-      case 'career':
-      case 'work':
-        return { bg: 'rgba(255, 122, 0, 0.12)', color: 'var(--accent-solar, #ff7a00)', border: 'rgba(255, 122, 0, 0.25)' };
-      default:
-        return { bg: 'var(--btn-ghost-bg, rgba(255, 255, 255, 0.06))', color: 'var(--text-secondary)', border: 'var(--border-subtle)' };
-    }
+  const getAreaStyle = (_area?: string) => {
+    return { bg: 'rgba(255, 255, 255, 0.04)', color: 'var(--text-secondary)', border: 'var(--border-subtle)' };
   };
 
   const isAnyMenuOpen = menuOpen || isStreakPopoverOpen || Boolean(contextMenuPos);
@@ -180,9 +177,9 @@ export const GoalCard: React.FC<GoalCardProps> = ({
                     fontWeight: 700,
                     padding: '1px 5px',
                     borderRadius: '4px',
-                    backgroundColor: 'rgba(255, 122, 0, 0.12)',
-                    color: 'var(--accent-solar, #ff7a00)',
-                    border: '1px solid rgba(255, 122, 0, 0.28)',
+                    backgroundColor: 'rgba(255, 255, 255, 0.06)',
+                    color: 'var(--text-secondary)',
+                    border: '1px solid rgba(255, 255, 255, 0.12)',
                     letterSpacing: '0.04em',
                     textTransform: 'uppercase',
                   }}
@@ -207,15 +204,15 @@ export const GoalCard: React.FC<GoalCardProps> = ({
                       fontWeight: 600,
                       padding: '1px 6px',
                       borderRadius: 'var(--radius-sm)',
-                      backgroundColor: (goal.streakConfig.currentStreak ?? 0) > 0 ? 'rgba(255, 122, 0, 0.14)' : 'var(--bg-glass)',
-                      color: (goal.streakConfig.currentStreak ?? 0) > 0 ? 'var(--accent-solar, #ff7a00)' : 'var(--text-muted)',
-                      border: `1px solid ${(goal.streakConfig.currentStreak ?? 0) > 0 ? 'rgba(255, 122, 0, 0.32)' : 'var(--border-subtle)'}`,
+                      backgroundColor: (goal.streakConfig.currentStreak ?? 0) > 0 ? 'rgba(255, 255, 255, 0.08)' : 'var(--bg-glass)',
+                      color: (goal.streakConfig.currentStreak ?? 0) > 0 ? '#ffffff' : 'var(--text-muted)',
+                      border: `1px solid ${(goal.streakConfig.currentStreak ?? 0) > 0 ? 'rgba(255, 255, 255, 0.18)' : 'var(--border-subtle)'}`,
                       cursor: 'pointer',
                       transition: 'all 0.15s ease',
                     }}
                     title={`Light Streak: ${goal.streakConfig.currentStreak ?? 0} (Best: ${goal.streakConfig.bestStreak ?? 0}) · Click to edit streak`}
                   >
-                    <Sparkles size={10} color={(goal.streakConfig.currentStreak ?? 0) > 0 ? 'var(--accent-solar, #ff7a00)' : 'currentColor'} />
+                    <Sparkles size={10} color={(goal.streakConfig.currentStreak ?? 0) > 0 ? '#ffffff' : 'currentColor'} />
                     <span>{goal.streakConfig.currentStreak ?? 0} {goal.period === 'weekly' ? 'w' : 'd'}</span>
                   </button>
 
@@ -241,7 +238,7 @@ export const GoalCard: React.FC<GoalCardProps> = ({
                     >
                       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                         <div style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
-                          <Sparkles size={12} color="var(--accent-cyan)" />
+                          <Sparkles size={12} color="#ffffff" />
                           <span style={{ fontSize: '11px', fontWeight: 600, color: 'var(--text-primary)' }}>
                             Edit Streak
                           </span>
@@ -287,7 +284,7 @@ export const GoalCard: React.FC<GoalCardProps> = ({
                               backgroundColor: 'rgba(255, 255, 255, 0.06)',
                               border: '1px solid var(--border-subtle)',
                               borderRadius: 'var(--radius-sm)',
-                              color: 'var(--accent-cyan)',
+                              color: 'var(--text-primary)',
                               fontSize: '13px',
                               fontWeight: 700,
                             }}
@@ -340,8 +337,8 @@ export const GoalCard: React.FC<GoalCardProps> = ({
                             fontSize: '9px',
                             fontWeight: 600,
                             borderRadius: '4px',
-                            backgroundColor: 'rgba(90, 200, 250, 0.12)',
-                            color: 'var(--accent-cyan)',
+                            backgroundColor: 'rgba(255, 255, 255, 0.08)',
+                            color: 'var(--text-primary)',
                             border: 'none',
                             cursor: 'pointer',
                           }}
@@ -427,10 +424,10 @@ export const GoalCard: React.FC<GoalCardProps> = ({
             {goal.health?.expectedProgress !== undefined && goal.deadline && (
               <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '10px', marginTop: '2px' }}>
                 <div style={{ position: 'relative', width: '60px', height: '3px', backgroundColor: 'var(--accent-neutral)', borderRadius: '2px', overflow: 'hidden' }}>
-                  <div style={{ width: `${Math.min(100, fraction * 100)}%`, height: '100%', backgroundColor: 'var(--accent-cyan)' }} />
-                  <div style={{ position: 'absolute', left: `${Math.min(100, goal.health.expectedProgress * 100)}%`, top: 0, bottom: 0, width: '2px', backgroundColor: '#ffffff' }} />
+                  <div style={{ width: `${Math.min(100, fraction * 100)}%`, height: '100%', backgroundColor: '#ffffff' }} />
+                  <div style={{ position: 'absolute', left: `${Math.min(100, goal.health.expectedProgress * 100)}%`, top: 0, bottom: 0, width: '2px', backgroundColor: 'rgba(255, 255, 255, 0.4)' }} />
                 </div>
-                <span style={{ color: goal.health.status === 'ahead' ? 'var(--accent-emerald)' : goal.health.status === 'at_risk' ? 'var(--accent-amber)' : 'var(--text-secondary)', fontWeight: 500 }}>
+                <span style={{ color: 'var(--text-secondary)', fontWeight: 500 }}>
                   {goal.health.trajectoryLabel || 'On track'}
                 </span>
               </div>
@@ -530,7 +527,7 @@ export const GoalCard: React.FC<GoalCardProps> = ({
                       gap: '6px',
                       padding: '6px 8px',
                       fontSize: '11px',
-                      color: 'var(--accent-emerald)',
+                      color: 'var(--text-primary)',
                       borderRadius: '4px',
                       border: 'none',
                       backgroundColor: 'transparent',
@@ -645,7 +642,7 @@ export const GoalCard: React.FC<GoalCardProps> = ({
               onMouseEnter={(e) => ((e.currentTarget as HTMLElement).style.backgroundColor = 'var(--bg-glass-active)')}
               onMouseLeave={(e) => ((e.currentTarget as HTMLElement).style.backgroundColor = 'transparent')}
             >
-              <Zap size={13} color="var(--accent-emerald)" />
+              <Zap size={13} color="#ffffff" />
               <span>Quick +{goal.defaultIncrement || 1}</span>
             </button>
           )}
@@ -687,7 +684,7 @@ export const GoalCard: React.FC<GoalCardProps> = ({
                 gap: '8px',
                 padding: '6px 10px',
                 fontSize: '12px',
-                color: 'var(--accent-emerald)',
+                color: 'var(--text-primary)',
                 borderRadius: '4px',
                 border: 'none',
                 backgroundColor: 'transparent',

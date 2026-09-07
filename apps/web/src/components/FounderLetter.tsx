@@ -17,10 +17,12 @@ export const FounderLetter: React.FC = () => {
           </span>
         </div>
 
-        {/* Paper Container */}
+        {/* Obsidian Letter Container */}
         <div
           style={{
-            backgroundColor: "#FFFFFF",
+            backgroundColor: "var(--bg-card)",
+            backdropFilter: "blur(24px)",
+            WebkitBackdropFilter: "blur(24px)",
             border: "1px solid var(--border-subtle)",
             borderRadius: "24px",
             padding: "clamp(32px, 6vw, 60px)",

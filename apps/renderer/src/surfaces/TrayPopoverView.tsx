@@ -57,7 +57,7 @@ export const TrayPopoverView: React.FC = () => {
         flexDirection: 'column',
         height: '100vh',
         width: '100vw',
-        backgroundColor: '#0a0a0c',
+        backgroundColor: '#000000',
         border: '1px solid rgba(255, 255, 255, 0.12)',
         borderRadius: '16px',
         overflow: 'hidden',
@@ -73,7 +73,7 @@ export const TrayPopoverView: React.FC = () => {
           alignItems: 'center',
           justifyContent: 'space-between',
           borderBottom: '1px solid var(--border-subtle)',
-          backgroundColor: '#121216',
+          backgroundColor: '#08080a',
           position: 'relative',
           zIndex: 1,
         }}
@@ -216,8 +216,8 @@ export const TrayPopoverView: React.FC = () => {
                           padding: '2px 6px',
                           borderRadius: '4px',
                           border: '1px solid rgba(255, 255, 255, 0.08)',
-                          backgroundColor: m.isCompleted ? 'rgba(16, 185, 129, 0.15)' : 'rgba(255, 255, 255, 0.02)',
-                          color: m.isCompleted ? 'var(--accent-emerald)' : 'var(--text-muted)',
+                          backgroundColor: m.isCompleted ? 'rgba(255, 255, 255, 0.08)' : 'rgba(255, 255, 255, 0.02)',
+                          color: m.isCompleted ? 'var(--accent-solar, #ff7a00)' : 'var(--text-muted)',
                           cursor: 'pointer',
                           textDecoration: m.isCompleted ? 'line-through' : 'none',
                         }}

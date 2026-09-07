@@ -49,34 +49,34 @@ export function getCompanionVisual(state: CompanionState): CompanionVisual {
 
   switch (state) {
     case 'idle':
-      return { ...eyes, label: 'Beacon companion: idle', haloColor: '#5AC8FA', animation: 'idle' };
+      return { ...eyes, label: 'Beacon companion: idle', haloColor: '#ffffff', animation: 'idle' };
     case 'greeting':
-      return { ...eyes, label: 'Beacon companion: greeting', haloColor: '#5AC8FA', animation: 'entry' };
+      return { ...eyes, label: 'Beacon companion: greeting', haloColor: '#ff7a00', animation: 'entry' };
     case 'thinking':
       return {
         ...eyes,
         label: 'Beacon companion: thinking',
-        haloColor: '#7C6CFF',
+        haloColor: '#e4e4e7',
         animation: 'thinking',
         leftEye: { ...eyes.leftEye, cy: 47, rotate: -3 },
         rightEye: { ...eyes.rightEye, cy: 49, rotate: 3 },
       };
     case 'celebrating':
-      return { ...eyes, label: 'Beacon companion: celebrating', haloColor: '#10B981', animation: 'celebration' };
+      return { ...eyes, label: 'Beacon companion: celebrating', haloColor: '#ff7a00', animation: 'celebration' };
     case 'smiling':
       return {
         ...eyes,
         label: 'Beacon companion: smiling',
-        haloColor: '#38BDF8',
+        haloColor: '#ff912b',
         animation: 'smile',
         leftEye: { ...eyes.leftEye, cy: 47, rx: 8, ry: 6, rotate: -6 },
-        rightEye: { ...eyes.rightEye, cy: 47, rx: 8, ry: 6, rotate: 6 },
+        rightEye: { ...eyes.rightEye, cy: 49, rx: 8, ry: 6, rotate: 6 },
       };
     case 'tickled':
       return {
         ...eyes,
         label: 'Beacon companion: giggling',
-        haloColor: '#F59E0B',
+        haloColor: '#ff7a00',
         animation: 'giggle',
         leftEye: { ...eyes.leftEye, cy: 49, rx: 8, ry: 3, rotate: -12 },
         rightEye: { ...eyes.rightEye, cy: 49, rx: 8, ry: 3, rotate: 12 },
@@ -85,7 +85,7 @@ export function getCompanionVisual(state: CompanionState): CompanionVisual {
       return {
         ...eyes,
         label: 'Beacon companion: concerned',
-        haloColor: '#F59E0B',
+        haloColor: '#a1a1aa',
         animation: 'static',
         leftEye: { ...eyes.leftEye, cy: 51, rotate: -5 },
         rightEye: { ...eyes.rightEye, cy: 51, rotate: 5 },
@@ -94,7 +94,7 @@ export function getCompanionVisual(state: CompanionState): CompanionVisual {
       return {
         ...eyes,
         label: 'Beacon companion: sleeping',
-        haloColor: '#3A3D4A',
+        haloColor: '#52525b',
         animation: 'static',
         leftEye: { ...eyes.leftEye, cy: 50, ry: 2 },
         rightEye: { ...eyes.rightEye, cy: 50, ry: 2 },
@@ -103,7 +103,7 @@ export function getCompanionVisual(state: CompanionState): CompanionVisual {
       return {
         ...eyes,
         label: 'Beacon companion: error',
-        haloColor: '#EF4444',
+        haloColor: '#f43f5e',
         animation: 'static',
         leftEye: { ...eyes.leftEye, cy: 51, rotate: 5 },
         rightEye: { ...eyes.rightEye, cy: 51, rotate: -5 },

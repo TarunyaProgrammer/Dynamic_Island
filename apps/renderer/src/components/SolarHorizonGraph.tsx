@@ -119,7 +119,7 @@ export const SolarHorizonGraph: React.FC<SolarHorizonGraphProps> = ({
             backgroundColor: 'rgba(22, 22, 28, 0.94)',
             backdropFilter: 'blur(12px)',
             WebkitBackdropFilter: 'blur(12px)',
-            border: '1px solid rgba(255, 122, 0, 0.35)',
+            border: '1px solid rgba(255, 255, 255, 0.2)',
             borderRadius: '6px',
             padding: '2px 8px',
             fontSize: '10px',
@@ -128,16 +128,16 @@ export const SolarHorizonGraph: React.FC<SolarHorizonGraphProps> = ({
             whiteSpace: 'nowrap',
             pointerEvents: 'none',
             zIndex: 10,
-            boxShadow: '0 4px 12px rgba(0, 0, 0, 0.4), 0 0 8px rgba(255, 122, 0, 0.25)',
+            boxShadow: '0 4px 12px rgba(0, 0, 0, 0.5), 0 0 8px rgba(255, 255, 255, 0.1)',
             display: 'flex',
             alignItems: 'center',
             gap: '5px',
           }}
         >
-          <span style={{ color: 'var(--accent-solar, #ff7a00)' }}>✦ {activeSession.timeLabel}</span>
+          <span style={{ color: '#ffffff' }}>✦ {activeSession.timeLabel}</span>
           <span style={{ color: 'rgba(255, 255, 255, 0.65)' }}>·</span>
           <span>{activeSession.sessionTitle}</span>
-          <span style={{ color: 'var(--accent-amber, #f59e0b)' }}>({activeSession.durationMins}m)</span>
+          <span style={{ color: 'rgba(255, 255, 255, 0.7)' }}>({activeSession.durationMins}m)</span>
         </div>
       )}
 
@@ -153,24 +153,23 @@ export const SolarHorizonGraph: React.FC<SolarHorizonGraphProps> = ({
         preserveAspectRatio="none"
       >
         <defs>
-          {/* Luminous Solar Horizon Stroke Gradient */}
+          {/* Luminous Horizon Stroke Gradient */}
           <linearGradient id="solarHorizonStroke" x1="0%" y1="0%" x2="100%" y2="0%">
-            <stop offset="0%" stopColor="#5ac8fa" />
-            <stop offset="45%" stopColor="#ff7a00" />
-            <stop offset="80%" stopColor="#f59e0b" />
-            <stop offset="100%" stopColor="#ff7a00" />
+            <stop offset="0%" stopColor="#ffffff" stopOpacity="0.7" />
+            <stop offset="50%" stopColor="#ffffff" />
+            <stop offset="100%" stopColor="rgba(255, 255, 255, 0.85)" />
           </linearGradient>
 
-          {/* Area Fill Gradient: Warm Amber dissolving into surface */}
+          {/* Area Fill Gradient: Pure Titanium dissolving into surface */}
           <linearGradient id="solarHorizonGlow" x1="0%" y1="0%" x2="0%" y2="100%">
-            <stop offset="0%" stopColor="rgba(255, 122, 0, 0.26)" />
-            <stop offset="60%" stopColor="rgba(245, 158, 11, 0.08)" />
-            <stop offset="100%" stopColor="rgba(255, 122, 0, 0)" />
+            <stop offset="0%" stopColor="rgba(255, 255, 255, 0.18)" />
+            <stop offset="60%" stopColor="rgba(255, 255, 255, 0.05)" />
+            <stop offset="100%" stopColor="rgba(255, 255, 255, 0)" />
           </linearGradient>
 
           {/* Target Baseline Reference Dash Filter */}
           <filter id="solarGlow">
-            <feDropShadow dx="0" dy="2" stdDeviation="3" floodColor="#ff7a00" floodOpacity="0.3" />
+            <feDropShadow dx="0" dy="2" stdDeviation="3" floodColor="#ffffff" floodOpacity="0.2" />
           </filter>
         </defs>
 
@@ -208,7 +207,7 @@ export const SolarHorizonGraph: React.FC<SolarHorizonGraphProps> = ({
               y1="0"
               x2={hoverX}
               y2="48"
-              stroke="rgba(255, 122, 0, 0.35)"
+              stroke="rgba(255, 255, 255, 0.3)"
               strokeWidth="1"
               strokeDasharray="2 2"
             />
@@ -217,9 +216,9 @@ export const SolarHorizonGraph: React.FC<SolarHorizonGraphProps> = ({
               cy={dotY}
               r="4.5"
               fill="#ffffff"
-              stroke="#ff7a00"
+              stroke="#ffffff"
               strokeWidth="2"
-              style={{ filter: 'drop-shadow(0 0 6px #ff7a00)' }}
+              style={{ filter: 'drop-shadow(0 0 6px rgba(255, 255, 255, 0.6))' }}
             />
           </g>
         )}

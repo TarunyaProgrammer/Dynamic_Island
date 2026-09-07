@@ -31,10 +31,12 @@ export const SpiritShowcase: React.FC = () => {
   return (
     <section id="spirit" style={{ padding: "80px 0" }}>
       <div className="container">
-        {/* Editorial White Showcase Card */}
+        {/* Obsidian Glass Showcase Card */}
         <div
           style={{
-            backgroundColor: "#FFFFFF",
+            backgroundColor: "var(--bg-card)",
+            backdropFilter: "blur(24px)",
+            WebkitBackdropFilter: "blur(24px)",
             borderRadius: "28px",
             border: "1px solid var(--border-subtle)",
             boxShadow: "var(--shadow-card)",

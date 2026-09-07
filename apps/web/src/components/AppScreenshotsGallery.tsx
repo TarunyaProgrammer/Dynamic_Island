@@ -119,17 +119,17 @@ export const AppScreenshotsGallery: React.FC = () => {
                   gap: "8px",
                   padding: "10px 18px",
                   borderRadius: "12px",
-                  backgroundColor: isActive ? "var(--accent-obsidian)" : "#FFFFFF",
-                  border: isActive ? "1px solid var(--accent-obsidian)" : "1px solid var(--border-subtle)",
+                  backgroundColor: isActive ? "rgba(255, 122, 0, 0.15)" : "rgba(255, 255, 255, 0.04)",
+                  border: isActive ? "1px solid rgba(255, 122, 0, 0.5)" : "1px solid var(--border-subtle)",
                   color: isActive ? "#FFFFFF" : "var(--text-body)",
                   fontSize: "13px",
                   fontWeight: 600,
                   cursor: "pointer",
                   transition: "all 0.18s ease",
-                  boxShadow: isActive ? "0 4px 14px rgba(15, 17, 23, 0.25)" : "var(--shadow-sm)",
+                  boxShadow: isActive ? "0 4px 20px rgba(255, 122, 0, 0.25)" : "var(--shadow-sm)",
                 }}
               >
-                <Icon size={15} color={isActive ? "#FFFFFF" : "var(--text-muted)"} />
+                <Icon size={15} color={isActive ? "var(--accent-solar)" : "var(--text-muted)"} />
                 <span>{s.name}</span>
               </button>
             );
@@ -139,7 +139,9 @@ export const AppScreenshotsGallery: React.FC = () => {
         {/* Active Surface Showcase Card */}
         <div
           style={{
-            backgroundColor: "#FFFFFF",
+            backgroundColor: "var(--bg-card)",
+            backdropFilter: "blur(24px)",
+            WebkitBackdropFilter: "blur(24px)",
             borderRadius: "24px",
             padding: "24px",
             border: "1px solid var(--border-subtle)",

@@ -15,7 +15,7 @@ let pulseListeners: ((event: LightPulseEvent) => void)[] = [];
  * Replaces disruptive confetti with quiet, elegant optical radiance.
  */
 export function triggerLightPulse(options?: string | { color?: string; [key: string]: any }) {
-  const color = typeof options === 'string' ? options : options?.color || 'var(--accent-beacon-cyan, #5ac8fa)';
+  const color = typeof options === 'string' ? options : options?.color || 'var(--accent-solar, #ff7a00)';
   const event: LightPulseEvent = { id: Date.now(), color };
   pulseListeners.forEach((fn) => fn(event));
 }
@@ -60,7 +60,7 @@ export const LightBeamFeedback: React.FC = () => {
             width: '240px',
             height: '240px',
             borderRadius: '50%',
-            background: `radial-gradient(circle, rgba(90, 200, 250, 0.22) 0%, rgba(124, 108, 255, 0.12) 40%, transparent 70%)`,
+            background: `radial-gradient(circle, rgba(255, 122, 0, 0.20) 0%, rgba(255, 255, 255, 0.06) 40%, transparent 70%)`,
             animation: 'beaconLightPulse 320ms cubic-bezier(0.16, 1, 0.3, 1) forwards',
           }}
         />

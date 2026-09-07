@@ -25,7 +25,7 @@ export const MomentumRhythmBar: React.FC<{ days?: DayActivity[]; hideHeader?: bo
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', width: '100%' }}>
-      {/* Header Stat & Energetic Word Badge */}
+      {/* Header Stat & Word Badge */}
       {!hideHeader && (
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
           <div
@@ -37,9 +37,9 @@ export const MomentumRhythmBar: React.FC<{ days?: DayActivity[]; hideHeader?: bo
               fontWeight: 700,
               padding: '2px 8px',
               borderRadius: '9999px',
-              backgroundColor: 'rgba(255, 122, 0, 0.12)',
-              color: 'var(--accent-solar, #ff7a00)',
-              border: '1px solid rgba(255, 122, 0, 0.28)',
+              backgroundColor: 'rgba(255, 255, 255, 0.06)',
+              color: 'rgba(255, 255, 255, 0.9)',
+              border: '1px solid rgba(255, 255, 255, 0.12)',
               letterSpacing: '0.04em',
               textTransform: 'uppercase',
             }}
@@ -47,7 +47,7 @@ export const MomentumRhythmBar: React.FC<{ days?: DayActivity[]; hideHeader?: bo
             <span>✦</span>
             <span>Momentum Surge</span>
           </div>
-          <span style={{ fontSize: '11px', fontWeight: 600, color: 'var(--accent-solar, #ff7a00)' }}>
+          <span style={{ fontSize: '11px', fontWeight: 600, color: '#ffffff' }}>
             +14% vs last week
           </span>
         </div>
@@ -91,7 +91,7 @@ export const MomentumRhythmBar: React.FC<{ days?: DayActivity[]; hideHeader?: bo
                     position: 'absolute',
                     top: '-20px',
                     backgroundColor: 'rgba(18, 20, 26, 0.95)',
-                    border: '1px solid rgba(255, 122, 0, 0.3)',
+                    border: '1px solid rgba(255, 255, 255, 0.2)',
                     borderRadius: '4px',
                     padding: '1px 5px',
                     fontSize: '9px',
@@ -114,18 +114,17 @@ export const MomentumRhythmBar: React.FC<{ days?: DayActivity[]; hideHeader?: bo
                   height: `${heightPct}%`,
                   borderRadius: '4px',
                   backgroundColor: d.isToday
-                    ? 'var(--accent-solar, #ff7a00)'
+                    ? '#ffffff'
                     : d.count > 0
-                    ? 'rgba(255, 158, 66, 0.38)'
+                    ? 'rgba(255, 255, 255, 0.35)'
                     : 'var(--accent-neutral, rgba(255, 255, 255, 0.06))',
-                  backgroundImage: d.isToday
-                    ? 'linear-gradient(to top, #ff7a00, #f59e0b)'
-                    : isHovered
-                    ? 'linear-gradient(to top, rgba(255, 122, 0, 0.5), rgba(245, 158, 11, 0.6))'
-                    : 'none',
-                  boxShadow: d.isToday ? '0 0 10px rgba(255, 122, 0, 0.4)' : 'none',
+                  boxShadow: d.isToday ? '0 0 8px rgba(255, 255, 255, 0.3)' : 'none',
                   transition: 'all 0.15s ease',
-                  border: d.isToday ? '1px solid rgba(255, 255, 255, 0.4)' : '1px solid transparent',
+                  border: d.isToday
+                    ? '1px solid #ffffff'
+                    : isHovered
+                    ? '1px solid rgba(255, 255, 255, 0.4)'
+                    : '1px solid transparent',
                 }}
               />
 
@@ -134,7 +133,7 @@ export const MomentumRhythmBar: React.FC<{ days?: DayActivity[]; hideHeader?: bo
                 style={{
                   fontSize: '10px',
                   fontWeight: d.isToday ? 700 : 500,
-                  color: d.isToday ? 'var(--accent-solar, #ff7a00)' : 'var(--text-muted, #585a66)',
+                  color: d.isToday ? '#ffffff' : 'var(--text-muted, #585a66)',
                 }}
               >
                 {d.dayLabel}

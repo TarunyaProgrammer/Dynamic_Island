@@ -255,8 +255,8 @@ export const DynamicIslandView: React.FC = () => {
                   width: '5px',
                   height: '5px',
                   borderRadius: '50%',
-                  backgroundColor: focusState.isActive ? 'var(--accent-solar, #ff7a00)' : 'var(--accent-cyan, #38bdf8)',
-                  boxShadow: focusState.isActive ? '0 0 6px var(--accent-solar, #ff7a00)' : '0 0 6px var(--accent-cyan, #38bdf8)',
+                  backgroundColor: '#ffffff',
+                  boxShadow: focusState.isActive ? '0 0 6px rgba(255, 255, 255, 0.6)' : 'none',
                 }}
               />
               <span style={{ fontSize: '10px', fontWeight: 600, color: 'rgba(255, 255, 255, 0.7)' }}>
@@ -280,15 +280,15 @@ export const DynamicIslandView: React.FC = () => {
                     gap: '5px',
                     padding: '3px 10px',
                     borderRadius: '9999px',
-                    backgroundColor: activeTab === 'goal' ? 'rgba(255, 122, 0, 0.18)' : 'transparent',
-                    border: activeTab === 'goal' ? '1px solid rgba(255, 122, 0, 0.45)' : '1px solid transparent',
-                    color: activeTab === 'goal' ? 'var(--accent-solar, #ff7a00)' : 'rgba(255, 255, 255, 0.65)',
+                    backgroundColor: activeTab === 'goal' ? 'rgba(255, 255, 255, 0.12)' : 'transparent',
+                    border: activeTab === 'goal' ? '1px solid rgba(255, 255, 255, 0.25)' : '1px solid transparent',
+                    color: activeTab === 'goal' ? '#ffffff' : 'rgba(255, 255, 255, 0.65)',
                     fontSize: '11px',
                     fontWeight: 600,
                     cursor: 'pointer',
                     outline: 'none',
                     transition: 'all 0.15s ease',
-                    boxShadow: activeTab === 'goal' ? '0 0 10px rgba(255, 122, 0, 0.25)' : 'none',
+                    boxShadow: 'none',
                   }}
                   title="Goals View"
                 >
@@ -309,19 +309,19 @@ export const DynamicIslandView: React.FC = () => {
                     gap: '4px',
                     padding: '3px 10px',
                     borderRadius: '9999px',
-                    backgroundColor: activeTab === 'focus' ? 'rgba(56, 189, 248, 0.18)' : 'rgba(255, 255, 255, 0.05)',
-                    border: activeTab === 'focus' ? '1px solid rgba(56, 189, 248, 0.45)' : '1px solid transparent',
-                    color: activeTab === 'focus' ? 'var(--accent-cyan, #38bdf8)' : 'rgba(255, 255, 255, 0.65)',
+                    backgroundColor: activeTab === 'focus' ? 'rgba(255, 255, 255, 0.14)' : 'rgba(255, 255, 255, 0.04)',
+                    border: activeTab === 'focus' ? '1px solid rgba(255, 255, 255, 0.3)' : '1px solid transparent',
+                    color: activeTab === 'focus' ? '#ffffff' : 'rgba(255, 255, 255, 0.65)',
                     fontSize: '11px',
                     fontWeight: activeTab === 'focus' ? 700 : 500,
                     cursor: 'pointer',
                     outline: 'none',
                     transition: 'all 0.15s ease',
-                    boxShadow: activeTab === 'focus' ? '0 0 10px rgba(56, 189, 248, 0.25)' : 'none',
+                    boxShadow: 'none',
                   }}
                   title="Focus Timer"
                 >
-                  <Timer size={11} color={activeTab === 'focus' ? 'var(--accent-cyan, #38bdf8)' : 'currentColor'} />
+                  <Timer size={11} color={activeTab === 'focus' ? '#ffffff' : 'currentColor'} />
                   <span>{focusState.isActive ? focusTimeStr : 'Focus'}</span>
                 </button>
 
@@ -338,19 +338,19 @@ export const DynamicIslandView: React.FC = () => {
                     gap: '4px',
                     padding: '3px 10px',
                     borderRadius: '9999px',
-                    backgroundColor: activeTab === 'media' ? 'rgba(168, 85, 247, 0.18)' : 'rgba(255, 255, 255, 0.05)',
-                    border: activeTab === 'media' ? '1px solid rgba(168, 85, 247, 0.45)' : '1px solid transparent',
-                    color: activeTab === 'media' ? '#c084fc' : 'rgba(255, 255, 255, 0.65)',
+                    backgroundColor: activeTab === 'media' ? 'rgba(255, 255, 255, 0.14)' : 'rgba(255, 255, 255, 0.04)',
+                    border: activeTab === 'media' ? '1px solid rgba(255, 255, 255, 0.3)' : '1px solid transparent',
+                    color: activeTab === 'media' ? '#ffffff' : 'rgba(255, 255, 255, 0.65)',
                     fontSize: '11px',
                     fontWeight: activeTab === 'media' ? 700 : 500,
                     cursor: 'pointer',
                     outline: 'none',
                     transition: 'all 0.15s ease',
-                    boxShadow: activeTab === 'media' ? '0 0 10px rgba(168, 85, 247, 0.25)' : 'none',
+                    boxShadow: 'none',
                   }}
                   title="Media Controls"
                 >
-                  <Music size={11} color={activeTab === 'media' ? '#c084fc' : 'currentColor'} />
+                  <Music size={11} color={activeTab === 'media' ? '#ffffff' : 'currentColor'} />
                   <span>Media</span>
                 </button>
               </div>
@@ -442,7 +442,7 @@ export const DynamicIslandView: React.FC = () => {
                       {primaryGoal.currentValue} / {primaryGoal.targetValue} {primaryGoal.unit || ''}
                     </span>
                     <div style={{ marginTop: '2px' }}>
-                      <ProgressBar progressFraction={primaryFrac} color="var(--accent-solar, #ff7a00)" height={3} />
+                      <ProgressBar progressFraction={primaryFrac} color="#ffffff" height={3} />
                     </div>
 
                     {/* Increment Controls */}
@@ -468,12 +468,12 @@ export const DynamicIslandView: React.FC = () => {
                           padding: '2px 8px',
                           fontSize: '9px',
                           fontWeight: 700,
-                          backgroundColor: 'rgba(255, 122, 0, 0.2)',
-                          border: '1px solid rgba(255, 122, 0, 0.45)',
-                          color: 'var(--accent-solar, #ff7a00)',
+                          backgroundColor: 'rgba(255, 255, 255, 0.1)',
+                          border: '1px solid rgba(255, 255, 255, 0.2)',
+                          color: '#ffffff',
                           borderRadius: '6px',
                           cursor: 'pointer',
-                          boxShadow: '0 0 8px rgba(255, 122, 0, 0.2)',
+                          boxShadow: 'none',
                         }}
                       >
                         +{primaryGoal.defaultIncrement || 1} {primaryGoal.unit || ''}
@@ -488,7 +488,7 @@ export const DynamicIslandView: React.FC = () => {
                         style={{ padding: '2px 5px', fontSize: '9px', backgroundColor: 'rgba(255, 255, 255, 0.08)' }}
                         title="Complete Goal"
                       >
-                        <CheckCircle2 size={10} color="#10b981" />
+                        <CheckCircle2 size={10} color="#ffffff" />
                       </button>
                     </div>
                   </div>
@@ -516,7 +516,7 @@ export const DynamicIslandView: React.FC = () => {
                     title="Open Beacon to Create a Goal"
                   >
                     <span style={{ fontSize: '12px', fontWeight: 600, color: '#ffffff' }}>No Active Goals</span>
-                    <span style={{ fontSize: '10px', color: '#5ac8fa', fontWeight: 500 }}>✦ Click to create one</span>
+                    <span style={{ fontSize: '10px', color: 'var(--text-secondary)', fontWeight: 500 }}>✦ Click to create one</span>
                   </button>
                 )}
               </div>
@@ -871,7 +871,7 @@ export const DynamicIslandView: React.FC = () => {
               }}
             >
               <div style={{ display: 'flex', alignItems: 'center', gap: '5px', minWidth: 0 }}>
-                <span style={{ fontSize: '12px', fontWeight: 700, color: 'var(--accent-solar, #ff7a00)', flexShrink: 0 }}>{monthName}</span>
+                <span style={{ fontSize: '12px', fontWeight: 700, color: '#ffffff', flexShrink: 0 }}>{monthName}</span>
                 <div style={{ display: 'flex', gap: '3px', flexShrink: 0 }}>
                   {calendarDays.map((c, i) => (
                     <button
@@ -888,13 +888,13 @@ export const DynamicIslandView: React.FC = () => {
                         alignItems: 'center',
                         padding: '2px 4px',
                         borderRadius: '5px',
-                        backgroundColor: c.isToday ? 'var(--accent-solar, #ff7a00)' : 'transparent',
-                        color: c.isToday ? '#07080b' : 'rgba(255, 255, 255, 0.45)',
+                        backgroundColor: c.isToday ? 'rgba(255, 255, 255, 0.2)' : 'transparent',
+                        color: c.isToday ? '#ffffff' : 'rgba(255, 255, 255, 0.45)',
                         border: 'none',
                         cursor: 'pointer',
                         outline: 'none',
                         transition: 'all 0.15s ease',
-                        boxShadow: c.isToday ? '0 0 8px rgba(255, 122, 0, 0.4)' : 'none',
+                        boxShadow: 'none',
                       }}
                       title={c.isToday ? 'Today (Click to open Beacon)' : `Day ${c.date} (Click to open Beacon)`}
                     >
@@ -913,8 +913,8 @@ export const DynamicIslandView: React.FC = () => {
                 {goals.some((g) => (g.streakConfig?.currentStreak ?? 0) > 0) && (
                   <>
                     <span style={{ opacity: 0.4 }}>•</span>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '3px', color: 'var(--accent-solar, #ff7a00)', fontWeight: 700 }}>
-                      <Sparkles size={10} color="var(--accent-solar, #ff7a00)" />
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '3px', color: '#ffffff', fontWeight: 700 }}>
+                      <Sparkles size={10} color="#ffffff" />
                       <span>{Math.max(...goals.map((g) => g.streakConfig?.currentStreak ?? 0))}d streak</span>
                     </div>
                   </>
@@ -950,7 +950,7 @@ export const DynamicIslandView: React.FC = () => {
             >
               <div style={{ display: 'flex', flexDirection: 'column', gap: '1px', minWidth: 0 }}>
                 <span style={{ fontSize: '9px', color: 'rgba(255, 255, 255, 0.6)', fontWeight: 500 }}>Overall</span>
-                <span style={{ fontSize: '15px', fontWeight: 800, color: 'var(--accent-solar, #ff7a00)' }}>{percent}%</span>
+                <span style={{ fontSize: '15px', fontWeight: 800, color: '#ffffff' }}>{percent}%</span>
                 <span style={{ fontSize: '8px', color: 'rgba(255, 255, 255, 0.45)' }}>{stats?.activeGoals ?? 0} active</span>
               </div>
 
@@ -958,7 +958,7 @@ export const DynamicIslandView: React.FC = () => {
                 progressFraction={stats?.overallProgressFraction ?? 0}
                 size={38}
                 strokeWidth={3}
-                color="var(--accent-solar, #ff7a00)"
+                color="#ffffff"
                 showText={false}
               />
             </div>

@@ -171,14 +171,14 @@ export const AISettingsModal: React.FC<AISettingsModalProps> = ({ isOpen, onClos
                 width: '32px',
                 height: '32px',
                 borderRadius: '10px',
-                backgroundColor: 'rgba(255, 122, 0, 0.16)',
-                border: '1px solid rgba(255, 122, 0, 0.35)',
+                backgroundColor: 'rgba(255, 255, 255, 0.08)',
+                border: '1px solid rgba(255, 255, 255, 0.16)',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
               }}
             >
-              <Sparkles size={16} color="var(--accent-solar, #ff7a00)" />
+              <Sparkles size={16} color="#ffffff" />
             </div>
             <div>
               <h3 style={{ fontSize: '15px', fontWeight: 700, color: '#ffffff', margin: 0 }}>
@@ -245,11 +245,11 @@ export const AISettingsModal: React.FC<AISettingsModalProps> = ({ isOpen, onClos
                     style={{
                       padding: '10px 12px',
                       borderRadius: '12px',
-                      backgroundColor: isSelected ? 'rgba(255, 122, 0, 0.12)' : 'rgba(255, 255, 255, 0.03)',
-                      borderTop: isSelected ? '1px solid rgba(255, 122, 0, 0.5)' : '1px solid rgba(255, 255, 255, 0.1)',
-                      borderBottom: isSelected ? '1px solid rgba(255, 122, 0, 0.25)' : '1px solid rgba(255, 255, 255, 0.03)',
-                      borderLeft: isSelected ? '1px solid rgba(255, 122, 0, 0.35)' : '1px solid var(--border-subtle)',
-                      borderRight: isSelected ? '1px solid rgba(255, 122, 0, 0.35)' : '1px solid var(--border-subtle)',
+                      backgroundColor: isSelected ? 'rgba(255, 255, 255, 0.08)' : 'rgba(255, 255, 255, 0.03)',
+                      borderTop: isSelected ? '1px solid rgba(255, 255, 255, 0.25)' : '1px solid rgba(255, 255, 255, 0.1)',
+                      borderBottom: isSelected ? '1px solid rgba(255, 255, 255, 0.12)' : '1px solid rgba(255, 255, 255, 0.03)',
+                      borderLeft: isSelected ? '1px solid rgba(255, 255, 255, 0.18)' : '1px solid var(--border-subtle)',
+                      borderRight: isSelected ? '1px solid rgba(255, 255, 255, 0.18)' : '1px solid var(--border-subtle)',
                       cursor: 'pointer',
                       display: 'flex',
                       flexDirection: 'column',
@@ -258,7 +258,7 @@ export const AISettingsModal: React.FC<AISettingsModalProps> = ({ isOpen, onClos
                     }}
                   >
                     <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                      <span style={{ fontSize: '12px', fontWeight: 700, color: isSelected ? 'var(--accent-solar, #ff7a00)' : '#ffffff' }}>
+                      <span style={{ fontSize: '12px', fontWeight: 700, color: '#ffffff' }}>
                         {p.name}
                       </span>
                       {isConfigured && (
@@ -284,7 +284,7 @@ export const AISettingsModal: React.FC<AISettingsModalProps> = ({ isOpen, onClos
                 href={getProviderLink()}
                 target="_blank"
                 rel="noreferrer"
-                style={{ fontSize: '10px', color: 'var(--accent-cyan, #38bdf8)', display: 'flex', alignItems: 'center', gap: '3px', textDecoration: 'none' }}
+                style={{ fontSize: '10px', color: 'var(--text-secondary)', display: 'flex', alignItems: 'center', gap: '3px', textDecoration: 'none' }}
               >
                 <span>Get API key</span>
                 <ExternalLink size={10} />
@@ -397,20 +397,20 @@ export const AISettingsModal: React.FC<AISettingsModalProps> = ({ isOpen, onClos
                     key={prof.id}
                     onClick={() => setSelectedProfile(prof.id as IntelligenceProfile)}
                     style={{
-                      padding: '10px 12px',
+                      padding: '8px 10px',
                       borderRadius: '10px',
-                      backgroundColor: isSelected ? 'rgba(255, 122, 0, 0.12)' : 'rgba(255, 255, 255, 0.03)',
-                      borderTop: isSelected ? '1px solid rgba(255, 122, 0, 0.5)' : '1px solid rgba(255, 255, 255, 0.1)',
-                      borderBottom: isSelected ? '1px solid rgba(255, 122, 0, 0.25)' : '1px solid rgba(255, 255, 255, 0.03)',
-                      borderLeft: isSelected ? '1px solid rgba(255, 122, 0, 0.35)' : '1px solid var(--border-subtle)',
-                      borderRight: isSelected ? '1px solid rgba(255, 122, 0, 0.35)' : '1px solid var(--border-subtle)',
+                      backgroundColor: isSelected ? 'rgba(255, 255, 255, 0.08)' : 'rgba(255, 255, 255, 0.03)',
+                      borderTop: isSelected ? '1px solid rgba(255, 255, 255, 0.25)' : '1px solid rgba(255, 255, 255, 0.1)',
+                      borderBottom: isSelected ? '1px solid rgba(255, 255, 255, 0.12)' : '1px solid rgba(255, 255, 255, 0.03)',
+                      borderLeft: isSelected ? '1px solid rgba(255, 255, 255, 0.18)' : '1px solid var(--border-subtle)',
+                      borderRight: isSelected ? '1px solid rgba(255, 255, 255, 0.18)' : '1px solid var(--border-subtle)',
                       cursor: 'pointer',
                       display: 'flex',
                       flexDirection: 'column',
                       gap: '2px',
                     }}
                   >
-                    <span style={{ fontSize: '11px', fontWeight: 700, color: isSelected ? 'var(--accent-solar, #ff7a00)' : '#ffffff' }}>
+                    <span style={{ fontSize: '11px', fontWeight: 700, color: '#ffffff' }}>
                       {prof.name}
                     </span>
                     <span style={{ fontSize: '9px', color: 'var(--text-muted)', lineHeight: 1.3 }}>{prof.desc}</span>
@@ -510,9 +510,9 @@ export const AISettingsModal: React.FC<AISettingsModalProps> = ({ isOpen, onClos
             style={{
               padding: '8px 20px',
               borderRadius: '10px',
-              backgroundColor: 'var(--accent-solar, #ff7a00)',
+              backgroundColor: '#ffffff',
               border: 'none',
-              color: '#07080b',
+              color: '#000000',
               fontSize: '12px',
               fontWeight: 700,
               cursor: saving ? 'wait' : 'pointer',

@@ -117,14 +117,13 @@ app.on('second-instance', () => {
 
 app.whenReady().then(async () => {
   // ─── Security: Content Security Policy ──────────────────────────────────────
-  // Restrict what content can be loaded in any renderer. Blocks eval(),
-  // remote scripts, and inline event handlers outside trusted self-origin.
+  // Restrict what content can be loaded in any renderer.
+  // In development: permits Vite HMR WebSockets, React Fast Refresh preamble, and Google Fonts.
+  // In production: strict origin isolation with Google Fonts and local asset loading.
   session.defaultSession.webRequest.onHeadersReceived((details, callback) => {
     const csp = isDev
-      // Development: allow Vite HMR WebSocket and eval (V8 dev tools need it)
-      ? "default-src 'self'; script-src 'self' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; connect-src 'self' ws://localhost:* http://localhost:*; img-src 'self' data: blob:; font-src 'self' data:;"
-      // Production: strict — no eval, no remote resources
-      : "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; connect-src 'self'; img-src 'self' data: blob:; font-src 'self' data:;";
+      ? "default-src 'self' http://localhost:* http://127.0.0.1:*; script-src 'self' 'unsafe-inline' 'unsafe-eval' http://localhost:* http://127.0.0.1:*; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' data: https://fonts.gstatic.com; connect-src 'self' ws://localhost:* ws://127.0.0.1:* http://localhost:* http://127.0.0.1:*; img-src 'self' data: blob: https:;"
+      : "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' data: https://fonts.gstatic.com; connect-src 'self'; img-src 'self' data: blob: https:;";
 
     callback({
       responseHeaders: {

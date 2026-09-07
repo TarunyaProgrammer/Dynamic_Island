@@ -8,16 +8,21 @@ export class MainWindowController {
   createOrShow(preloadPath: string, rendererUrl?: string): BrowserWindow {
     if (this.window && !this.window.isDestroyed()) {
       if (this.window.isMinimized()) this.window.restore();
+      this.window.setMinimumSize(1080, 720);
+      const [currW, currH] = this.window.getSize();
+      if (currW < 1080 || currH < 720) {
+        this.window.setSize(Math.max(currW, 1200), Math.max(currH, 820), true);
+      }
       this.window.show();
       this.window.focus();
       return this.window;
     }
 
     this.window = new BrowserWindow({
-      width: 1040,
-      height: 720,
-      minWidth: 880,
-      minHeight: 620,
+      width: 1200,
+      height: 820,
+      minWidth: 1080,
+      minHeight: 720,
       title: 'Beacon',
       icon: path.join(app.getAppPath(), 'assets/Beacon.png'),
       titleBarStyle: 'hiddenInset',
@@ -34,6 +39,13 @@ export class MainWindowController {
         allowRunningInsecureContent: false, // Block mixed HTTP/HTTPS content
         spellcheck: false,          // Unnecessary feature — removes IPC overhead
       },
+    });
+
+    // Forward web console messages to terminal in dev mode
+    this.window.webContents.on('console-message', (_event, level, message) => {
+      if (level >= 2 || process.env.NODE_ENV !== 'production') {
+        console.log('[Main Web]', message);
+      }
     });
 
     if (rendererUrl) {

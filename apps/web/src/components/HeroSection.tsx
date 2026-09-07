@@ -24,7 +24,9 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
         position: "relative",
         overflow: "hidden",
         backgroundImage: `
-          linear-gradient(180deg, rgba(246, 246, 248, 0.35) 0%, rgba(246, 246, 248, 0.85) 60%, var(--bg-canvas) 100%),
+          radial-gradient(ellipse 90% 50% at 50% -10%, rgba(255, 122, 0, 0.22) 0%, rgba(255, 122, 0, 0.04) 50%, transparent 80%),
+          radial-gradient(ellipse 50% 30% at 85% 25%, rgba(56, 189, 248, 0.08) 0%, transparent 60%),
+          linear-gradient(180deg, rgba(0, 0, 0, 0.4) 0%, rgba(0, 0, 0, 0.95) 75%, #000000 100%),
           url('/assets/misty-hills-ambient.jpg')
         `,
         backgroundPosition: "center top",
@@ -34,9 +36,9 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
     >
       <div className="container" style={{ maxWidth: "1100px", position: "relative", zIndex: 2 }}>
         {/* Eyebrow with Social Proof */}
-        <div style={{ display: "inline-flex", alignItems: "center", gap: "8px", marginBottom: "24px", padding: "6px 14px", borderRadius: "100px", backgroundColor: "rgba(255, 255, 255, 0.85)", border: "1px solid var(--border-subtle)", boxShadow: "0 2px 8px rgba(15, 17, 23, 0.04)" }}>
-          <span style={{ width: "7px", height: "7px", borderRadius: "50%", backgroundColor: "#10B981" }} />
-          <span className="eyebrow-titanium">
+        <div style={{ display: "inline-flex", alignItems: "center", gap: "8px", marginBottom: "24px", padding: "6px 14px", borderRadius: "100px", backgroundColor: "rgba(255, 255, 255, 0.05)", border: "1px solid rgba(255, 122, 0, 0.3)", boxShadow: "0 0 20px rgba(255, 122, 0, 0.15)" }}>
+          <span style={{ width: "7px", height: "7px", borderRadius: "50%", backgroundColor: "#10B981", boxShadow: "0 0 8px #10B981" }} />
+          <span className="eyebrow-titanium" style={{ color: "var(--accent-solar)" }}>
             PIONEER LAUNCH COHORT • 384 MACS RUNNING BEACON
           </span>
         </div>

@@ -12,17 +12,17 @@ import { ConfettiCanvas } from '../components/ConfettiCanvas';
 import { triggerLightPulse } from '../components/LightBeamFeedback';
 import { ConfirmationModal } from '../components/ConfirmationModal';
 import { soundEffects } from '../utils/audio';
-import { Plus, Undo2, Redo2, Layers, CheckCircle2, Archive, Timer, Search, X, Sun, Moon, Sparkles, MessageSquare } from 'lucide-react';
+import { Plus, Undo2, Redo2, Layers, CheckCircle2, Archive, Timer, Search, X, Sparkles, MessageSquare } from 'lucide-react';
 import { FocusDashboardView } from '../components/FocusDashboardView';
 import { useCompanion } from '../hooks/useCompanion';
 import { SolarHorizonGraph } from '../components/SolarHorizonGraph';
 import { MomentumRhythmBar } from '../components/MomentumRhythmBar';
 import { AISettingsModal } from '../components/AISettingsModal';
 import { BeaconCompanionChatModal } from '../components/BeaconCompanionChatModal';
-import atmosphericBg from '../assets/atmospheric_bg.jpg';
 
 export const MainAppView: React.FC = () => {
   const [viewMode, setViewMode] = useState<'goals' | 'focus'>('goals');
+  const [focusGoalId, setFocusGoalId] = useState<string>('');
   const [activeTab, setActiveTab] = useState<GoalStatus | 'all'>('active');
   const [searchQuery, setSearchQuery] = useState('');
   const [showAISettings, setShowAISettings] = useState(false);
@@ -31,21 +31,18 @@ export const MainAppView: React.FC = () => {
   const [isEditorOpen, setIsEditorOpen] = useState(false);
   const [editingGoal, setEditingGoal] = useState<Goal | null>(null);
   const [goalToDelete, setGoalToDelete] = useState<Goal | null>(null);
-  const [theme, setTheme] = useState<'dark' | 'light'>(() => {
-    if (typeof window !== 'undefined') {
-      return (localStorage.getItem('beacon_theme') as 'dark' | 'light') || 'dark';
-    }
-    return 'dark';
-  });
 
+  // Listen for hash change (#focus)
   useEffect(() => {
-    document.documentElement.setAttribute('data-theme', theme);
-    localStorage.setItem('beacon_theme', theme);
-  }, [theme]);
-
-  const toggleTheme = () => {
-    setTheme((prev) => (prev === 'dark' ? 'light' : 'dark'));
-  };
+    const handleHash = () => {
+      if (window.location.hash === '#focus') {
+        setViewMode('focus');
+      }
+    };
+    handleHash();
+    window.addEventListener('hashchange', handleHash);
+    return () => window.removeEventListener('hashchange', handleHash);
+  }, []);
 
   const searchInputRef = useRef<HTMLInputElement>(null);
 
@@ -157,7 +154,7 @@ export const MainAppView: React.FC = () => {
     const completedGoal = await completeGoal(goalId);
     companion.celebrate(`${completedGoal.name} completed`);
     soundEffects.playGoalFanfare();
-    triggerLightPulse('var(--accent-emerald, #10b981)');
+    triggerLightPulse('var(--accent-solar)');
   };
 
   const handleUpdateStreak = async (goalId: string, currentStreak: number, bestStreak: number) => {
@@ -170,7 +167,7 @@ export const MainAppView: React.FC = () => {
       },
     });
     companion.celebrate('Streak updated');
-    triggerLightPulse('var(--accent-cyan)');
+    triggerLightPulse();
   };
 
   const handlePromptDelete = (goalId: string) => {
@@ -202,51 +199,8 @@ export const MainAppView: React.FC = () => {
       }}
     >
       <ConfettiCanvas />
-      {/* Conditional Atmospheric Background */}
-      {theme === 'dark' ? (
-        <>
-          {/* Bespoke Dark Atmospheric Photo Wallpaper */}
-          <div
-            style={{
-              position: 'absolute',
-              inset: 0,
-              backgroundImage: `url(${atmosphericBg})`,
-              backgroundSize: 'cover',
-              backgroundPosition: 'center top',
-              opacity: 0.22,
-              filter: 'blur(2px)',
-              maskImage: 'linear-gradient(to bottom, rgba(0, 0, 0, 1) 15%, rgba(0, 0, 0, 0.3) 70%, transparent 100%)',
-              WebkitMaskImage: 'linear-gradient(to bottom, rgba(0, 0, 0, 1) 15%, rgba(0, 0, 0, 0.3) 70%, transparent 100%)',
-              pointerEvents: 'none',
-              zIndex: 0,
-            }}
-          />
-          {/* Cinematic Vignette to Deep Obsidian Black */}
-          <div
-            style={{
-              position: 'absolute',
-              inset: 0,
-              background: 'radial-gradient(ellipse at 50% 10%, rgba(7, 8, 11, 0.3) 0%, rgba(7, 8, 11, 0.85) 65%, #07080b 100%)',
-              pointerEvents: 'none',
-              zIndex: 0,
-            }}
-          />
-        </>
-      ) : (
-        /* Crystalline Apple HIG Light Mode Background */
-        <div
-          style={{
-            position: 'absolute',
-            inset: 0,
-            background: 'radial-gradient(ellipse at 50% 0%, rgba(255, 122, 0, 0.04) 0%, rgba(244, 245, 248, 0.6) 45%, #f4f5f8 100%)',
-            pointerEvents: 'none',
-            zIndex: 0,
-          }}
-        />
-      )}
-      {/* Titlebar / Drag Region */}
+      {/* Titlebar: Left & Right interactive clusters with central drag handle */}
       <div
-        className="drag-region"
         style={{
           height: '46px',
           display: 'flex',
@@ -259,16 +213,29 @@ export const MainAppView: React.FC = () => {
           zIndex: 2,
         }}
       >
-        {/* Brand & View Switcher */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+        {/* Brand & View Switcher (Left Cluster: 100% Clickable) */}
+        <div className="no-drag" style={{ display: 'flex', alignItems: 'center', gap: '16px', zIndex: 10 }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
             <BeaconLogo size={18} />
             <span style={{ fontSize: '13px', fontWeight: 700, letterSpacing: '-0.2px', color: 'var(--text-primary)' }}>Beacon</span>
           </div>
 
-          <div className="no-drag" style={{ display: 'flex', gap: '3px', backgroundColor: 'var(--bg-glass-active)', padding: '2px', borderRadius: 'var(--radius-md)', border: '1px solid var(--border-subtle)' }}>
+          <div
+            style={{
+              display: 'flex',
+              gap: '3px',
+              backgroundColor: 'var(--bg-glass-active)',
+              padding: '2px',
+              borderRadius: 'var(--radius-md)',
+              border: '1px solid var(--border-subtle)',
+            }}
+          >
             <button
-              onClick={() => setViewMode('goals')}
+              type="button"
+              onClick={(e) => {
+                e.stopPropagation();
+                setViewMode('goals');
+              }}
               style={{
                 padding: '3px 10px',
                 borderRadius: 'var(--radius-sm)',
@@ -290,7 +257,11 @@ export const MainAppView: React.FC = () => {
             </button>
 
             <button
-              onClick={() => setViewMode('focus')}
+              type="button"
+              onClick={(e) => {
+                e.stopPropagation();
+                setViewMode('focus');
+              }}
               style={{
                 padding: '3px 10px',
                 borderRadius: 'var(--radius-sm)',
@@ -313,9 +284,26 @@ export const MainAppView: React.FC = () => {
           </div>
         </div>
 
-        <div className="no-drag" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+        {/* Window Drag Handle: Dedicated central region */}
+        <div
+          className="drag-region"
+          style={{
+            flex: 1,
+            height: '100%',
+            minWidth: '40px',
+            cursor: 'default',
+          }}
+          title="Drag window"
+        />
+
+        {/* Action Controls (Right Cluster: 100% Clickable) */}
+        <div className="no-drag" style={{ display: 'flex', alignItems: 'center', gap: '8px', zIndex: 10 }}>
           <button
-            onClick={() => setShowAISettings(true)}
+            type="button"
+            onClick={(e) => {
+              e.stopPropagation();
+              setShowAISettings(true);
+            }}
             className="btn-ghost"
             title="AI Companion Intelligence Settings"
             style={{
@@ -325,30 +313,50 @@ export const MainAppView: React.FC = () => {
               alignItems: 'center',
               gap: '5px',
               fontSize: '11px',
-              fontWeight: 600,
-              color: 'var(--accent-solar, #ff7a00)',
-              backgroundColor: 'rgba(255, 122, 0, 0.08)',
-              border: '1px solid rgba(255, 122, 0, 0.22)',
+              fontWeight: 500,
+              color: 'var(--text-secondary)',
+              backgroundColor: 'rgba(255, 255, 255, 0.04)',
+              border: '1px solid var(--border-subtle)',
+              cursor: 'pointer',
             }}
           >
-            <Sparkles size={12} color="var(--accent-solar, #ff7a00)" />
+            <Sparkles size={12} color="#ffffff" />
             <span>AI Brain</span>
           </button>
           <button
-            onClick={toggleTheme}
+            type="button"
+            onClick={(e) => {
+              e.stopPropagation();
+              undo();
+            }}
             className="btn-ghost"
-            title={`Switch to ${theme === 'dark' ? 'Light' : 'Dark'} mode`}
-            style={{ padding: '6px', borderRadius: 'var(--radius-sm)' }}
+            title="Undo (⌘Z)"
+            style={{ cursor: 'pointer' }}
           >
-            {theme === 'dark' ? <Sun size={14} /> : <Moon size={14} />}
-          </button>
-          <button onClick={() => undo()} className="btn-ghost" title="Undo (⌘Z)">
             <Undo2 size={14} />
           </button>
-          <button onClick={() => redo()} className="btn-ghost" title="Redo (⌘⇧Z)">
+          <button
+            type="button"
+            onClick={(e) => {
+              e.stopPropagation();
+              redo();
+            }}
+            className="btn-ghost"
+            title="Redo (⌘⇧Z)"
+            style={{ cursor: 'pointer' }}
+          >
             <Redo2 size={14} />
           </button>
-          <button onClick={handleOpenCreate} className="btn-primary" style={{ padding: '6px 14px', fontSize: '12px' }} title="New Goal (⌘N)">
+          <button
+            type="button"
+            onClick={(e) => {
+              e.stopPropagation();
+              handleOpenCreate();
+            }}
+            className="btn-primary"
+            style={{ padding: '6px 14px', fontSize: '12px', cursor: 'pointer' }}
+            title="New Goal (⌘N)"
+          >
             <Plus size={14} />
             <span>New Goal</span>
           </button>
@@ -357,7 +365,11 @@ export const MainAppView: React.FC = () => {
 
       {/* Main Workspace: Goals View OR Focus Mode */}
       {viewMode === 'focus' ? (
-        <FocusDashboardView goals={goals} onOpenCreateGoal={handleOpenCreate} />
+        <FocusDashboardView
+          goals={goals}
+          initialGoalId={focusGoalId}
+          onOpenCreateGoal={handleOpenCreate}
+        />
       ) : (
         <div style={{ display: 'flex', flex: 1, overflow: 'hidden', position: 'relative', zIndex: 1 }}>
         {/* Goals Area */}
@@ -402,15 +414,16 @@ export const MainAppView: React.FC = () => {
                     position: 'absolute',
                     bottom: '-2px',
                     right: '-2px',
-                    backgroundColor: 'var(--accent-solar, #ff7a00)',
-                    color: '#07080b',
+                    backgroundColor: 'rgba(255, 255, 255, 0.12)',
+                    color: '#ffffff',
                     borderRadius: '9999px',
                     width: '18px',
                     height: '18px',
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
-                    boxShadow: '0 0 8px rgba(255, 122, 0, 0.4)',
+                    border: '1px solid rgba(255, 255, 255, 0.2)',
+                    boxShadow: '0 0 6px rgba(255, 255, 255, 0.15)',
                   }}
                   title="Click spirit to chat with AI"
                 >
@@ -435,7 +448,7 @@ export const MainAppView: React.FC = () => {
                 <span
                   onClick={() => setShowAIChat(true)}
                   style={{
-                    color: 'var(--accent-solar, #ff7a00)',
+                    color: 'var(--text-secondary)',
                     fontWeight: 600,
                     cursor: 'pointer',
                     display: 'inline-flex',
@@ -448,7 +461,7 @@ export const MainAppView: React.FC = () => {
                 {stats?.momentumDeltaPercent !== undefined && stats.momentumDeltaPercent !== 0 && (
                   <>
                     <span>•</span>
-                    <span style={{ color: stats.momentumDeltaPercent > 0 ? 'var(--accent-emerald)' : 'var(--accent-amber)', fontWeight: 500 }}>
+                    <span style={{ color: 'var(--text-secondary)', fontWeight: 500 }}>
                       Momentum {stats.momentumScore ?? 84} {stats.momentumDeltaPercent > 0 ? `↑ +${stats.momentumDeltaPercent}%` : `↓ ${stats.momentumDeltaPercent}%`} vs last month
                     </span>
                   </>
@@ -457,7 +470,7 @@ export const MainAppView: React.FC = () => {
               </div>
             </div>
 
-            <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flexShrink: 0 }}>
               <button
                 onClick={() => setShowAIChat(true)}
                 className="btn-ghost"
@@ -469,9 +482,9 @@ export const MainAppView: React.FC = () => {
                   gap: '5px',
                   fontSize: '11px',
                   fontWeight: 600,
-                  color: 'var(--accent-solar, #ff7a00)',
-                  backgroundColor: 'rgba(255, 122, 0, 0.1)',
-                  border: '1px solid rgba(255, 122, 0, 0.25)',
+                  color: '#ffffff',
+                  backgroundColor: 'rgba(255, 255, 255, 0.06)',
+                  border: '1px solid var(--border-subtle)',
                   cursor: 'pointer',
                 }}
                 title="Talk to Beacon Companion"
@@ -485,7 +498,7 @@ export const MainAppView: React.FC = () => {
                   style={{
                     width: `${Math.min(100, Math.round((stats?.overallProgressFraction ?? 0) * 100))}%`,
                     height: '100%',
-                    backgroundColor: 'var(--accent-beacon)',
+                    backgroundColor: '#ffffff',
                     borderRadius: '2px',
                     transition: 'width 0.3s ease',
                   }}
@@ -599,7 +612,7 @@ export const MainAppView: React.FC = () => {
                   color: 'var(--text-primary)',
                   fontSize: '12px',
                   outline: 'none',
-                  boxShadow: theme === 'light' ? 'var(--shadow-sm)' : 'none',
+                  boxShadow: 'none',
                 }}
               />
               {searchQuery && (
@@ -681,6 +694,10 @@ export const MainAppView: React.FC = () => {
                       onDelete={handlePromptDelete}
                       onEdit={handleOpenEdit}
                       onUpdateStreak={handleUpdateStreak}
+                      onOpenFocusMode={(goalId) => {
+                        setFocusGoalId(goalId);
+                        setViewMode('focus');
+                      }}
                       onMenuToggle={(isOpen) => {
                         setActiveMenuGoalId(isOpen ? g.id : null);
                       }}
@@ -696,6 +713,8 @@ export const MainAppView: React.FC = () => {
         <div
           style={{
             width: '280px',
+            minWidth: '280px',
+            flexShrink: 0,
             borderLeft: '1px solid var(--border-subtle)',
             backgroundColor: 'var(--bg-sidebar, rgba(7, 8, 11, 0.72))',
             backdropFilter: 'blur(24px)',
@@ -729,13 +748,13 @@ export const MainAppView: React.FC = () => {
               <span style={{ fontSize: '10px', fontWeight: 700, letterSpacing: '0.06em', textTransform: 'uppercase', color: 'var(--text-muted)' }}>
                 Today's Focus
               </span>
-              <span style={{ fontSize: '10px', fontWeight: 700, color: 'var(--accent-solar, #ff7a00)', letterSpacing: '0.02em' }}>
+              <span style={{ fontSize: '10px', fontWeight: 700, color: '#ffffff', letterSpacing: '0.02em' }}>
                 ✦ 2h 30m · 62%
               </span>
             </div>
 
             <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-              <GoalProgressRing progressFraction={0.62} size={42} strokeWidth={3.8} color="var(--accent-solar, #ff7a00)" />
+              <GoalProgressRing progressFraction={0.62} size={42} strokeWidth={3.8} color="#ffffff" />
               <div style={{ display: 'flex', flexDirection: 'column' }}>
                 <span style={{ fontSize: '10px', color: 'var(--text-secondary)', fontWeight: 500 }}>Deep Work Sprint</span>
                 <span style={{ fontSize: '16px', fontWeight: 700, color: 'var(--text-primary)', letterSpacing: '-0.02em' }}>2h 30m</span>
@@ -767,7 +786,7 @@ export const MainAppView: React.FC = () => {
               <span style={{ fontSize: '10px', fontWeight: 700, letterSpacing: '0.06em', textTransform: 'uppercase', color: 'var(--text-muted)' }}>
                 Weekly Rhythm
               </span>
-              <span style={{ fontSize: '10px', fontWeight: 700, color: 'var(--accent-solar, #ff7a00)', letterSpacing: '0.02em' }}>
+              <span style={{ fontSize: '10px', fontWeight: 700, color: '#ffffff', letterSpacing: '0.02em' }}>
                 +14% Pace
               </span>
             </div>

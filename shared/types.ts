@@ -240,7 +240,7 @@ export interface AppSettings {
   autoCollapseDelay: number;
   showInAllSpaces: boolean;
   globalShortcut: string;
-  theme: 'system' | 'dark' | 'light';
+  theme?: 'dark' | 'system';
   soundMode?: 'silent' | 'subtle' | 'full';
 }
 

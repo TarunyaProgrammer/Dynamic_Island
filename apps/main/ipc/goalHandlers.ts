@@ -31,13 +31,21 @@ export function registerIpcHandlers(
   const focusManager = new FocusSessionManager(goalService, activityEngine);
   const mediaService = new MediaService(activityEngine);
 
-  // Broadcast helper
-  const broadcastGoalsChanged = () => {
+  // Safe broadcast helper to prevent crashes when windows reload or close
+  const safeBroadcast = (channel: string, ...args: any[]) => {
     for (const win of BrowserWindow.getAllWindows()) {
-      if (!win.isDestroyed()) {
-        win.webContents.send(IPC_CHANNELS.EVENT_GOALS_CHANGED);
+      try {
+        if (!win.isDestroyed() && !win.webContents.isDestroyed() && !win.webContents.isCrashed()) {
+          win.webContents.send(channel, ...args);
+        }
+      } catch {
+        // Ignore errors if render frame was disposed during Vite HMR / reload
       }
     }
+  };
+
+  const broadcastGoalsChanged = () => {
+    safeBroadcast(IPC_CHANNELS.EVENT_GOALS_CHANGED);
   };
 
   // Initialize AI Orchestrator & Credential Vault
@@ -45,52 +53,28 @@ export function registerIpcHandlers(
   registerAIHandlers(goalService, focusManager, settingsRepo, credentialRepo, broadcastGoalsChanged);
 
   const broadcastSettingsChanged = (settings: AppSettings) => {
-    for (const win of BrowserWindow.getAllWindows()) {
-      if (!win.isDestroyed()) {
-        win.webContents.send(IPC_CHANNELS.EVENT_SETTINGS_CHANGED, settings);
-      }
-    }
+    safeBroadcast(IPC_CHANNELS.EVENT_SETTINGS_CHANGED, settings);
   };
 
   const broadcastActivitiesChanged = (stack: LiveActivity[]) => {
-    for (const win of BrowserWindow.getAllWindows()) {
-      if (!win.isDestroyed()) {
-        win.webContents.send(IPC_CHANNELS.EVENT_ACTIVITIES_CHANGED, stack);
-      }
-    }
+    safeBroadcast(IPC_CHANNELS.EVENT_ACTIVITIES_CHANGED, stack);
   };
 
   const broadcastFocusTick = (state: FocusSessionState) => {
-    for (const win of BrowserWindow.getAllWindows()) {
-      if (!win.isDestroyed()) {
-        win.webContents.send(IPC_CHANNELS.EVENT_FOCUS_TICK, state);
-      }
-    }
+    safeBroadcast(IPC_CHANNELS.EVENT_FOCUS_TICK, state);
   };
 
   const broadcastFocusCompleted = (event: FocusCompletedEvent) => {
     NotificationService.notifyFocusCompleted(event.goalName, event.durationMinutes);
-    for (const win of BrowserWindow.getAllWindows()) {
-      if (!win.isDestroyed()) {
-        win.webContents.send(IPC_CHANNELS.EVENT_FOCUS_COMPLETED, event);
-      }
-    }
+    safeBroadcast(IPC_CHANNELS.EVENT_FOCUS_COMPLETED, event);
   };
 
   const broadcastMediaChanged = (state: any) => {
-    for (const win of BrowserWindow.getAllWindows()) {
-      if (!win.isDestroyed()) {
-        win.webContents.send(IPC_CHANNELS.EVENT_MEDIA_CHANGED, state);
-      }
-    }
+    safeBroadcast(IPC_CHANNELS.EVENT_MEDIA_CHANGED, state);
   };
 
   const broadcastCompanionChanged = (event: CompanionEvent) => {
-    for (const win of BrowserWindow.getAllWindows()) {
-      if (!win.isDestroyed() && !win.webContents.isDestroyed()) {
-        win.webContents.send(IPC_CHANNELS.EVENT_COMPANION_CHANGED, event);
-      }
-    }
+    safeBroadcast(IPC_CHANNELS.EVENT_COMPANION_CHANGED, event);
   };
 
   goalService.subscribe(broadcastGoalsChanged);

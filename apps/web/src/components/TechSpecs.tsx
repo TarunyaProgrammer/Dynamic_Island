@@ -54,7 +54,9 @@ export const TechSpecs: React.FC = () => {
               <div
                 key={idx}
                 style={{
-                  backgroundColor: "#FFFFFF",
+                  backgroundColor: "var(--bg-card)",
+                  backdropFilter: "blur(16px)",
+                  WebkitBackdropFilter: "blur(16px)",
                   border: "1px solid var(--border-subtle)",
                   borderRadius: "16px",
                   padding: "24px",
@@ -66,15 +68,16 @@ export const TechSpecs: React.FC = () => {
                     width: "36px",
                     height: "36px",
                     borderRadius: "8px",
-                    backgroundColor: "#0F1117",
-                    boxShadow: "0 2px 8px rgba(15, 17, 23, 0.18)",
+                    backgroundColor: "rgba(56, 189, 248, 0.12)",
+                    border: "1px solid rgba(56, 189, 248, 0.25)",
+                    boxShadow: "0 2px 12px rgba(56, 189, 248, 0.15)",
                     display: "flex",
                     alignItems: "center",
                     justifyContent: "center",
                     marginBottom: "16px",
                   }}
                 >
-                  <Icon size={18} color="var(--accent-solar)" />
+                  <Icon size={18} color="var(--accent-cyan)" />
                 </div>
                 <h3 style={{ fontSize: "16px", fontWeight: 700, color: "var(--text-ink)", marginBottom: "6px" }}>
                   {s.title}

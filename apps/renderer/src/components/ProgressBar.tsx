@@ -10,7 +10,7 @@ interface ProgressBarProps {
 export const ProgressBar: React.FC<ProgressBarProps> = ({
   progressFraction,
   height = 6,
-  color = 'var(--accent-primary)',
+  color = '#ffffff',
 }) => {
   const percent = Math.min(100, Math.max(0, Math.round(progressFraction * 100)));
   const isComplete = progressFraction >= 1.0;
@@ -30,7 +30,7 @@ export const ProgressBar: React.FC<ProgressBarProps> = ({
         style={{
           width: `${percent}%`,
           height: '100%',
-          backgroundColor: isComplete ? 'var(--accent-emerald)' : color,
+          backgroundColor: isComplete ? 'var(--accent-solar, #ff7a00)' : color,
           borderRadius: 9999,
           transition: 'width 0.3s cubic-bezier(0.16, 1, 0.3, 1), background-color 0.3s ease',
         }}
