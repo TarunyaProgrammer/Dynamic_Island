@@ -9,6 +9,7 @@ export const DEFAULT_SETTINGS: AppSettings = {
   showInAllSpaces: true,
   globalShortcut: 'CommandOrControl+Shift+B',
   theme: 'dark',
+  onboardingCompleted: false,
 };
 
 export class SettingsRepository {

@@ -76,6 +76,94 @@ export interface CheckIn {
   timestamp: string;   // Full ISO timestamp
 }
 
+// ─── Daily Execution Layer ──────────────────────────────────────────────────
+
+/** A visible, completable next step belonging to exactly one goal. */
+export type GoalActionStatus = 'open' | 'completed' | 'skipped' | 'archived';
+export type GoalActionSource = 'manual' | 'onboarding' | 'reminder' | 'calendar' | 'automation';
+export type TodayPlanBucket = 'today' | 'later';
+
+export interface GoalAction {
+  id: string;
+  goalId: string;
+  title: string;
+  status: GoalActionStatus;
+  plannedDate?: string;
+  scheduledStart?: string;
+  scheduledEnd?: string;
+  estimatedMinutes?: number;
+  source: GoalActionSource;
+  externalLink?: string;
+  /** Stable provider ID prevents importing the same Apple Reminder twice. */
+  externalSourceId?: string;
+  createdAt: string;
+  updatedAt: string;
+  completedAt?: string;
+  skippedAt?: string;
+  skipReason?: SkipReason;
+}
+
+export interface TodayPlanEntry {
+  actionId: string;
+  sortOrder: number;
+  bucket: TodayPlanBucket;
+}
+
+export interface TodayPlan {
+  date: string;
+  intention?: string;
+  entries: TodayPlanEntry[];
+  completedAt?: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+/** Persisted now so reminders can be introduced without a disruptive migration. */
+export interface ReminderPolicy {
+  goalId: string;
+  enabled: boolean;
+  time?: string;
+  weekdays?: Weekday[];
+  onlyWhenIncomplete: boolean;
+  quietStart?: string;
+  quietEnd?: string;
+  updatedAt: string;
+}
+
+export interface CalendarContextEvent { id: string; title: string; start: string; end: string; calendar: string; }
+export interface ExternalReminder { id: string; title: string; dueDate?: string; list: string; }
+
+/** Append-only unit for future multi-device sync; never sync the SQLite file. */
+export interface SyncOperation {
+  id: string;
+  deviceId: string;
+  sequence: number;
+  entityType: 'goal' | 'action' | 'today-plan' | 'reminder-policy' | 'milestone' | 'check-in' | 'progress-event' | 'focus-session';
+  entityId: string;
+  kind: 'upsert' | 'delete';
+  payload?: Record<string, unknown>;
+  createdAt: string;
+  acknowledgedAt?: string;
+}
+
+export interface WeeklyReviewGoal {
+  goalId: string;
+  goalName: string;
+  completedCheckIns: number;
+  progressEvents: number;
+  trajectory: string;
+}
+
+export interface WeeklyReview {
+  weekEnding: string;
+  commitmentsKept: number;
+  commitmentsTotal: number;
+  focusMinutes: number;
+  friction: string[];
+  adjustment: string;
+  goals: WeeklyReviewGoal[];
+}
+
 // ─── Goal Health ─────────────────────────────────────────────────────────────
 
 export type GoalHealthStatus = 'on_track' | 'ahead' | 'at_risk' | 'behind' | 'paused' | 'completed';
@@ -242,6 +330,8 @@ export interface AppSettings {
   globalShortcut: string;
   theme?: 'dark' | 'system';
   soundMode?: 'silent' | 'subtle' | 'full';
+  /** Kept locally; setup never requires a Beacon account. */
+  onboardingCompleted?: boolean;
 }
 
 export interface BeaconStats {
@@ -280,6 +370,7 @@ export interface LiveActivity {
 
 export interface FocusSessionState {
   goalId?: string;
+  actionId?: string;
   goalName?: string;
   durationSeconds: number;
   remainingSeconds: number;
@@ -289,6 +380,7 @@ export interface FocusSessionState {
 
 export interface FocusCompletedEvent {
   goalId?: string;
+  actionId?: string;
   goalName?: string;
   durationMinutes: number;
   timestamp: string;
@@ -298,6 +390,8 @@ export interface MediaActivityState {
   title: string;
   artist: string;
   album?: string;
+  /** Artwork supplied by a trusted media provider, when one is available. */
+  artworkUrl?: string;
   isPlaying: boolean;
   progressSeconds: number;
   durationSeconds: number;

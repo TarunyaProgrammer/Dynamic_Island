@@ -67,6 +67,25 @@ describe('GoalService & Domain Engine', () => {
     expect(finished.status).toBe('completed');
   });
 
+  it('reopens a completed goal when editing moves its progress below target', () => {
+    const goal = service.createGoal({ name: 'Finish draft', type: 'count', targetValue: 10, currentValue: 10 });
+    expect(service.getGoal(goal.id)?.status).toBe('active');
+    service.completeGoal(goal.id);
+
+    const reopened = service.updateGoal(goal.id, { currentValue: 7 });
+    expect(reopened.status).toBe('active');
+    expect(reopened.currentValue).toBe(7);
+  });
+
+  it('honors an explicit active status when reopening a completed goal', () => {
+    const goal = service.createGoal({ name: 'Keep practising', type: 'count', targetValue: 10, currentValue: 10 });
+    service.completeGoal(goal.id);
+
+    const reopened = service.updateGoal(goal.id, { status: 'active' });
+    expect(reopened.status).toBe('active');
+    expect(reopened.currentValue).toBe(10);
+  });
+
   it('supports undo and redo for progress changes', () => {
     const goal = service.createGoal({
       name: 'Practice Guitar',
@@ -114,6 +133,38 @@ describe('GoalService & Domain Engine', () => {
     // Toggle milestone 1 off
     const afterM1Off = service.toggleMilestone(goal.id, m1.id);
     expect(afterM1Off.currentValue).toBe(50);
+  });
+
+  it('records durable operation-log events for progress, check-ins, and milestones', () => {
+    const operations: Array<{ entityType: string; kind: string }> = [];
+    const synced = new GoalService(repo, undefined, { record: (operation) => operations.push(operation) });
+    const goal = synced.createGoal({ name: 'Ship the loop', type: 'numeric', targetValue: 10, defaultIncrement: 1 });
+    const milestone = synced.addMilestone(goal.id, 'Write tests', 1);
+    synced.incrementProgress(goal.id, 1);
+    synced.checkIn(goal.id, 'completed');
+    synced.deleteMilestone(goal.id, milestone.id);
+
+    expect(operations).toEqual(expect.arrayContaining([
+      expect.objectContaining({ entityType: 'goal', kind: 'upsert' }),
+      expect.objectContaining({ entityType: 'milestone', kind: 'upsert' }),
+      expect.objectContaining({ entityType: 'milestone', kind: 'delete' }),
+      expect.objectContaining({ entityType: 'progress-event', kind: 'upsert' }),
+      expect.objectContaining({ entityType: 'check-in', kind: 'upsert' }),
+    ]));
+  });
+
+  it('records an event tombstone on undo and an upsert on redo', () => {
+    const operations: Array<{ entityType: string; entityId: string; kind: string }> = [];
+    const synced = new GoalService(repo, undefined, { record: (operation) => operations.push(operation) });
+    const goal = synced.createGoal({ name: 'Keep history true', type: 'numeric', targetValue: 10, defaultIncrement: 1 });
+    synced.incrementProgress(goal.id, 1);
+    const eventId = synced.getHistory(goal.id)[0].id;
+
+    synced.undo();
+    expect(operations).toContainEqual(expect.objectContaining({ entityType: 'progress-event', entityId: eventId, kind: 'delete' }));
+
+    synced.redo();
+    expect(operations).toContainEqual(expect.objectContaining({ entityType: 'progress-event', entityId: eventId, kind: 'upsert' }));
   });
 
   it('calculates aggregated stats correctly', () => {

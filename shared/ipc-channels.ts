@@ -12,6 +12,34 @@ export const IPC_CHANNELS = {
   GOALS_COMPLETE: 'beacon:goals:complete',
   GOALS_ARCHIVE: 'beacon:goals:archive',
 
+  // Goal-owned next actions and daily plan
+  ACTIONS_LIST_FOR_GOAL: 'beacon:actions:list-for-goal',
+  ACTIONS_LIST_OPEN_FOR_GOALS: 'beacon:actions:list-open-for-goals',
+  ACTIONS_GET: 'beacon:actions:get',
+  ACTIONS_CREATE: 'beacon:actions:create',
+  ACTIONS_UPDATE: 'beacon:actions:update',
+  ACTIONS_COMPLETE: 'beacon:actions:complete',
+  ACTIONS_SKIP: 'beacon:actions:skip',
+  ACTIONS_ARCHIVE: 'beacon:actions:archive',
+  TODAY_GET: 'beacon:today:get',
+  TODAY_PLAN_ACTION: 'beacon:today:plan-action',
+  TODAY_MOVE_ACTION: 'beacon:today:move-action',
+  TODAY_REMOVE_ACTION: 'beacon:today:remove-action',
+  TODAY_RESCHEDULE_ACTION: 'beacon:today:reschedule-action',
+
+  // Per-goal quiet reminder policies
+  REMINDERS_GET_POLICY: 'beacon:reminders:get-policy',
+  REMINDERS_SAVE_POLICY: 'beacon:reminders:save-policy',
+  WEEKLY_REVIEW_GET: 'beacon:weekly-review:get',
+  DATA_CREATE_BACKUP: 'beacon:data:create-backup',
+  DATA_EXPORT_JSON: 'beacon:data:export-json',
+  DATA_PREVIEW_IMPORT: 'beacon:data:preview-import',
+  DATA_IMPORT_JSON: 'beacon:data:import-json',
+  DATA_EXPORT_CSV: 'beacon:data:export-csv',
+  APPLE_CALENDAR_TODAY: 'beacon:apple:calendar-today',
+  APPLE_REMINDERS_LIST: 'beacon:apple:reminders-list',
+  APPLE_REMINDERS_IMPORT: 'beacon:apple:reminders-import',
+
   // Milestones
   MILESTONES_CREATE: 'beacon:milestones:create',
   MILESTONES_TOGGLE: 'beacon:milestones:toggle',
@@ -54,6 +82,8 @@ export const IPC_CHANNELS = {
   MEDIA_NEXT: 'beacon:media:next',
   MEDIA_PREVIOUS: 'beacon:media:previous',
   MEDIA_SET_VOLUME: 'beacon:media:set-volume',
+  MEDIA_GET_BROWSER_CONNECTION: 'beacon:media:get-browser-connection',
+  MEDIA_COPY_BROWSER_CONNECTION: 'beacon:media:copy-browser-connection',
 
   // Companion Presence
   COMPANION_EMIT: 'beacon:companion:emit',
@@ -68,12 +98,15 @@ export const IPC_CHANNELS = {
 
   // Broadcast Events (Main -> Renderer)
   EVENT_GOALS_CHANGED: 'beacon:event:goals-changed',
+  EVENT_TODAY_CHANGED: 'beacon:event:today-changed',
+  EVENT_REMINDERS_CHANGED: 'beacon:event:reminders-changed',
   EVENT_SETTINGS_CHANGED: 'beacon:event:settings-changed',
   EVENT_ACTIVITIES_CHANGED: 'beacon:event:activities-changed',
   EVENT_FOCUS_TICK: 'beacon:event:focus-tick',
   EVENT_FOCUS_COMPLETED: 'beacon:event:focus-completed',
   EVENT_MEDIA_CHANGED: 'beacon:event:media-changed',
   EVENT_COMPANION_CHANGED: 'beacon:event:companion-changed',
+  EVENT_NAVIGATE: 'beacon:event:navigate',
 } as const;
 
 export type IpcChannel = (typeof IPC_CHANNELS)[keyof typeof IPC_CHANNELS];

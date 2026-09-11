@@ -44,7 +44,7 @@ export class FocusSessionManager {
     return { ...this.state };
   }
 
-  start(durationMinutes = 25, goalId?: string): FocusSessionState {
+  start(durationMinutes = 25, goalId?: string, actionId?: string): FocusSessionState {
     this.stop();
 
     let goalName: string | undefined;
@@ -58,6 +58,7 @@ export class FocusSessionManager {
     const durationSeconds = Math.max(60, durationMinutes * 60);
     this.state = {
       goalId,
+      actionId,
       goalName,
       durationSeconds,
       remainingSeconds: durationSeconds,
@@ -173,12 +174,14 @@ export class FocusSessionManager {
       // Completed!
       const totalMins = Math.round(this.state.durationSeconds / 60);
       const goalId = this.state.goalId;
+      const actionId = this.state.actionId;
       const goalName = this.state.goalName;
 
       this.stop(true);
 
       const completionEvent: FocusCompletedEvent = {
         goalId,
+        actionId,
         goalName,
         durationMinutes: totalMins,
         timestamp: new Date().toISOString(),

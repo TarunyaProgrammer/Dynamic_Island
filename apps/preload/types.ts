@@ -1,5 +1,5 @@
 // apps/preload/types.ts - Typed Preload Bridge Interface
-import { AppSettings, BeaconStats, CompanionEvent, Goal, GoalDraft, GoalStatus, GoalUpdateDraft, Milestone, ProgressEvent } from '@shared/types';
+import { AppSettings, BeaconStats, CalendarContextEvent, CompanionEvent, ExternalReminder, Goal, GoalAction, GoalDraft, GoalStatus, GoalUpdateDraft, Milestone, ProgressEvent, ReminderPolicy, SkipReason, TodayPlan, TodayPlanBucket, WeeklyReview } from '@shared/types';
 
 export interface BeaconApi {
   // Goal CRUD & Progress
@@ -14,6 +14,40 @@ export interface BeaconApi {
     increment: (goalId: string, delta?: number, note?: string) => Promise<Goal>;
     setProgress: (goalId: string, value: number, note?: string) => Promise<Goal>;
   };
+
+  actions: {
+    get: (id: string) => Promise<GoalAction | null>;
+    listForGoal: (goalId: string) => Promise<GoalAction[]>;
+    listOpenForGoals: (goalIds: string[]) => Promise<GoalAction[]>;
+    create: (input: { goalId: string; title: string; plannedDate?: string; estimatedMinutes?: number }) => Promise<GoalAction>;
+    update: (id: string, input: { title?: string; plannedDate?: string; estimatedMinutes?: number }) => Promise<GoalAction>;
+    complete: (id: string) => Promise<GoalAction>;
+    skip: (id: string, reason?: SkipReason) => Promise<GoalAction>;
+    archive: (id: string) => Promise<GoalAction>;
+  };
+
+  today: {
+    get: (date?: string) => Promise<TodayPlan>;
+    planAction: (actionId: string, date?: string) => Promise<TodayPlan>;
+    moveAction: (actionId: string, bucket: TodayPlanBucket, date?: string) => Promise<TodayPlan>;
+    removeAction: (actionId: string, date?: string) => Promise<TodayPlan>;
+    rescheduleAction: (actionId: string, targetDate: string, sourceDate?: string) => Promise<TodayPlan>;
+  };
+
+  reminders: {
+    getPolicy: (goalId: string) => Promise<ReminderPolicy | null>;
+    savePolicy: (policy: Omit<ReminderPolicy, 'updatedAt'>) => Promise<ReminderPolicy>;
+  };
+
+  review: { getWeekly: () => Promise<WeeklyReview>; };
+  data: {
+    createBackup: () => Promise<string>;
+    exportJson: () => Promise<string | null>;
+    exportCsv: (kind: 'goals' | 'progress') => Promise<string | null>;
+    previewImport: () => Promise<{ filePath: string; version: number; exportedAt: string; counts: Record<string, number> } | null>;
+    importJson: (filePath: string) => Promise<void>;
+  };
+  apple: { calendarToday: () => Promise<CalendarContextEvent[]>; reminders: () => Promise<ExternalReminder[]>; importReminder: (goalId: string, reminder: ExternalReminder) => Promise<GoalAction>; };
 
   // Milestones
   milestones: {
@@ -49,7 +83,7 @@ export interface BeaconApi {
 
   // Focus Sessions
   focus: {
-    start: (durationMinutes?: number, goalId?: string) => Promise<import('@shared/types').FocusSessionState>;
+    start: (durationMinutes?: number, goalId?: string, actionId?: string) => Promise<import('@shared/types').FocusSessionState>;
     pause: () => Promise<import('@shared/types').FocusSessionState>;
     resume: () => Promise<import('@shared/types').FocusSessionState>;
     stop: (commitProgress?: boolean) => Promise<import('@shared/types').FocusSessionState>;
@@ -64,6 +98,8 @@ export interface BeaconApi {
     next: () => Promise<import('@shared/types').MediaActivityState>;
     previous: () => Promise<import('@shared/types').MediaActivityState>;
     setVolume: (volume: number) => Promise<import('@shared/types').MediaActivityState>;
+    getBrowserConnection: () => Promise<{ port: number; token: string }>;
+    copyBrowserConnection: () => Promise<{ port: number }>;
   };
 
   // Companion Presence
@@ -93,6 +129,9 @@ export interface BeaconApi {
 
   // Event Subscriptions
   onGoalsChanged: (callback: () => void) => () => void;
+  onTodayChanged: (callback: () => void) => () => void;
+  onNavigate: (callback: (surface: 'today' | 'goals' | 'focus' | 'review') => void) => () => void;
+  onRemindersChanged: (callback: () => void) => () => void;
   onSettingsChanged: (callback: (settings: AppSettings) => void) => () => void;
   onActivitiesChanged: (callback: (stack: import('@shared/types').LiveActivity[]) => void) => () => void;
   onFocusTick: (callback: (state: import('@shared/types').FocusSessionState) => void) => () => void;

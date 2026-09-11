@@ -19,6 +19,45 @@ const api: BeaconApi = {
       ipcRenderer.invoke(IPC_CHANNELS.GOALS_SET_PROGRESS, goalId, value, note),
   },
 
+  actions: {
+    get: (id: string) => ipcRenderer.invoke(IPC_CHANNELS.ACTIONS_GET, id),
+    listForGoal: (goalId: string) => ipcRenderer.invoke(IPC_CHANNELS.ACTIONS_LIST_FOR_GOAL, goalId),
+    listOpenForGoals: (goalIds: string[]) => ipcRenderer.invoke(IPC_CHANNELS.ACTIONS_LIST_OPEN_FOR_GOALS, goalIds),
+    create: (input: any) => ipcRenderer.invoke(IPC_CHANNELS.ACTIONS_CREATE, input),
+    update: (id: string, input: any) => ipcRenderer.invoke(IPC_CHANNELS.ACTIONS_UPDATE, id, input),
+    complete: (id: string) => ipcRenderer.invoke(IPC_CHANNELS.ACTIONS_COMPLETE, id),
+    skip: (id: string, reason?: any) => ipcRenderer.invoke(IPC_CHANNELS.ACTIONS_SKIP, id, reason),
+    archive: (id: string) => ipcRenderer.invoke(IPC_CHANNELS.ACTIONS_ARCHIVE, id),
+  },
+
+  today: {
+    get: (date?: string) => ipcRenderer.invoke(IPC_CHANNELS.TODAY_GET, date),
+    planAction: (actionId: string, date?: string) => ipcRenderer.invoke(IPC_CHANNELS.TODAY_PLAN_ACTION, actionId, date),
+    moveAction: (actionId: string, bucket: any, date?: string) => ipcRenderer.invoke(IPC_CHANNELS.TODAY_MOVE_ACTION, actionId, bucket, date),
+    removeAction: (actionId: string, date?: string) => ipcRenderer.invoke(IPC_CHANNELS.TODAY_REMOVE_ACTION, actionId, date),
+    rescheduleAction: (actionId: string, targetDate: string, sourceDate?: string) => ipcRenderer.invoke(IPC_CHANNELS.TODAY_RESCHEDULE_ACTION, actionId, targetDate, sourceDate),
+  },
+
+  reminders: {
+    getPolicy: (goalId: string) => ipcRenderer.invoke(IPC_CHANNELS.REMINDERS_GET_POLICY, goalId),
+    savePolicy: (policy: any) => ipcRenderer.invoke(IPC_CHANNELS.REMINDERS_SAVE_POLICY, policy),
+  },
+
+  review: { getWeekly: () => ipcRenderer.invoke(IPC_CHANNELS.WEEKLY_REVIEW_GET) },
+
+  data: {
+    createBackup: () => ipcRenderer.invoke(IPC_CHANNELS.DATA_CREATE_BACKUP),
+    exportJson: () => ipcRenderer.invoke(IPC_CHANNELS.DATA_EXPORT_JSON),
+    exportCsv: (kind: 'goals' | 'progress') => ipcRenderer.invoke(IPC_CHANNELS.DATA_EXPORT_CSV, kind),
+    previewImport: () => ipcRenderer.invoke(IPC_CHANNELS.DATA_PREVIEW_IMPORT),
+    importJson: (filePath: string) => ipcRenderer.invoke(IPC_CHANNELS.DATA_IMPORT_JSON, filePath),
+  },
+  apple: {
+    calendarToday: () => ipcRenderer.invoke(IPC_CHANNELS.APPLE_CALENDAR_TODAY),
+    reminders: () => ipcRenderer.invoke(IPC_CHANNELS.APPLE_REMINDERS_LIST),
+    importReminder: (goalId: string, reminder: any) => ipcRenderer.invoke(IPC_CHANNELS.APPLE_REMINDERS_IMPORT, goalId, reminder),
+  },
+
   milestones: {
     create: (goalId: string, title: string, targetContribution?: number) =>
       ipcRenderer.invoke(IPC_CHANNELS.MILESTONES_CREATE, goalId, title, targetContribution),
@@ -51,8 +90,8 @@ const api: BeaconApi = {
   },
 
   focus: {
-    start: (durationMinutes?: number, goalId?: string) =>
-      ipcRenderer.invoke(IPC_CHANNELS.FOCUS_START, durationMinutes, goalId),
+    start: (durationMinutes?: number, goalId?: string, actionId?: string) =>
+      ipcRenderer.invoke(IPC_CHANNELS.FOCUS_START, durationMinutes, goalId, actionId),
     pause: () => ipcRenderer.invoke(IPC_CHANNELS.FOCUS_PAUSE),
     resume: () => ipcRenderer.invoke(IPC_CHANNELS.FOCUS_RESUME),
     stop: (commitProgress?: boolean) => ipcRenderer.invoke(IPC_CHANNELS.FOCUS_STOP, commitProgress),
@@ -66,6 +105,9 @@ const api: BeaconApi = {
     next: () => ipcRenderer.invoke(IPC_CHANNELS.MEDIA_NEXT),
     previous: () => ipcRenderer.invoke(IPC_CHANNELS.MEDIA_PREVIOUS),
     setVolume: (volume: number) => ipcRenderer.invoke(IPC_CHANNELS.MEDIA_SET_VOLUME, volume),
+    // Credentials are requested only from an explicit pairing action in the renderer.
+    getBrowserConnection: () => ipcRenderer.invoke(IPC_CHANNELS.MEDIA_GET_BROWSER_CONNECTION),
+    copyBrowserConnection: () => ipcRenderer.invoke(IPC_CHANNELS.MEDIA_COPY_BROWSER_CONNECTION),
   },
 
   companion: {
@@ -97,6 +139,24 @@ const api: BeaconApi = {
     return () => {
       ipcRenderer.removeListener(IPC_CHANNELS.EVENT_GOALS_CHANGED, handler);
     };
+  },
+
+  onTodayChanged: (callback: () => void) => {
+    const handler = () => callback();
+    ipcRenderer.on(IPC_CHANNELS.EVENT_TODAY_CHANGED, handler);
+    return () => ipcRenderer.removeListener(IPC_CHANNELS.EVENT_TODAY_CHANGED, handler);
+  },
+
+  onNavigate: (callback: (surface: 'today' | 'goals' | 'focus' | 'review') => void) => {
+    const handler = (_: any, surface: 'today' | 'goals' | 'focus' | 'review') => callback(surface);
+    ipcRenderer.on(IPC_CHANNELS.EVENT_NAVIGATE, handler);
+    return () => ipcRenderer.removeListener(IPC_CHANNELS.EVENT_NAVIGATE, handler);
+  },
+
+  onRemindersChanged: (callback: () => void) => {
+    const handler = () => callback();
+    ipcRenderer.on(IPC_CHANNELS.EVENT_REMINDERS_CHANGED, handler);
+    return () => ipcRenderer.removeListener(IPC_CHANNELS.EVENT_REMINDERS_CHANGED, handler);
   },
 
   onSettingsChanged: (callback: (settings: AppSettings) => void) => {

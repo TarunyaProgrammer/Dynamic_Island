@@ -12,6 +12,7 @@ import {
   ProgressEvent,
   SkipReason,
   StreakConfig,
+  SyncOperation,
 } from '@shared/types';
 import { GoalEntity } from '../models/goal';
 import { MilestoneEntity } from '../models/milestone';
@@ -20,6 +21,8 @@ import { UndoManager } from '../history/undo-manager';
 import { StreakEngine } from './streak-engine';
 import { HealthCalculator } from './health-calculator';
 import { randomUUID } from 'crypto';
+import { toLocalDate } from '../time/local-date';
+import { OperationRecorder } from '../sync/operation-recorder';
 
 export class GoalService {
   private undoManager: UndoManager;
@@ -27,7 +30,8 @@ export class GoalService {
 
   constructor(
     private repository: IGoalRepository,
-    undoManager?: UndoManager
+    undoManager?: UndoManager,
+    private readonly operationRecorder?: OperationRecorder,
   ) {
     this.undoManager = undoManager || new UndoManager();
   }
@@ -45,6 +49,10 @@ export class GoalService {
         console.error('Error notifying change listener:', err);
       }
     }
+  }
+
+  private record(entityType: SyncOperation['entityType'], kind: 'upsert' | 'delete', entityId: string, payload?: Record<string, unknown>): void {
+    this.operationRecorder?.record({ entityType, entityId, kind, payload });
   }
 
   listGoals(status?: GoalStatus): Goal[] {
@@ -68,6 +76,7 @@ export class GoalService {
 
     const entity = GoalEntity.createFromDraft(draft);
     this.repository.saveGoal(entity);
+    this.record('goal', 'upsert', entity.id, entity as unknown as Record<string, unknown>);
     this.notify();
     return entity;
   }
@@ -100,11 +109,15 @@ export class GoalService {
       updatedAt: new Date().toISOString(),
     };
 
-    if (updated.targetValue > 0 && updated.currentValue >= updated.targetValue && updated.status === 'active') {
-      updated.status = 'completed';
+    // An explicit lifecycle choice is authoritative. This lets a user reopen a
+    // completed goal to keep working beyond its original target; automatic
+    // completion only applies when the status was not deliberately edited.
+    if (update.status === undefined && updated.status !== 'archived' && updated.status !== 'paused' && updated.targetValue > 0) {
+      updated.status = updated.currentValue >= updated.targetValue ? 'completed' : 'active';
     }
 
     this.repository.saveGoal(updated);
+    this.record('goal', 'upsert', updated.id, updated as unknown as Record<string, unknown>);
     this.notify();
     return updated;
   }
@@ -112,6 +125,7 @@ export class GoalService {
   deleteGoal(id: string): boolean {
     const success = this.repository.deleteGoal(id);
     if (success) {
+      this.record('goal', 'delete', id);
       this.notify();
     }
     return success;
@@ -142,6 +156,7 @@ export class GoalService {
 
     const event = ProgressEventEntity.create(goalId, prev, inc, note);
     this.repository.saveProgressEvent(event);
+    this.record('progress-event', 'upsert', event.id, event as unknown as Record<string, unknown>);
 
     this.undoManager.record({
       type: 'progress',
@@ -159,7 +174,7 @@ export class GoalService {
     // Auto-update streak when progress is recorded
     let streakConfig = goal.streakConfig;
     if (streakConfig?.enabled && next > prev) {
-      const today = new Date().toISOString().slice(0, 10);
+      const today = toLocalDate();
       const checkIn: CheckIn = {
         id: randomUUID(),
         goalId,
@@ -170,6 +185,7 @@ export class GoalService {
         timestamp: new Date().toISOString(),
       };
       this.repository.saveCheckIn(checkIn);
+      this.record('check-in', 'upsert', checkIn.id, checkIn as unknown as Record<string, unknown>);
       const allCheckIns = this.repository.getCheckIns(goalId);
       const result = StreakEngine.calculate(
         allCheckIns,
@@ -189,6 +205,7 @@ export class GoalService {
     };
 
     this.repository.saveGoal(updated);
+    this.record('goal', 'upsert', updated.id, updated as unknown as Record<string, unknown>);
     this.notify();
     return updated;
   }
@@ -203,6 +220,7 @@ export class GoalService {
 
     const event = ProgressEventEntity.create(goalId, prev, delta, note);
     this.repository.saveProgressEvent(event);
+    this.record('progress-event', 'upsert', event.id, event as unknown as Record<string, unknown>);
 
     this.undoManager.record({
       type: 'progress',
@@ -220,7 +238,7 @@ export class GoalService {
     // Auto-update streak when progress advances
     let streakConfig = goal.streakConfig;
     if (streakConfig?.enabled && next > prev) {
-      const today = new Date().toISOString().slice(0, 10);
+      const today = toLocalDate();
       const checkIn: CheckIn = {
         id: randomUUID(),
         goalId,
@@ -231,6 +249,7 @@ export class GoalService {
         timestamp: new Date().toISOString(),
       };
       this.repository.saveCheckIn(checkIn);
+      this.record('check-in', 'upsert', checkIn.id, checkIn as unknown as Record<string, unknown>);
       const allCheckIns = this.repository.getCheckIns(goalId);
       const result = StreakEngine.calculate(
         allCheckIns,
@@ -250,6 +269,7 @@ export class GoalService {
     };
 
     this.repository.saveGoal(updated);
+    this.record('goal', 'upsert', updated.id, updated as unknown as Record<string, unknown>);
     this.notify();
     return updated;
   }
@@ -260,6 +280,7 @@ export class GoalService {
 
     const milestone = MilestoneEntity.create(goalId, title, targetContribution);
     this.repository.saveMilestone(milestone);
+    this.record('milestone', 'upsert', milestone.id, milestone as unknown as Record<string, unknown>);
     this.notify();
     return milestone;
   }
@@ -273,6 +294,7 @@ export class GoalService {
 
     const toggled = new MilestoneEntity(milestone).toggle();
     this.repository.saveMilestone(toggled);
+    this.record('milestone', 'upsert', toggled.id, toggled as unknown as Record<string, unknown>);
 
     // If milestone has targetContribution, auto-adjust goal currentValue
     let currentVal = goal.currentValue;
@@ -288,6 +310,7 @@ export class GoalService {
     if (currentVal !== goal.currentValue) {
       updatedGoal.currentValue = currentVal;
       this.repository.saveGoal(updatedGoal);
+      this.record('goal', 'upsert', updatedGoal.id, updatedGoal as unknown as Record<string, unknown>);
     }
 
     this.notify();
@@ -296,6 +319,7 @@ export class GoalService {
 
   deleteMilestone(goalId: string, milestoneId: string): Goal {
     this.repository.deleteMilestone(milestoneId);
+    this.record('milestone', 'delete', milestoneId);
     const updated = this.repository.getGoalById(goalId);
     if (!updated) throw new Error(`Goal not found: ${goalId}`);
     this.notify();
@@ -317,7 +341,7 @@ export class GoalService {
     const goal = this.repository.getGoalById(goalId);
     if (!goal) throw new Error(`Goal not found: ${goalId}`);
 
-    const today = options.date ?? new Date().toISOString().split('T')[0];
+    const today = options.date ?? toLocalDate();
     const checkIn: CheckIn = {
       id: randomUUID(),
       goalId,
@@ -330,6 +354,7 @@ export class GoalService {
     };
 
     this.repository.saveCheckIn(checkIn);
+    this.record('check-in', 'upsert', checkIn.id, checkIn as unknown as Record<string, unknown>);
 
     // Recalculate streak
     if (goal.streakConfig?.enabled) {
@@ -355,6 +380,7 @@ export class GoalService {
         updatedAt: new Date().toISOString(),
       };
       this.repository.saveGoal(updatedGoal);
+      this.record('goal', 'upsert', updatedGoal.id, updatedGoal as unknown as Record<string, unknown>);
       this.notify();
       return { goal: updatedGoal, checkIn };
     }
@@ -396,6 +422,8 @@ export class GoalService {
 
     this.repository.saveGoal(goal);
     this.repository.deleteProgressEvent(action.event.id);
+    this.record('goal', 'upsert', goal.id, goal as unknown as Record<string, unknown>);
+    this.record('progress-event', 'delete', action.event.id);
     this.notify();
     return true;
   }
@@ -415,6 +443,8 @@ export class GoalService {
 
     this.repository.saveGoal(goal);
     this.repository.saveProgressEvent(action.event);
+    this.record('goal', 'upsert', goal.id, goal as unknown as Record<string, unknown>);
+    this.record('progress-event', 'upsert', action.event.id, action.event as unknown as Record<string, unknown>);
     this.notify();
     return true;
   }
