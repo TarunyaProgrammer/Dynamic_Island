@@ -4,7 +4,23 @@ const sessions = new Map();
 let socket;
 let settings;
 let reconnectTimer;
-function setConnectionState(connectionState) { chrome.storage.local.set({ connectionState }).catch(() => undefined); }
+function setConnectionState(connectionState) {
+  chrome.storage.local.set({ connectionState }).catch(() => undefined);
+  if (chrome.action?.setBadgeText) {
+    if (connectionState === 'connected') {
+      chrome.action.setBadgeText({ text: 'ON' }).catch(() => undefined);
+      chrome.action.setBadgeBackgroundColor({ color: '#10B981' }).catch(() => undefined);
+    } else if (connectionState === 'connecting') {
+      chrome.action.setBadgeText({ text: '…' }).catch(() => undefined);
+      chrome.action.setBadgeBackgroundColor({ color: '#F59E0B' }).catch(() => undefined);
+    } else if (connectionState === 'rejected') {
+      chrome.action.setBadgeText({ text: '!' }).catch(() => undefined);
+      chrome.action.setBadgeBackgroundColor({ color: '#EF4444' }).catch(() => undefined);
+    } else {
+      chrome.action.setBadgeText({ text: '' }).catch(() => undefined);
+    }
+  }
+}
 
 async function getSettings() {
   if (!settings) settings = (await chrome.storage.local.get(['port', 'token']));
@@ -67,6 +83,38 @@ chrome.runtime.onMessage.addListener((message, sender, respond) => {
   if (message.type === 'beacon-session-removed' && sender.tab && Number.isInteger(sender.frameId)) { const id = targetId(sender); sessions.delete(id); send({ type: 'session-removed', targetId: id }); }
   if (message.type === 'beacon-enable-active-tab') {
     chrome.tabs.query({ active: true, currentWindow: true }).then(([tab]) => tab?.id && chrome.scripting.executeScript({ target: { tabId: tab.id }, files: ['content.js'] })).then(() => respond({ ok: true })).catch(() => respond({ ok: false }));
+    return true;
+  }
+  if (message.type === 'beacon-get-status') {
+    getSettings().then(async (saved) => {
+      const { connectionState } = await chrome.storage.local.get(['connectionState']);
+      const activeSession = [...sessions.values()].find((s) => s.isPlaying) || [...sessions.values()][0];
+      respond({
+        connectionState: connectionState || 'disconnected',
+        port: saved?.port,
+        token: saved?.token,
+        activeSession,
+        sessionCount: sessions.size,
+      });
+    }).catch(() => respond({ connectionState: 'disconnected' }));
+    return true;
+  }
+  if (message.type === 'beacon-unpair') {
+    settings = undefined;
+    if (reconnectTimer) { clearTimeout(reconnectTimer); reconnectTimer = undefined; }
+    if (socket) { socket.onclose = null; socket.close(); socket = undefined; }
+    chrome.storage.local.remove(['port', 'token', 'connectionState']).then(() => {
+      setConnectionState('disconnected');
+      respond({ ok: true });
+    }).catch(() => respond({ ok: false }));
+    return true;
+  }
+  if (message.type === 'beacon-popup-command') {
+    const session = [...sessions.values()].find((s) => s.isPlaying) || [...sessions.values()][0];
+    if (!session) { respond({ ok: false }); return true; }
+    chrome.tabs.sendMessage(session.tabId, { type: 'beacon-media-command', command: message.command, value: message.value }, { frameId: session.frameId })
+      .then((res) => respond({ ok: true, result: res }))
+      .catch(() => respond({ ok: false }));
     return true;
   }
 });

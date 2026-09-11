@@ -59,9 +59,11 @@ export const DynamicIslandView: React.FC = () => {
   const copyBrowserPairingDetails = useCallback(async () => {
     try {
       const connection = await window.beacon.media.copyBrowserConnection();
-      setPairingMessage(`Port ${connection.port} and token copied`);
+      setPairingMessage(`Port ${connection.port} key copied!`);
+      setTimeout(() => setPairingMessage(null), 3500);
     } catch {
       setPairingMessage('Restart Beacon, then pair Chrome');
+      setTimeout(() => setPairingMessage(null), 3500);
     }
   }, []);
 
@@ -831,21 +833,19 @@ export const DynamicIslandView: React.FC = () => {
                     {hasMediaTarget ? (mediaState.artist || 'Unknown artist') : 'System volume is ready'} {mediaState.album ? `• ${mediaState.album}` : ''}
                   </span>
 
-                  {!hasMediaTarget && (
-                    <button
-                      type="button"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        resetCollapseTimer();
-                        void copyBrowserPairingDetails();
-                      }}
-                      className="btn-ghost"
-                      style={{ alignSelf: 'flex-start', padding: '1px 0', fontSize: '9px', color: pairingMessage ? 'rgba(140, 211, 255, 0.92)' : 'rgba(255, 255, 255, 0.7)', cursor: 'pointer' }}
-                      title="Copy details to pair the Beacon Chrome Media Companion"
-                    >
-                      {pairingMessage ?? 'Pair Chrome companion'}
-                    </button>
-                  )}
+                  <button
+                    type="button"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      resetCollapseTimer();
+                      void copyBrowserPairingDetails();
+                    }}
+                    className="btn-ghost"
+                    style={{ alignSelf: 'flex-start', padding: '1px 0', fontSize: '9px', color: pairingMessage ? 'rgba(140, 211, 255, 0.92)' : 'rgba(255, 255, 255, 0.65)', cursor: 'pointer' }}
+                    title="Copy details to pair the Beacon Chrome Media Companion"
+                  >
+                    {pairingMessage ?? 'Pair Chrome companion'}
+                  </button>
 
                   {/* Playback Progress */}
                   {mediaState.durationSeconds > 0 && (
