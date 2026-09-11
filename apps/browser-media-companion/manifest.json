@@ -1,0 +1,24 @@
+{
+  "manifest_version": 3,
+  "name": "Beacon Media Companion",
+  "version": "0.1.0",
+  "description": "Sends playback state from approved browser tabs to Beacon on this Mac.",
+  "minimum_chrome_version": "102",
+  "permissions": ["storage", "scripting", "activeTab"],
+  "host_permissions": [
+    "https://www.youtube.com/*",
+    "https://music.youtube.com/*",
+    "https://open.spotify.com/*",
+    "https://soundcloud.com/*",
+    "https://bandcamp.com/*",
+    "https://*.bandcamp.com/*"
+  ],
+  "background": { "service_worker": "background.js", "type": "module" },
+  "action": { "default_popup": "popup.html", "default_title": "Beacon Media Companion" },
+  "content_scripts": [{
+    "matches": ["https://www.youtube.com/*", "https://music.youtube.com/*", "https://open.spotify.com/*", "https://soundcloud.com/*", "https://bandcamp.com/*", "https://*.bandcamp.com/*"],
+    "js": ["content.js"],
+    "all_frames": false,
+    "run_at": "document_idle"
+  }]
+}

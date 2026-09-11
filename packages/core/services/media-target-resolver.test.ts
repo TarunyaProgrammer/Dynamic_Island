@@ -12,6 +12,16 @@ describe('MediaTargetResolver', () => {
     ])?.id).toBe('chrome:1:9:0');
   });
 
+  it('lets an explicit active-tab signal override a prior confirmation', () => {
+    const resolver = new MediaTargetResolver();
+    resolver.confirm({ id: 'chrome:1:9:0', kind: 'browser', isPlaying: true, activityAt: 20 });
+
+    expect(resolver.resolve([
+      { id: 'chrome:1:9:0', kind: 'browser', isPlaying: true, activityAt: 20 },
+      { id: 'chrome:2:3:0', kind: 'browser', isPlaying: true, activityAt: 1, isActiveTab: true },
+    ])?.id).toBe('chrome:2:3:0');
+  });
+
   it('selects a playing browser session over paused native Spotify', () => {
     const resolver = new MediaTargetResolver();
 

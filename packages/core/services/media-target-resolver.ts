@@ -44,7 +44,9 @@ export class MediaTargetResolver {
   }
 
   private score(candidate: MediaCandidate): number {
-    return (candidate.id === this.confirmedId ? 1_000_000_000_000 : 0)
+    // Confirmation makes a playing target stable, while explicit frontmost or
+    // active-tab evidence remains a stronger user-intent signal.
+    return (candidate.id === this.confirmedId ? 100_000 : 0)
       + (candidate.isFrontmost ? 1_000_000_000 : 0)
       + (candidate.isActiveTab ? 1_000_000 : 0)
       + candidate.activityAt;
