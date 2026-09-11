@@ -1,5 +1,5 @@
 // apps/main/windows/TrayPopoverWindow.ts
-import { BrowserWindow, Rectangle, app, screen } from 'electron';
+import { BrowserWindow, type Rectangle, app, screen } from '@electron-bridge';
 import path from 'path';
 
 export class TrayPopoverController {

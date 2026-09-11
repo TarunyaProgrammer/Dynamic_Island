@@ -1,5 +1,5 @@
 // apps/main/services/SecureCredentialManager.ts - macOS Keychain Credential Vault
-import { safeStorage } from 'electron';
+import { safeStorage } from '@electron-bridge';
 import { CredentialRepository } from '@database/repository/credential-repository';
 import { AIProviderId } from '@core/ai/types';
 

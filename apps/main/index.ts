@@ -3,23 +3,32 @@
 // or distribution of this file, via any medium, is strictly prohibited.
 // See LICENSE in the root of this repository.
 
-import { app, session, powerMonitor, nativeImage, systemPreferences } from 'electron';
+import { createRequire } from 'module';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import { DatabaseConnection } from '@database/connection';
 import { SQLiteGoalRepository } from '@database/repository/goal-repository';
 import { SettingsRepository } from '@database/repository/settings-repository';
 import { GoalService } from '@core/services/goal-service';
-import { MainWindowController } from './windows/MainWindow';
+import { MainSurface, MainWindowController } from './windows/MainWindow';
 import { TrayPopoverController } from './windows/TrayPopoverWindow';
 import { IslandWindowController } from './windows/IslandWindow';
 import { PaletteWindowController } from './windows/PaletteWindow';
 import { TrayController } from './tray/TrayController';
 import { ShortcutManager } from './shortcuts/ShortcutManager';
 import { registerIpcHandlers } from './ipc/goalHandlers';
+import { BrowserMediaBridge } from './media/BrowserMediaBridge';
+import { ReminderRunner } from './reminders/ReminderRunner';
+import { ReminderPolicyRepository } from '@database/repository/reminder-policy-repository';
+import { OperationLogRepository } from '@database/repository/operation-log-repository';
+import { BeaconProtocolRouter } from './automation/BeaconProtocolRouter';
+import { createDailyServices } from './daily/DailyServices';
 import fs from 'fs';
 
-// Setup __dirname for ES module scope
+// Electron exposes a CommonJS bridge. Loading it through createRequire avoids
+// Electron 34's static ESM interop crash before any renderer can start.
+const electron = createRequire(import.meta.url)('electron') as typeof import('electron');
+const { app, session, powerMonitor, nativeImage, systemPreferences } = electron;
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
@@ -38,11 +47,26 @@ if (!isDev) {
   }
 }
 
+if (process.defaultApp && process.argv.length >= 2) {
+  app.setAsDefaultProtocolClient('beacon', process.execPath, [path.resolve(process.argv[1])]);
+} else {
+  app.setAsDefaultProtocolClient('beacon');
+}
+
 class BeaconApp {
   private db = DatabaseConnection.getDatabase();
   private goalRepository = new SQLiteGoalRepository(this.db);
   private settingsRepository = new SettingsRepository(this.db);
-  private goalService = new GoalService(this.goalRepository);
+  private operationLog = new OperationLogRepository(this.db);
+  private goalService = new GoalService(this.goalRepository, undefined, { record: (operation) => { this.operationLog.append(operation); } });
+  private dailyServices = createDailyServices(this.db, this.goalService);
+  private browserMediaBridge = new BrowserMediaBridge();
+  private reminderRunner = new ReminderRunner(
+    this.goalService,
+    new ReminderPolicyRepository(this.db),
+    () => this.showMainWindow('today'),
+  );
+  private protocolRouter = new BeaconProtocolRouter(this.goalService, () => this.showMainWindow('today'), () => this.showMainWindow('goals'), this.dailyServices.actionService, this.dailyServices.todayService);
 
   private mainWindow = new MainWindowController();
   private popoverWindow = new TrayPopoverController();
@@ -69,6 +93,9 @@ class BeaconApp {
   }
 
   async start(): Promise<void> {
+    // One loopback bridge per app lifecycle; the companion opts in by pairing.
+    await this.browserMediaBridge.start();
+    this.reminderRunner.start();
     // Register all IPC handlers
     registerIpcHandlers(
       this.goalService,
@@ -78,7 +105,9 @@ class BeaconApp {
       this.islandWindow,
       this.popoverWindow,
       PRELOAD_PATH,
-      RENDERER_URL
+      RENDERER_URL,
+      this.browserMediaBridge,
+      this.dailyServices,
     );
 
     // Initialize Tray
@@ -95,12 +124,17 @@ class BeaconApp {
     this.mainWindow.createOrShow(PRELOAD_PATH, RENDERER_URL);
   }
 
-  showMainWindow(): void {
+  showMainWindow(surface?: MainSurface): void {
     this.mainWindow.createOrShow(PRELOAD_PATH, RENDERER_URL);
+    if (surface) this.mainWindow.navigate(surface);
   }
+
+  handleDeepLink(url: string): void { this.protocolRouter.handle(url); }
 
   cleanup(): void {
     this.shortcutManager.unregisterAll();
+    void this.browserMediaBridge.stop().catch(() => undefined);
+    this.reminderRunner.stop();
     DatabaseConnection.close();
   }
 }
@@ -111,9 +145,13 @@ app.on('before-quit', () => {
   (app as any).isQuitting = true;
 });
 
-app.on('second-instance', () => {
-  beaconApp?.showMainWindow();
+app.on('second-instance', (_event, commandLine) => {
+  const url = commandLine.find((argument) => argument.startsWith('beacon://'));
+  if (url) beaconApp?.handleDeepLink(url);
+  else beaconApp?.showMainWindow();
 });
+
+app.on('open-url', (event, url) => { event.preventDefault(); beaconApp?.handleDeepLink(url); });
 
 app.whenReady().then(async () => {
   // ─── Security: Content Security Policy ──────────────────────────────────────

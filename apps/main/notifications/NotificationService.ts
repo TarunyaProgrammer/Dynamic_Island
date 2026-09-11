@@ -1,12 +1,25 @@
 // apps/main/notifications/NotificationService.ts
-import { Notification } from 'electron';
+import { Notification } from '@electron-bridge';
 
 export class NotificationService {
+  static notifyGoalReminder(goalTitle: string, handlers: { onDone: () => void; onSnooze: () => void; onSkip: () => void; onOpenToday: () => void }): void {
+    if (!Notification.isSupported()) return;
+    const notification = new Notification({
+      title: 'A small step, when you are ready',
+      body: `Resume today: ${goalTitle}`,
+      silent: true,
+      actions: [{ type: 'button', text: 'Done' }, { type: 'button', text: 'Snooze 1h' }, { type: 'button', text: 'Skip today' }, { type: 'button', text: 'Open Beacon' }],
+    } as any);
+    notification.on('click', handlers.onOpenToday);
+    notification.on('action' as any, (_event: unknown, index: number) => [handlers.onDone, handlers.onSnooze, handlers.onSkip, handlers.onOpenToday][index]?.());
+    notification.show();
+  }
+
   static notifyGoalCompleted(goalTitle: string): void {
     if (Notification.isSupported()) {
       new Notification({
-        title: 'Goal Completed! 🎉',
-        body: `You achieved "${goalTitle}"!`,
+        title: 'Goal completed',
+        body: `"${goalTitle}" is complete.`,
         silent: false,
       }).show();
     }
@@ -15,7 +28,7 @@ export class NotificationService {
   static notifyMilestoneCompleted(goalTitle: string, milestoneTitle: string): void {
     if (Notification.isSupported()) {
       new Notification({
-        title: 'Milestone Reached! ✨',
+        title: 'Milestone reached',
         body: `"${milestoneTitle}" in ${goalTitle}`,
         silent: true,
       }).show();
@@ -25,10 +38,10 @@ export class NotificationService {
   static notifyFocusCompleted(goalName?: string, durationMinutes = 25): void {
     if (Notification.isSupported()) {
       new Notification({
-        title: 'Focus Sprint Complete! 🎉',
+        title: 'Focus complete',
         body: goalName
-          ? `Finished ${durationMinutes}m sprint for "${goalName}". Great work!`
-          : `Finished ${durationMinutes}m focus sprint! Time for a short break.`,
+          ? `${durationMinutes} minutes logged toward "${goalName}".`
+          : `${durationMinutes} minutes of focus are complete.`,
         silent: false,
       }).show();
     }

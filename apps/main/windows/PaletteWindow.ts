@@ -1,5 +1,5 @@
 // apps/main/windows/PaletteWindow.ts
-import { BrowserWindow, app } from 'electron';
+import { BrowserWindow, app } from '@electron-bridge';
 import path from 'path';
 
 export class PaletteWindowController {

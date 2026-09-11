@@ -19,6 +19,7 @@
       "@core/*": ["./packages/core/*"],
       "@database/*": ["./packages/database/*"],
       "@main/*": ["./apps/main/*"],
+      "@electron-bridge": ["./apps/main/electron-bridge.ts"],
       "@renderer/*": ["./apps/renderer/src/*"]
     }
   },

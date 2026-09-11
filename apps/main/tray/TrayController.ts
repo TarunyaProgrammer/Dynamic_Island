@@ -1,5 +1,5 @@
 // apps/main/tray/TrayController.ts
-import { Menu, Tray, nativeImage } from 'electron';
+import { Menu, Tray, nativeImage } from '@electron-bridge';
 import { TrayPopoverController } from '../windows/TrayPopoverWindow';
 import { MainWindowController } from '../windows/MainWindow';
 import { GoalService } from '@core/services/goal-service';

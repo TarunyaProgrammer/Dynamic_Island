@@ -3,9 +3,11 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useGoals } from '../hooks/useGoals';
 import { Search, Plus, Command, ArrowRight, Sparkles, Loader2, CheckCircle2 } from 'lucide-react';
 import { GoalProgressRing } from '../components/GoalProgressRing';
+import { useToday } from '../hooks/useToday';
 
 export const CommandPaletteView: React.FC = () => {
   const { goals, incrementProgress, createGoal } = useGoals('active');
+  const today = useToday();
   const [query, setQuery] = useState('');
   const [selectedIndex, setSelectedIndex] = useState(0);
   const [isThinking, setIsThinking] = useState(false);
@@ -86,6 +88,34 @@ export const CommandPaletteView: React.FC = () => {
         const title = trimmed.slice(4).trim();
         if (title) {
           await createGoal({ name: title, type: 'numeric', targetValue: 100 });
+          window.beacon.windows.togglePalette();
+          return;
+        }
+      }
+
+      if (trimmed.toLowerCase() === 'today') {
+        window.beacon.windows.toggleMain();
+        window.beacon.windows.togglePalette();
+        return;
+      }
+
+      if (trimmed.toLowerCase().startsWith('done ')) {
+        const action = today.actions.find((item) => item.title.toLowerCase() === trimmed.slice(5).trim().toLowerCase());
+        if (action) { await today.complete(action.id); window.beacon.windows.togglePalette(); return; }
+      }
+
+      const focusMatch = trimmed.match(/^focus\s+(.+?)(?:\s+(\d+)m)?$/i);
+      if (focusMatch) {
+        const action = today.actions.find((item) => item.title.toLowerCase() === focusMatch[1].toLowerCase());
+        if (action) { await window.beacon.focus.start(Number(focusMatch[2] ?? 25), action.goalId, action.id); window.beacon.windows.togglePalette(); return; }
+      }
+
+      const planMatch = trimmed.match(/^plan\s+(.+?)\s*:\s*(.+)$/i);
+      if (planMatch) {
+        const goal = goals.find((item) => item.name.toLowerCase() === planMatch[1].toLowerCase());
+        if (goal) {
+          const action = await today.createAction({ goalId: goal.id, title: planMatch[2] });
+          await today.planAction(action.id);
           window.beacon.windows.togglePalette();
           return;
         }

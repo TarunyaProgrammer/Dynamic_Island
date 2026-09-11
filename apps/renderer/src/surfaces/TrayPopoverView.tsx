@@ -9,11 +9,18 @@ import { BeaconLogo } from '../components/BeaconLogo';
 import { Plus, ExternalLink, CheckCircle2 } from 'lucide-react';
 import { GoalDraft, GoalUpdateDraft } from '@shared/types';
 import { useCompanion } from '../hooks/useCompanion';
+import { useToday } from '../hooks/useToday';
+import { Play, SkipForward } from 'lucide-react';
 
 export const TrayPopoverView: React.FC = () => {
   const { goals, stats, incrementProgress, toggleMilestone, createGoal, completeGoal } = useGoals('active');
   const companion = useCompanion('tray');
   const [isEditorOpen, setIsEditorOpen] = useState(false);
+  const today = useToday();
+  const todayActionIds = new Set(
+    today.plan?.entries.filter((entry) => entry.bucket === 'today').map((entry) => entry.actionId) ?? [],
+  );
+  const todayActions = today.actions.filter((action) => todayActionIds.has(action.id)).slice(0, 3);
 
   React.useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -132,6 +139,15 @@ export const TrayPopoverView: React.FC = () => {
 
       {/* Goal List (Fast Glance & Increment) */}
       <div style={{ flex: 1, overflowY: 'auto', padding: '8px 10px', display: 'flex', flexDirection: 'column', gap: '6px' }}>
+        {todayActions.length > 0 && <>
+          <span style={{ fontSize: '10px', color: 'var(--text-muted)', textTransform: 'uppercase', fontWeight: 700, letterSpacing: '.06em' }}>Today</span>
+          {todayActions.map((action) => <div key={action.id} style={{ padding: '8px 10px', border: '1px solid var(--border-subtle)', borderRadius: 'var(--radius-md)', display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <div style={{ minWidth: 0, flex: 1 }}><div style={{ fontSize: '12px', fontWeight: 600, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{action.title}</div><div style={{ color: 'var(--text-muted)', fontSize: '10px' }}>{goals.find((goal) => goal.id === action.goalId)?.name}</div></div>
+            <button className="btn-ghost" title="Start focus" onClick={() => { window.beacon.focus.start(25, action.goalId, action.id); window.beacon.windows.hidePopover(); }}><Play size={12} /></button>
+            <button className="btn-ghost" title="Done" onClick={() => { void today.complete(action.id); }}><CheckCircle2 size={13} /></button>
+            <button className="btn-ghost" title="Skip today" onClick={() => { void today.skip(action.id); }}><SkipForward size={12} /></button>
+          </div>)}
+        </>}
         {goals.length === 0 ? (
           <div
             style={{

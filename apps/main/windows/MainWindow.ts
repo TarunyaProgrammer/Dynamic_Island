@@ -1,6 +1,8 @@
 // apps/main/windows/MainWindow.ts
-import { BrowserWindow, app } from 'electron';
+import { BrowserWindow, app } from '@electron-bridge';
 import path from 'path';
+
+export type MainSurface = 'today' | 'goals' | 'focus' | 'review';
 
 export class MainWindowController {
   private window: BrowserWindow | null = null;
@@ -85,5 +87,12 @@ export class MainWindowController {
 
   getWindow(): BrowserWindow | null {
     return this.window;
+  }
+
+  navigate(surface: MainSurface): void {
+    const send = () => this.window?.webContents.send('beacon:event:navigate', surface);
+    if (!this.window || this.window.isDestroyed()) return;
+    if (this.window.webContents.isLoading()) this.window.webContents.once('did-finish-load', send);
+    else send();
   }
 }

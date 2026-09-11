@@ -32,11 +32,15 @@ export default defineConfig({
           build: {
             outDir: path.resolve(__dirname, 'dist-electron/main'),
             rollupOptions: {
-              external: ['better-sqlite3'],
+            // `ws` conditionally loads native optional modules such as bufferutil.
+            // Bundling it makes Rollup turn that optional require into a hard import.
+            // Electron must load the installed Node package at runtime instead.
+            external: ['better-sqlite3', 'ws'],
             },
           },
           resolve: {
             alias: {
+              '@electron-bridge': path.resolve(__dirname, 'apps/main/electron-bridge.ts'),
               '@shared': path.resolve(__dirname, 'shared'),
               '@core': path.resolve(__dirname, 'packages/core'),
               '@database': path.resolve(__dirname, 'packages/database'),

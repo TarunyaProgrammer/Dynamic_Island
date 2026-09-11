@@ -31,20 +31,58 @@ export const DynamicIslandView: React.FC = () => {
   const { state: companionState, message: companionMessage, celebrate } = useCompanion('island');
   const [isExpanded, setIsExpanded] = useState(false);
   const [activeTab, setActiveTab] = useState<'goal' | 'focus' | 'media'>('goal');
-  
-  const collapseTimer = useRef<NodeJS.Timeout | null>(null);
-  const primaryGoal = goals[0];
+  const [selectedGoalId, setSelectedGoalId] = useState('');
+  const [artworkFailed, setArtworkFailed] = useState(false);
+  const [pairingMessage, setPairingMessage] = useState<string | null>(null);
+
+  const collapseTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const clearCollapseTimer = useCallback(() => {
+    if (collapseTimer.current) {
+      clearTimeout(collapseTimer.current);
+      collapseTimer.current = null;
+    }
+  }, []);
+  const requestExpanded = useCallback((next: boolean) => {
+    clearCollapseTimer();
+    setIsExpanded(next);
+    void window.beacon.windows.setIslandExpanded(next);
+  }, [clearCollapseTimer]);
+  const primaryGoal = goals.find((goal) => goal.id === selectedGoalId) ?? goals[0];
   const primaryFrac =
     primaryGoal && primaryGoal.targetValue > 0
       ? Math.min(1.0, primaryGoal.currentValue / primaryGoal.targetValue)
       : 0;
 
   const percent = stats ? Math.round(stats.overallProgressFraction * 100) : 0;
+  const hasMediaTarget = mediaState.title !== 'No Media Playing';
+  const showArtwork = Boolean(mediaState.artworkUrl && !artworkFailed);
+  const copyBrowserPairingDetails = useCallback(async () => {
+    try {
+      const connection = await window.beacon.media.copyBrowserConnection();
+      setPairingMessage(`Port ${connection.port} and token copied`);
+    } catch {
+      setPairingMessage('Restart Beacon, then pair Chrome');
+    }
+  }, []);
+
+  useEffect(() => {
+    setArtworkFailed(false);
+  }, [mediaState.artworkUrl]);
 
   const [selectedFocusGoalId, setSelectedFocusGoalId] = useState<string>('');
   const [selectedDuration, setSelectedDuration] = useState<number>(25);
 
   // Auto-select first goal if not set
+  useEffect(() => {
+    if (goals.length === 0) {
+      if (selectedGoalId) setSelectedGoalId('');
+      return;
+    }
+    if (!goals.some((goal) => goal.id === selectedGoalId)) {
+      setSelectedGoalId(goals[0].id);
+    }
+  }, [goals, selectedGoalId]);
+
   useEffect(() => {
     if (!selectedFocusGoalId && goals.length > 0) {
       setSelectedFocusGoalId(goals[0].id);
@@ -59,6 +97,18 @@ export const DynamicIslandView: React.FC = () => {
     focusState.durationSeconds > 0
       ? (focusState.durationSeconds - focusState.remainingSeconds) / focusState.durationSeconds
       : 0;
+
+  const today = new Date();
+  const monthName = today.toLocaleDateString('en-US', { month: 'short' });
+  const calendarDays = [-3, -2, -1, 0, 1, 2, 3].map((offset) => {
+    const date = new Date(today);
+    date.setDate(today.getDate() + offset);
+    return {
+      date: date.getDate().toString().padStart(2, '0'),
+      dayName: date.toLocaleDateString('en-US', { weekday: 'narrow' }),
+      isToday: offset === 0,
+    };
+  });
 
   const handlePrimaryProgress = useCallback(async (delta: number) => {
     if (!primaryGoal) return;
@@ -97,50 +147,43 @@ export const DynamicIslandView: React.FC = () => {
       } else if (e.key === '-' && primaryGoal) {
         void handlePrimaryProgress(-(primaryGoal.defaultIncrement || 1));
       } else if (e.key === 'Escape') {
-        setIsExpanded(false);
-        window.beacon?.windows?.setIslandExpanded?.(false);
+        requestExpanded(false);
       }
     };
 
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [activeTab, focusState, handlePrimaryProgress, isExpanded, playPause, primaryGoal, resumeFocus, startFocus, pauseFocus]);
+  }, [activeTab, focusState, handlePrimaryProgress, isExpanded, playPause, primaryGoal, requestExpanded, resumeFocus, startFocus, pauseFocus]);
 
-  const resetCollapseTimer = () => {
-    if (collapseTimer.current) {
-      clearTimeout(collapseTimer.current);
-      collapseTimer.current = null;
-    }
-  };
+  // Auto-collapse when window loses focus (e.g. user clicks another window or switches spaces)
+  useEffect(() => {
+    const handleBlur = () => {
+      if (isExpanded) {
+        requestExpanded(false);
+      }
+    };
+    window.addEventListener('blur', handleBlur);
+    return () => window.removeEventListener('blur', handleBlur);
+  }, [isExpanded, requestExpanded]);
+
+  useEffect(() => () => clearCollapseTimer(), [clearCollapseTimer]);
+
+  const resetCollapseTimer = clearCollapseTimer;
 
   const handleMouseEnter = () => {
     resetCollapseTimer();
-    setIsExpanded(true);
-    window.beacon?.windows?.setIslandExpanded?.(true);
+    requestExpanded(true);
   };
 
   const handleMouseLeave = () => {
     collapseTimer.current = setTimeout(() => {
-      setIsExpanded(false);
-      window.beacon?.windows?.setIslandExpanded?.(false);
+      requestExpanded(false);
     }, 600);
   };
 
-  // 7-Day Calendar Strip
-  const today = new Date();
-  const monthName = today.toLocaleDateString('en-US', { month: 'short' });
-  const calendarDays = [-3, -2, -1, 0, 1, 2, 3].map((offset) => {
-    const d = new Date();
-    d.setDate(today.getDate() + offset);
-    return {
-      date: d.getDate().toString().padStart(2, '0'),
-      dayName: d.toLocaleDateString('en-US', { weekday: 'narrow' }),
-      isToday: offset === 0,
-    };
-  });
-
   return (
-    <div
+    <main
+      aria-label="Beacon Dynamic Island"
       style={{
         display: 'flex',
         flexDirection: 'column',
@@ -150,16 +193,14 @@ export const DynamicIslandView: React.FC = () => {
         paddingTop: '0px',
         backgroundColor: 'transparent',
         boxSizing: 'border-box',
-        pointerEvents: 'none', // outer transparent area never captures clicks/hover
+        pointerEvents: isExpanded ? 'auto' : 'none',
       }}
     >
       <ConfettiCanvas />
-      {/* Notch Shell Container — hover here triggers expand/collapse.
-          The window is always 660×180 (no resize). Expansion is pure CSS.
-          pointerEvents: auto so this pill intercepts mouse events even
-          when the Electron window is in setIgnoreMouseEvents(true, {forward:true}) mode,
-          which still delivers mousemove to web content for hover detection. */}
-      <div
+      {/* Notch Shell Container — hover or click here triggers expand/collapse.
+          Dynamically resizes between 200×32 (stealth notch) and 640×160 (expanded). */}
+      <section
+        aria-label={isExpanded ? 'Beacon Island controls' : 'Beacon Island summary'}
         style={{
           width: isExpanded ? '640px' : '200px',
           minHeight: isExpanded ? '146px' : '32px',
@@ -176,10 +217,10 @@ export const DynamicIslandView: React.FC = () => {
             : '0 2px 8px rgba(0, 0, 0, 0.4)',
           display: 'flex',
           flexDirection: 'column',
-          transition: 'all 0.28s cubic-bezier(0.16, 1, 0.3, 1)',
+          transition: 'background-color 0.28s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.28s cubic-bezier(0.16, 1, 0.3, 1), border-radius 0.28s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.28s cubic-bezier(0.16, 1, 0.3, 1)',
           cursor: isExpanded ? 'default' : 'pointer',
           overflow: 'visible',
-          pointerEvents: 'auto', // pill always intercepts events
+          pointerEvents: 'auto',
         }}
         onMouseEnter={handleMouseEnter}
         onMouseLeave={handleMouseLeave}
@@ -235,7 +276,10 @@ export const DynamicIslandView: React.FC = () => {
         >
           {!isExpanded ? (
             /* Stealth Notch State: Fits inside the 200px MacBook Camera Notch without Overflow */
-            <div
+            <button
+              type="button"
+              aria-label="Expand Beacon Island"
+              onClick={handleMouseEnter}
               style={{
                 width: '100%',
                 display: 'flex',
@@ -244,6 +288,10 @@ export const DynamicIslandView: React.FC = () => {
                 gap: '8px',
                 height: '32px',
                 userSelect: 'none',
+                border: 'none',
+                background: 'transparent',
+                padding: 0,
+                cursor: 'pointer',
               }}
             >
               <BeaconCompanion state={companionState} size="tiny" label={companionMessage} />
@@ -262,7 +310,7 @@ export const DynamicIslandView: React.FC = () => {
               <span style={{ fontSize: '10px', fontWeight: 600, color: 'rgba(255, 255, 255, 0.7)' }}>
                 {focusState.isActive ? focusTimeStr : `${percent}%`}
               </span>
-            </div>
+            </button>
           ) : (
             /* Expanded Top Notch Header: Navigation Tabs + Open Main App Action */
             <>
@@ -287,7 +335,7 @@ export const DynamicIslandView: React.FC = () => {
                     fontWeight: 600,
                     cursor: 'pointer',
                     outline: 'none',
-                    transition: 'all 0.15s ease',
+                    transition: 'background-color 0.15s ease, border-color 0.15s ease, color 0.15s ease',
                     boxShadow: 'none',
                   }}
                   title="Goals View"
@@ -316,7 +364,7 @@ export const DynamicIslandView: React.FC = () => {
                     fontWeight: activeTab === 'focus' ? 700 : 500,
                     cursor: 'pointer',
                     outline: 'none',
-                    transition: 'all 0.15s ease',
+                    transition: 'background-color 0.15s ease, border-color 0.15s ease, color 0.15s ease',
                     boxShadow: 'none',
                   }}
                   title="Focus Timer"
@@ -345,7 +393,7 @@ export const DynamicIslandView: React.FC = () => {
                     fontWeight: activeTab === 'media' ? 700 : 500,
                     cursor: 'pointer',
                     outline: 'none',
-                    transition: 'all 0.15s ease',
+                    transition: 'background-color 0.15s ease, border-color 0.15s ease, color 0.15s ease',
                     boxShadow: 'none',
                   }}
                   title="Media Controls"
@@ -380,7 +428,7 @@ export const DynamicIslandView: React.FC = () => {
             style={{
               flex: 1,
               display: 'grid',
-              gridTemplateColumns: 'minmax(0, 1.75fr) minmax(0, 1.25fr) minmax(0, 0.85fr)',
+              gridTemplateColumns: 'minmax(0, 1fr)',
               gap: '10px',
               padding: '6px 14px 14px 14px',
               boxSizing: 'border-box',
@@ -426,18 +474,29 @@ export const DynamicIslandView: React.FC = () => {
 
                 {primaryGoal ? (
                   <div style={{ display: 'flex', flexDirection: 'column', flex: 1, minWidth: 0, gap: '2px' }}>
-                    <span
+                    <select
+                      aria-label="Choose goal"
+                      value={primaryGoal.id}
+                      onChange={(event) => setSelectedGoalId(event.target.value)}
+                      onClick={(event) => event.stopPropagation()}
                       style={{
                         fontSize: '12px',
                         fontWeight: 600,
                         color: '#ffffff',
-                        whiteSpace: 'nowrap',
+                        backgroundColor: 'transparent',
+                        border: 'none',
+                        cursor: 'pointer',
+                        minWidth: 0,
+                        width: '100%',
+                        padding: 0,
                         overflow: 'hidden',
                         textOverflow: 'ellipsis',
                       }}
                     >
-                      {primaryGoal.name}
-                    </span>
+                      {goals.map((goal) => (
+                        <option key={goal.id} value={goal.id}>{goal.name}</option>
+                      ))}
+                    </select>
                     <span style={{ fontSize: '10px', color: 'rgba(255, 255, 255, 0.65)', fontWeight: 500 }}>
                       {primaryGoal.currentValue} / {primaryGoal.targetValue} {primaryGoal.unit || ''}
                     </span>
@@ -709,29 +768,42 @@ export const DynamicIslandView: React.FC = () => {
                 style={{
                   display: 'flex',
                   alignItems: 'center',
-                  gap: '10px',
-                  padding: '8px 10px',
-                  backgroundColor: 'rgba(255, 255, 255, 0.05)',
-                  border: '1px solid rgba(255, 255, 255, 0.08)',
-                  borderRadius: '16px',
+                  gap: '12px',
+                  padding: '10px 12px',
+                  background: showArtwork
+                    ? 'linear-gradient(105deg, rgba(124, 108, 255, 0.16), rgba(255, 255, 255, 0.045) 42%)'
+                    : 'rgba(255, 255, 255, 0.05)',
+                  border: '1px solid rgba(255, 255, 255, 0.10)',
+                  borderRadius: '18px',
                   minWidth: 0,
                   overflow: 'hidden',
                 }}
               >
                 <div
                   style={{
-                    width: '38px',
-                    height: '38px',
-                    borderRadius: '10px',
+                    width: '54px',
+                    height: '54px',
+                    borderRadius: '14px',
                     backgroundColor: 'rgba(255, 255, 255, 0.08)',
-                    border: '1px solid rgba(255, 255, 255, 0.12)',
+                    border: '1px solid rgba(255, 255, 255, 0.14)',
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
                     flexShrink: 0,
+                    overflow: 'hidden',
+                    boxShadow: showArtwork ? '0 8px 18px rgba(0, 0, 0, 0.28)' : undefined,
                   }}
                 >
-                  <Music size={18} color="#ffffff" />
+                  {showArtwork ? (
+                    <img
+                      src={mediaState.artworkUrl}
+                      alt=""
+                      onError={() => setArtworkFailed(true)}
+                      style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                    />
+                  ) : (
+                    <Music size={22} color="rgba(255, 255, 255, 0.92)" />
+                  )}
                 </div>
 
                 <div style={{ display: 'flex', flexDirection: 'column', flex: 1, minWidth: 0, gap: '2px' }}>
@@ -756,8 +828,24 @@ export const DynamicIslandView: React.FC = () => {
                       textOverflow: 'ellipsis',
                     }}
                   >
-                    {mediaState.artist || 'System Audio'} {mediaState.album ? `• ${mediaState.album}` : ''}
+                    {hasMediaTarget ? (mediaState.artist || 'Unknown artist') : 'System volume is ready'} {mediaState.album ? `• ${mediaState.album}` : ''}
                   </span>
+
+                  {!hasMediaTarget && (
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        resetCollapseTimer();
+                        void copyBrowserPairingDetails();
+                      }}
+                      className="btn-ghost"
+                      style={{ alignSelf: 'flex-start', padding: '1px 0', fontSize: '9px', color: pairingMessage ? 'rgba(140, 211, 255, 0.92)' : 'rgba(255, 255, 255, 0.7)', cursor: 'pointer' }}
+                      title="Copy details to pair the Beacon Chrome Media Companion"
+                    >
+                      {pairingMessage ?? 'Pair Chrome companion'}
+                    </button>
+                  )}
 
                   {/* Playback Progress */}
                   {mediaState.durationSeconds > 0 && (
@@ -780,7 +868,8 @@ export const DynamicIslandView: React.FC = () => {
                         previousTrack();
                       }}
                       className="btn-ghost"
-                      style={{ padding: '2px 4px', cursor: 'pointer' }}
+                      disabled={!hasMediaTarget}
+                      style={{ padding: '2px 4px', cursor: hasMediaTarget ? 'pointer' : 'not-allowed', opacity: hasMediaTarget ? 1 : 0.35 }}
                       title="Previous Track"
                     >
                       <SkipBack size={11} />
@@ -793,7 +882,8 @@ export const DynamicIslandView: React.FC = () => {
                         playPause();
                       }}
                       className="btn-ghost"
-                      style={{ padding: '2px 8px', backgroundColor: 'rgba(255, 255, 255, 0.14)', color: '#ffffff', cursor: 'pointer' }}
+                      disabled={!hasMediaTarget}
+                      style={{ padding: '4px 9px', backgroundColor: 'rgba(255, 255, 255, 0.16)', color: '#ffffff', cursor: hasMediaTarget ? 'pointer' : 'not-allowed', opacity: hasMediaTarget ? 1 : 0.35, borderRadius: '8px' }}
                       title={mediaState.isPlaying ? 'Pause' : 'Play'}
                     >
                       {mediaState.isPlaying ? <Pause size={11} /> : <Play size={11} />}
@@ -806,7 +896,8 @@ export const DynamicIslandView: React.FC = () => {
                         nextTrack();
                       }}
                       className="btn-ghost"
-                      style={{ padding: '2px 4px', cursor: 'pointer' }}
+                      disabled={!hasMediaTarget}
+                      style={{ padding: '2px 4px', cursor: hasMediaTarget ? 'pointer' : 'not-allowed', opacity: hasMediaTarget ? 1 : 0.35 }}
                       title="Next Track"
                     >
                       <SkipForward size={11} />
@@ -853,7 +944,7 @@ export const DynamicIslandView: React.FC = () => {
             {/* Column 2: Date / Calendar & Streak Strip */}
             <div
               style={{
-                display: 'flex',
+                display: 'none',
                 flexDirection: 'column',
                 justifyContent: 'center',
                 alignItems: 'center',
@@ -930,7 +1021,7 @@ export const DynamicIslandView: React.FC = () => {
                 window.beacon.windows.toggleMain();
               }}
               style={{
-                display: 'flex',
+                display: 'none',
                 alignItems: 'center',
                 justifyContent: 'space-between',
                 padding: '8px 12px',
@@ -964,7 +1055,7 @@ export const DynamicIslandView: React.FC = () => {
             </div>
           </div>
         )}
-      </div>
-    </div>
+      </section>
+    </main>
   );
 };

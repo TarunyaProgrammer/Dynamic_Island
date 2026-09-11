@@ -1,5 +1,5 @@
 // apps/main/ipc/aiHandlers.ts - Electron IPC Bridge for AI Orchestrator & Credentials
-import { ipcMain } from 'electron';
+import { ipcMain } from '@electron-bridge';
 import { IPC_CHANNELS } from '@shared/ipc-channels';
 import {
   AIConfig,

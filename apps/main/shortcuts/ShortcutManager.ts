@@ -1,5 +1,5 @@
 // apps/main/shortcuts/ShortcutManager.ts
-import { globalShortcut } from 'electron';
+import { globalShortcut } from '@electron-bridge';
 import { PaletteWindowController } from '../windows/PaletteWindow';
 
 export class ShortcutManager {
