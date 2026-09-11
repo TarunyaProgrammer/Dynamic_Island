@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useRef } from 'react';
 import type { CompanionState } from '@shared/types';
-import { getCompanionVisual } from './companion-state';
+import { COMPANION_VIEWBOX, getCompanionVisual } from './companion-state';
 import { soundEffects } from '../utils/audio';
 import './BeaconCompanion.css';
 
@@ -205,27 +205,29 @@ export const BeaconCompanion: React.FC<BeaconCompanionProps> = ({
       <span className="beacon-companion__halo" aria-hidden="true" />
       <svg
         className="beacon-companion__svg"
-        viewBox="0 0 160 96"
+        viewBox={COMPANION_VIEWBOX}
         focusable="false"
         aria-hidden="true"
       >
         <path
           className="beacon-companion__body"
-          d="M18 48C18 24 39 11 80 11s62 13 62 37-21 37-62 37S18 72 18 48Z"
+          d="M50 8C70 8 85 20 92 40C99 61 84 84 63 92C41 99 18 86 9 65C1 43 14 21 34 12C39 10 45 8 50 8Z"
         />
         <g className="beacon-companion__eyes">
-          <ellipse
-            cx={visual.leftEye.cx}
-            cy={visual.leftEye.cy}
-            rx={visual.leftEye.rx}
-            ry={visual.leftEye.ry}
+          <rect
+            x={visual.leftEye.cx - visual.leftEye.rx}
+            y={visual.leftEye.cy - visual.leftEye.ry}
+            width={visual.leftEye.rx * 2}
+            height={visual.leftEye.ry * 2}
+            rx={Math.min(4, visual.leftEye.rx)}
             transform={`rotate(${visual.leftEye.rotate} ${visual.leftEye.cx} ${visual.leftEye.cy})`}
           />
-          <ellipse
-            cx={visual.rightEye.cx}
-            cy={visual.rightEye.cy}
-            rx={visual.rightEye.rx}
-            ry={visual.rightEye.ry}
+          <rect
+            x={visual.rightEye.cx - visual.rightEye.rx}
+            y={visual.rightEye.cy - visual.rightEye.ry}
+            width={visual.rightEye.rx * 2}
+            height={visual.rightEye.ry * 2}
+            rx={Math.min(4, visual.rightEye.rx)}
             transform={`rotate(${visual.rightEye.rotate} ${visual.rightEye.cx} ${visual.rightEye.cy})`}
           />
         </g>

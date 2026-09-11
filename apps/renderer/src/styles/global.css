@@ -20,6 +20,8 @@ body {
   overflow: hidden;
 }
 
+#root { width: 100vw; height: 100vh; overflow: hidden; }
+
 input, textarea, button, select {
   font-family: inherit;
   font-size: inherit;
@@ -29,16 +31,81 @@ input, textarea, button, select {
   background: none;
 }
 
-button:focus-visible,
+button:focus-visible {
+  outline: none !important;
+  box-shadow: var(--focus-ring) !important;
+}
+
 input:focus-visible,
-select:focus-visible {
-  outline: 2px solid rgba(255, 255, 255, 0.35) !important;
-  outline-offset: 1px;
+select:focus-visible,
+textarea:focus-visible {
+  outline: none !important;
+  border-color: rgba(255, 255, 255, 0.3) !important;
+  box-shadow: 0 0 0 2px rgba(255, 122, 0, 0.22), 0 0 8px rgba(255, 122, 0, 0.08) !important;
+}
+
+/* Ensure native date and time picker clock/calendar indicators are bright and high-contrast */
+input[type="time"]::-webkit-calendar-picker-indicator,
+input[type="date"]::-webkit-calendar-picker-indicator {
+  filter: invert(0.9) brightness(1.2);
+  cursor: pointer;
+  opacity: 0.88;
+  border-radius: var(--radius-sm);
+  padding: 2px;
+  transition: opacity 0.15s ease, filter 0.15s ease, transform 0.15s ease, background-color 0.15s ease;
+}
+
+input[type="time"]::-webkit-calendar-picker-indicator:hover,
+input[type="date"]::-webkit-calendar-picker-indicator:hover {
+  opacity: 1;
+  filter: invert(1) brightness(1.4);
+  background-color: rgba(255, 255, 255, 0.1);
+  transform: scale(1.08);
 }
 
 input, textarea {
   user-select: text;
 }
+
+.input {
+  min-height: 34px;
+  padding: 7px 9px;
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-sm);
+  background: var(--bg-surface-elevated);
+  color: var(--text-primary);
+  line-height: 1.25;
+}
+
+.input::placeholder { color: var(--text-muted); }
+.input:focus { border-color: var(--border-focus); background: var(--bg-surface-hover); }
+
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  display: grid;
+  place-items: center;
+  padding: 24px;
+  background: rgba(5, 6, 9, 0.72);
+  -webkit-app-region: no-drag;
+}
+
+.modal-content {
+  width: min(560px, calc(100vw - 48px));
+  max-height: min(720px, calc(100vh - 48px));
+  overflow: auto;
+  padding: 24px;
+  border: 1px solid var(--border-glass);
+  border-radius: var(--radius-lg);
+  background: var(--bg-surface-elevated);
+  box-shadow: var(--shadow-lg);
+  color: var(--text-primary);
+  overscroll-behavior: contain;
+}
+
+.modal-content h2 { font-size: 19px; letter-spacing: -0.02em; line-height: 1.2; }
+.modal-content p { line-height: 1.5; }
 
 /* Custom Minimal macOS Scrollbar */
 ::-webkit-scrollbar {
@@ -95,15 +162,20 @@ input, textarea {
   color: var(--btn-primary-text);
   font-weight: 600;
   font-size: 12px;
-  border-radius: var(--radius-md);
+  min-height: 32px;
+  border-radius: var(--radius-sm);
   cursor: pointer;
-  box-shadow: var(--shadow-sm);
-  transition: all var(--transition-fast);
+  box-shadow: none;
+  transition:
+    background-color var(--transition-fast),
+    border-color var(--transition-fast),
+    color var(--transition-fast),
+    opacity var(--transition-fast),
+    transform var(--transition-fast);
 }
 
 .btn-primary:hover {
   background: var(--btn-primary-hover);
-  transform: translateY(-1px);
 }
 
 .btn-primary:active {
@@ -122,9 +194,15 @@ input, textarea {
   border: 1px solid var(--border-subtle);
   font-weight: 500;
   font-size: 12px;
-  border-radius: var(--radius-md);
+  min-height: 32px;
+  border-radius: var(--radius-sm);
   cursor: pointer;
-  transition: all var(--transition-fast);
+  transition:
+    background-color var(--transition-fast),
+    border-color var(--transition-fast),
+    color var(--transition-fast),
+    opacity var(--transition-fast),
+    transform var(--transition-fast);
 }
 
 .btn-secondary:hover {
@@ -143,9 +221,15 @@ input, textarea {
   padding: 6px 10px;
   background: transparent;
   color: var(--text-secondary);
-  border-radius: var(--radius-md);
+  min-height: 30px;
+  border-radius: var(--radius-sm);
   cursor: pointer;
-  transition: all var(--transition-fast);
+  transition:
+    background-color var(--transition-fast),
+    border-color var(--transition-fast),
+    color var(--transition-fast),
+    opacity var(--transition-fast),
+    transform var(--transition-fast);
 }
 
 .btn-ghost:hover {
@@ -155,6 +239,58 @@ input, textarea {
 
 .btn-ghost:active {
   transform: scale(0.97);
+}
+
+.btn-icon {
+  inline-size: 30px;
+  block-size: 30px;
+  padding: 0;
+  border: 1px solid transparent;
+  border-radius: var(--radius-control);
+}
+
+.surface-shell {
+  background: var(--surface-overlay);
+  border: 1px solid var(--border-glass);
+  border-radius: var(--radius-surface);
+  box-shadow: var(--shadow-sm);
+}
+
+.surface-panel {
+  min-width: 0;
+  padding: 12px;
+  background: var(--bg-card);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-panel);
+}
+
+.segmented-control {
+  display: inline-flex;
+  gap: 2px;
+  padding: 2px;
+  background: var(--tab-container-bg);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-control);
+}
+
+.status-message {
+  margin: 0;
+  color: var(--text-secondary);
+  font-size: 12px;
+}
+
+:where(button, [role='button'], input, select, textarea):focus-visible {
+  outline: none;
+  box-shadow: var(--focus-ring);
+}
+
+@media (max-width: 780px) {
+  .modal-overlay { padding: 14px; }
+  .modal-content { width: 100%; max-height: calc(100vh - 28px); padding: 18px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: 1ms !important; transition-duration: 1ms !important; }
 }
 
 /* ==========================================================================
@@ -187,7 +323,7 @@ input, textarea {
 }
 
 .light-pulse {
-  animation: lightBeamPulse 250ms var(--ease-spring) forwards;
+  animation: lightBeamPulse 250ms var(--ease-out) forwards;
 }
 
 .ambient-light-glow {
@@ -205,7 +341,7 @@ input, textarea {
   }
 }
 
-@keyframes springCardIn {
+@keyframes entryFade {
   0% {
     opacity: 0;
     transform: translateY(12px) scale(0.97);
@@ -248,7 +384,7 @@ input, textarea {
 }
 
 .card-spring-enter {
-  animation: springCardIn 0.35s var(--ease-spring) forwards;
+  animation: entryFade 0.35s var(--ease-out) forwards;
 }
 
 .hover-glow:hover {
@@ -350,3 +486,365 @@ input, textarea {
   }
 }
 
+/* QuickTimePicker Component Styles */
+.quick-time-picker-wrapper {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+}
+
+.quick-time-picker-control {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 36px;
+  padding: 6px 10px;
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-sm);
+  background: var(--bg-surface-elevated);
+  transition: border-color 0.15s ease, background 0.15s ease, box-shadow 0.15s ease;
+  cursor: pointer;
+}
+
+.quick-time-picker-control:hover {
+  border-color: var(--border-focus);
+  background: var(--bg-surface-hover);
+}
+
+.quick-time-picker-control:focus-within {
+  border-color: var(--accent-primary);
+  box-shadow: 0 0 0 1px var(--accent-primary);
+  background: var(--bg-surface-hover);
+}
+
+.quick-time-picker-input {
+  flex: 1;
+  background: transparent;
+  color: var(--text-primary);
+  font-size: 13px;
+  font-family: var(--font-mono);
+  font-weight: 500;
+  border: none;
+  outline: none;
+  cursor: pointer;
+}
+
+.quick-time-picker-input::placeholder {
+  color: var(--text-secondary);
+  font-family: var(--font-sans);
+  font-weight: 400;
+}
+
+.quick-time-picker-clock-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  border-radius: var(--radius-sm);
+  color: var(--text-secondary);
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  transition: color 0.15s ease, transform 0.15s ease, background-color 0.15s ease;
+}
+
+.quick-time-picker-clock-btn:hover {
+  color: var(--accent-primary);
+  background: rgba(255, 122, 0, 0.12);
+  transform: scale(1.08);
+}
+
+.quick-time-picker-clock-btn.active {
+  color: var(--accent-primary);
+}
+
+.quick-time-picker-popover {
+  position: absolute;
+  top: calc(100% + 6px);
+  left: 0;
+  z-index: 1100;
+  width: min(320px, 92vw);
+  padding: 12px;
+  border: 1px solid var(--border-glass);
+  border-radius: var(--radius-md);
+  background: #14171f;
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.55), 0 0 0 1px rgba(255, 255, 255, 0.08);
+  animation: timePickerFadeIn 0.18s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes timePickerFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-6px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.quick-time-picker-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 10px;
+  padding-bottom: 6px;
+  border-bottom: 1px solid var(--border-subtle);
+}
+
+.quick-time-picker-title {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--text-secondary);
+}
+
+.quick-time-picker-section-label {
+  display: block;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  margin-top: 8px;
+  margin-bottom: 4px;
+}
+
+.quick-time-picker-presets {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 5px;
+  margin-bottom: 6px;
+}
+
+.quick-time-chip {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 6px 4px;
+  font-size: 11px;
+  font-weight: 500;
+  font-family: var(--font-mono);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-sm);
+  background: rgba(255, 255, 255, 0.04);
+  color: var(--text-primary);
+  cursor: pointer;
+  transition: background-color 0.12s ease, border-color 0.12s ease, color 0.12s ease, transform 0.12s ease;
+  line-height: 1.2;
+}
+
+.quick-time-chip-sub {
+  font-size: 9px;
+  font-family: var(--font-sans);
+  color: var(--text-secondary);
+  margin-top: 2px;
+}
+
+.quick-time-chip:hover {
+  background: var(--bg-surface-hover);
+  border-color: var(--border-focus);
+  color: #ffffff;
+  transform: translateY(-1px);
+}
+
+.quick-time-chip.active {
+  background: var(--accent-primary);
+  border-color: var(--accent-primary);
+  color: #0b0c10;
+  font-weight: 700;
+  box-shadow: 0 0 10px var(--accent-solar-glow);
+}
+
+.quick-time-chip.active .quick-time-chip-sub {
+  color: rgba(11, 12, 16, 0.85);
+  font-weight: 600;
+}
+
+.quick-time-picker-intervals {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 4px;
+  margin-top: 4px;
+}
+
+.quick-time-interval-chip {
+  padding: 4px 0;
+  font-size: 11px;
+  font-family: var(--font-mono);
+  text-align: center;
+  border-radius: var(--radius-sm);
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid var(--border-subtle);
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: background-color 0.12s ease, border-color 0.12s ease, color 0.12s ease, transform 0.12s ease;
+}
+
+.quick-time-interval-chip:hover {
+  background: var(--bg-surface-hover);
+  border-color: var(--border-focus);
+  color: var(--text-primary);
+}
+
+.quick-time-interval-chip.active {
+  background: rgba(255, 122, 0, 0.18);
+  border-color: var(--accent-primary);
+  color: var(--accent-primary);
+  font-weight: 700;
+}
+
+.quick-time-picker-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-top: 10px;
+  padding-top: 8px;
+  border-top: 1px solid var(--border-subtle);
+}
+
+.quick-time-clear-btn {
+  font-size: 11px;
+  color: var(--text-secondary);
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  padding: 4px 6px;
+  border-radius: var(--radius-sm);
+  transition: color 0.15s ease, background 0.15s ease;
+}
+
+.quick-time-clear-btn:hover {
+  color: var(--accent-rose, #f43f5e);
+  background: rgba(244, 63, 94, 0.1);
+}
+
+.quick-time-done-btn {
+  font-size: 11px;
+  font-weight: 600;
+  padding: 4px 10px;
+  border-radius: var(--radius-sm);
+  background: var(--btn-primary-bg);
+  color: var(--btn-primary-text);
+  border: none;
+  cursor: pointer;
+  transition: opacity 0.15s ease;
+}
+
+.quick-time-done-btn:hover {
+  opacity: 0.9;
+}
+
+/* QuickDatePicker Component Styles */
+.quick-date-picker-wrapper {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+}
+
+.quick-date-picker-control {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 36px;
+  padding: 6px 10px;
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-sm);
+  background: var(--bg-surface-elevated);
+  transition: border-color 0.15s ease, background 0.15s ease, box-shadow 0.15s ease;
+  cursor: pointer;
+}
+
+.quick-date-picker-control:hover {
+  border-color: var(--border-focus);
+  background: var(--bg-surface-hover);
+}
+
+.quick-date-picker-control:focus-within {
+  border-color: var(--accent-primary);
+  box-shadow: 0 0 0 1px var(--accent-primary);
+  background: var(--bg-surface-hover);
+}
+
+.quick-date-picker-input {
+  flex: 1;
+  background: transparent;
+  color: var(--text-primary);
+  font-size: 13px;
+  font-family: var(--font-sans);
+  font-weight: 500;
+  border: none;
+  outline: none;
+  cursor: pointer;
+}
+
+.quick-date-picker-calendar-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  border-radius: var(--radius-sm);
+  color: var(--text-secondary);
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  transition: color 0.15s ease, transform 0.15s ease;
+}
+
+.quick-date-picker-calendar-btn:hover {
+  color: var(--accent-primary);
+  transform: scale(1.08);
+}
+
+.quick-date-picker-popover {
+  position: absolute;
+  top: calc(100% + 6px);
+  left: 0;
+  z-index: 1100;
+  width: min(300px, 92vw);
+  padding: 12px;
+  border: 1px solid var(--border-glass);
+  border-radius: var(--radius-md);
+  background: #14171f;
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.55), 0 0 0 1px rgba(255, 255, 255, 0.08);
+  animation: timePickerFadeIn 0.18s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.quick-date-presets {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 6px;
+  margin-bottom: 10px;
+}
+
+.quick-date-chip {
+  padding: 6px 8px;
+  font-size: 11px;
+  font-weight: 500;
+  text-align: left;
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-sm);
+  background: rgba(255, 255, 255, 0.04);
+  color: var(--text-primary);
+  cursor: pointer;
+  transition: background-color 0.12s ease, border-color 0.12s ease, color 0.12s ease, transform 0.12s ease;
+}
+
+.quick-date-chip:hover {
+  background: var(--bg-surface-hover);
+  border-color: var(--border-focus);
+}
+
+.quick-date-chip.active {
+  background: var(--accent-primary);
+  color: #0b0c10;
+  font-weight: 700;
+  border-color: var(--accent-primary);
+}

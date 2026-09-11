@@ -5,30 +5,30 @@
   flex: 0 0 auto;
   align-items: center;
   justify-content: center;
-  width: 88px;
-  height: 54px;
+  width: 64px;
+  height: 64px;
   isolation: isolate;
   vertical-align: middle;
 }
 
 .beacon-companion--tiny {
-  width: 32px;
-  height: 22px;
+  width: 24px;
+  height: 24px;
 }
 
 .beacon-companion--compact {
-  width: 56px;
-  height: 36px;
+  width: 40px;
+  height: 40px;
 }
 
 .beacon-companion--regular {
-  width: 88px;
-  height: 54px;
+  width: 64px;
+  height: 64px;
 }
 
 .beacon-companion--large {
-  width: 144px;
-  height: 88px;
+  width: 128px;
+  height: 128px;
 }
 
 .beacon-companion__halo {
@@ -61,13 +61,17 @@
 }
 
 .beacon-companion__body {
-  fill: #000000;
+  fill: #f5f5f7;
+  stroke: #1d1d20;
+  stroke-width: 4px;
+  stroke-linejoin: round;
+  stroke-linecap: round;
   transform-box: fill-box;
   transform-origin: center;
 }
 
 .beacon-companion__eyes {
-  fill: #f5f5f7;
+  fill: #1d1d20;
   transform-box: fill-box;
   transform-origin: center;
   transition: transform 120ms ease, opacity 180ms ease;

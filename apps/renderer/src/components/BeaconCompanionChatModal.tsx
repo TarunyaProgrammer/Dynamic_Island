@@ -331,7 +331,7 @@ export const BeaconCompanionChatModal: React.FC<BeaconCompanionChatModalProps> =
           display: 'flex',
           flexDirection: 'column',
           overflow: 'hidden',
-          animation: 'springCardIn 0.28s var(--ease-spring)',
+          animation: 'entryFade 0.28s var(--ease-out)',
         }}
       >
         {/* Header with Floating Spirit Avatar & Emote */}
@@ -371,7 +371,7 @@ export const BeaconCompanionChatModal: React.FC<BeaconCompanionChatModalProps> =
                     top: '-12px',
                     right: '-8px',
                     fontSize: '16px',
-                    animation: 'spiritEmotePop 0.6s var(--ease-spring) forwards',
+                    animation: 'spiritEmotePop 0.6s var(--ease-out) forwards',
                     pointerEvents: 'none',
                   }}
                 >

@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Goal, GoalDraft, GoalType, GoalUpdateDraft, StreakType } from '@shared/types';
+import { Goal, GoalDraft, GoalStatus, GoalType, GoalUpdateDraft, StreakType } from '@shared/types';
 import { X, Target, Calendar, Sparkles } from 'lucide-react';
 import { ConfirmationModal } from './ConfirmationModal';
 import { useDesktopOverlay } from '../hooks/useDesktopOverlay';
@@ -29,6 +29,7 @@ export const GoalEditorModal: React.FC<GoalEditorModalProps> = ({
   const [currentStreak, setCurrentStreak] = useState<string>('0');
   const [bestStreak, setBestStreak] = useState<string>('0');
   const [streakType, setStreakType] = useState<StreakType>('daily');
+  const [status, setStatus] = useState<GoalStatus>('active');
 
   const [isCalendarOpen, setIsCalendarOpen] = useState(false);
   const [calendarViewDate, setCalendarViewDate] = useState<Date>(() => new Date());
@@ -78,6 +79,7 @@ export const GoalEditorModal: React.FC<GoalEditorModalProps> = ({
       setCurrentStreak(curStreak);
       setBestStreak(bStreak);
       setStreakType(sType);
+      setStatus(goal.status);
       if (dead) setCalendarViewDate(new Date(dead));
 
       initialDataRef.current = {
@@ -104,6 +106,7 @@ export const GoalEditorModal: React.FC<GoalEditorModalProps> = ({
       setCurrentStreak('0');
       setBestStreak('0');
       setStreakType('daily');
+      setStatus('active');
       setCalendarViewDate(new Date());
 
       initialDataRef.current = {
@@ -178,6 +181,7 @@ export const GoalEditorModal: React.FC<GoalEditorModalProps> = ({
       unit: unit.trim() || undefined,
       defaultIncrement: parseFloat(defaultIncrement) || 1,
       deadline: deadline || undefined,
+      ...(goal ? { status } : {}),
       streakConfig: {
         enabled: trackStreak,
         type: streakType,
@@ -354,6 +358,19 @@ export const GoalEditorModal: React.FC<GoalEditorModalProps> = ({
               </select>
             </div>
           </div>
+
+          {goal && (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '5px' }}>
+              <label style={{ fontSize: '11px', color: 'var(--text-secondary)', fontWeight: 600 }}>Goal status</label>
+              <select value={status} onChange={(e) => setStatus(e.target.value as GoalStatus)} className="input" style={{ width: '100%' }}>
+                <option value="active">Active</option>
+                <option value="paused">Paused</option>
+                <option value="completed">Completed</option>
+                <option value="archived">Archived</option>
+              </select>
+              {goal.status === 'completed' && status === 'active' && <span style={{ fontSize: '11px', color: 'var(--text-muted)' }}>Reopens this goal without changing its recorded progress.</span>}
+            </div>
+          )}
 
           {/* Target Value, Current Value & Unit */}
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1.2fr', gap: '12px' }}>

@@ -152,7 +152,7 @@ export const AISettingsModal: React.FC<AISettingsModalProps> = ({ isOpen, onClos
           display: 'flex',
           flexDirection: 'column',
           overflow: 'hidden',
-          animation: 'modalSlideUp 0.25s var(--ease-spring)',
+          animation: 'modalSlideUp 0.25s var(--ease-out)',
         }}
       >
         {/* Header */}

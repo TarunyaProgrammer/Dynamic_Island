@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import {
   COMPANION_STATES,
+  COMPANION_VIEWBOX,
   getCompanionVisual,
   isTransientCompanionState,
 } from './companion-state';
@@ -32,5 +33,11 @@ describe('companion visual state', () => {
     expect(getCompanionVisual('sleeping').label).toContain('sleep');
     expect(getCompanionVisual('error').label).toContain('error');
     expect(getCompanionVisual('sleeping').leftEye.ry).toBeLessThan(getCompanionVisual('idle').leftEye.ry);
+  });
+
+  it('uses a symmetric circular geometry contract', () => {
+    const visual = getCompanionVisual('idle');
+    expect(COMPANION_VIEWBOX).toBe('0 0 100 100');
+    expect(visual.leftEye.cx + visual.rightEye.cx).toBe(100);
   });
 });

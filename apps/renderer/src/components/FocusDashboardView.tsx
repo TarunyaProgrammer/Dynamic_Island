@@ -1,10 +1,7 @@
-// apps/renderer/src/components/FocusDashboardView.tsx
-import React, { useState, useEffect } from 'react';
-import { Goal } from '@shared/types';
+import React, { useEffect, useState, useRef } from 'react';
+import { CheckCircle2, Pause, Play, Plus, Square, Sparkles, Edit2 } from 'lucide-react';
+import { Goal, GoalAction } from '@shared/types';
 import { useActivities } from '../hooks/useActivities';
-import { GoalProgressRing } from './GoalProgressRing';
-import { soundEffects } from '../utils/audio';
-import { Play, Pause, Square, Plus, Target, Radio, Clock, Zap, X, CheckCircle2 } from 'lucide-react';
 
 interface FocusDashboardViewProps {
   goals: Goal[];
@@ -12,647 +9,426 @@ interface FocusDashboardViewProps {
   onOpenCreateGoal: () => void;
 }
 
-export const FocusDashboardView: React.FC<FocusDashboardViewProps> = ({
-  goals,
-  initialGoalId = '',
-  onOpenCreateGoal,
-}) => {
-  const {
-    focusState,
-    lastCompletedSession,
-    clearCompletedSession,
-    startFocus,
-    pauseFocus,
-    resumeFocus,
-    stopFocus,
-    extendFocus,
-  } = useActivities();
-  const [selectedGoalId, setSelectedGoalId] = useState<string>(initialGoalId);
-  const [selectedDuration, setSelectedDuration] = useState<number>(25);
+const PRESET_DURATIONS = [15, 25, 45, 60, 90];
 
-  const activeGoals = goals.filter((g) => g.status === 'active');
+export const FocusDashboardView: React.FC<FocusDashboardViewProps> = ({ goals, initialGoalId = '', onOpenCreateGoal }) => {
+  const { focusState, lastCompletedSession, clearCompletedSession, startFocus, pauseFocus, resumeFocus, stopFocus, extendFocus } = useActivities();
+  const [selectedGoalId, setSelectedGoalId] = useState(initialGoalId);
+  const [duration, setDuration] = useState(25);
+  const [isEditingDuration, setIsEditingDuration] = useState(false);
+  const [customInput, setCustomInput] = useState('25');
+  const [focusAction, setFocusAction] = useState<GoalAction | null>(null);
+  const editInputRef = useRef<HTMLInputElement>(null);
 
-  // If initialGoalId prop updates, reflect it
+  const activeGoals = goals.filter((goal) => goal.status === 'active');
+
   useEffect(() => {
-    if (initialGoalId && !focusState.isActive) {
-      setSelectedGoalId(initialGoalId);
-    }
+    if (initialGoalId && !focusState.isActive) setSelectedGoalId(initialGoalId);
   }, [initialGoalId, focusState.isActive]);
 
-  // If focus session is running on a goal, reflect that goal
   useEffect(() => {
-    if (focusState.isActive) {
-      setSelectedGoalId(focusState.goalId || '');
+    if (focusState.isActive) setSelectedGoalId(focusState.goalId ?? '');
+  }, [focusState.goalId, focusState.isActive]);
+
+  useEffect(() => {
+    let live = true;
+    if (!focusState.actionId) {
+      setFocusAction(null);
+      return () => { live = false; };
     }
-  }, [focusState.isActive, focusState.goalId]);
+    void window.beacon.actions.get(focusState.actionId).then((action) => {
+      if (live) setFocusAction(action);
+    });
+    return () => { live = false; };
+  }, [focusState.actionId]);
 
-  // Escape / Enter keyboard dismissal for completed session
   useEffect(() => {
-    if (!lastCompletedSession) return;
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === 'Escape' || e.key === 'Enter') {
-        e.preventDefault();
-        clearCompletedSession();
-      }
-    };
-    window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [lastCompletedSession, clearCompletedSession]);
+    if (isEditingDuration && editInputRef.current) {
+      editInputRef.current.focus();
+      editInputRef.current.select();
+    }
+  }, [isEditingDuration]);
 
-  const selectedGoal = selectedGoalId ? activeGoals.find((g) => g.id === selectedGoalId) : null;
+  const selectedGoal = activeGoals.find((goal) => goal.id === (focusState.isActive ? focusState.goalId : selectedGoalId));
+  const remainingMins = Math.floor(focusState.remainingSeconds / 60);
+  const remainingSecs = focusState.remainingSeconds % 60;
+  const minutes = remainingMins.toString().padStart(2, '0');
+  const seconds = remainingSecs.toString().padStart(2, '0');
+  const actionName = focusAction?.title;
 
-  const focusMins = Math.floor(focusState.remainingSeconds / 60);
-  const focusSecs = (focusState.remainingSeconds % 60).toString().padStart(2, '0');
-  const focusTimeStr = `${focusMins}:${focusSecs}`;
-  const focusProgress =
-    focusState.durationSeconds > 0
-      ? (focusState.durationSeconds - focusState.remainingSeconds) / focusState.durationSeconds
-      : 0;
+  const totalSessionSeconds = (duration || 25) * 60;
+  const progressFraction = focusState.isActive
+    ? Math.max(0, Math.min(1, 1 - (focusState.remainingSeconds / (totalSessionSeconds || 1))))
+    : 0;
 
-  const presets = [
-    { label: '5m', mins: 5 },
-    { label: '15m', mins: 15 },
-    { label: '25m', mins: 25 },
-    { label: '45m', mins: 45 },
-    { label: '60m', mins: 60 },
-  ];
-
-  const adjustDuration = (delta: number) => {
-    setSelectedDuration((prev) => Math.max(1, Math.min(180, prev + delta)));
+  const handleAdjustDuration = (delta: number) => {
+    setDuration((prev) => {
+      const next = Math.max(1, Math.min(240, prev + delta));
+      setCustomInput(next.toString());
+      return next;
+    });
   };
 
+  const handleCommitCustomDuration = () => {
+    const parsed = parseInt(customInput, 10);
+    if (!isNaN(parsed) && parsed >= 1 && parsed <= 240) {
+      setDuration(parsed);
+    } else {
+      setCustomInput(duration.toString());
+    }
+    setIsEditingDuration(false);
+  };
+
+  // SVG Progress Ring calculations
+  const ringRadius = 130;
+  const circumference = 2 * Math.PI * ringRadius;
+  const strokeDashoffset = circumference * (1 - progressFraction);
+
   return (
-    <div
-      style={{
-        flex: 1,
-        display: 'flex',
-        overflow: 'hidden',
-        padding: '24px 32px',
-        gap: '24px',
-        backgroundColor: 'transparent',
-        boxSizing: 'border-box',
-        position: 'relative',
-        zIndex: 1,
-      }}
-    >
-      {/* Left Column: Hero Focus Timer & Controls */}
-      <div
-        style={{
-          flex: 1.2,
-          display: 'flex',
-          flexDirection: 'column',
-          alignItems: 'center',
-          justifyContent: 'center',
-          padding: '28px',
-          backgroundColor: 'var(--bg-card, var(--bg-surface))',
-          backdropFilter: 'blur(40px) saturate(180%)',
-          WebkitBackdropFilter: 'blur(40px) saturate(180%)',
-          borderTop: '1px solid var(--bg-card-border-top, var(--border-subtle))',
-          borderBottom: '1px solid var(--border-subtle)',
-          borderLeft: '1px solid var(--border-subtle)',
-          borderRight: '1px solid var(--border-subtle)',
-          borderRadius: '24px',
-          boxShadow: 'var(--shadow-md)',
-          position: 'relative',
-          overflow: 'hidden',
-        }}
-      >
-        {/* Celebration Overlay when a session just completed */}
-        {lastCompletedSession && (
-          <div
-            style={{
-              position: 'absolute',
-              inset: 0,
-              backgroundColor: 'rgba(10, 10, 12, 0.96)',
-              backdropFilter: 'blur(20px)',
-              zIndex: 10,
-              display: 'flex',
-              flexDirection: 'column',
-              alignItems: 'center',
-              justifyContent: 'center',
-              padding: '32px',
-              textAlign: 'center',
-              animation: 'springCardIn 0.3s var(--ease-spring)',
-            }}
-          >
-            <div
-              style={{
-                width: '64px',
-                height: '64px',
-                borderRadius: '50%',
-                backgroundColor: 'rgba(52, 211, 153, 0.15)',
-                border: '1px solid rgba(52, 211, 153, 0.3)',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                marginBottom: '16px',
-                boxShadow: '0 0 30px rgba(255, 122, 0, 0.35)',
-              }}
-            >
-              <CheckCircle2 size={28} color="var(--accent-solar, #ff7a00)" strokeWidth={1.5} />
+    <div style={pageStyle}>
+      {lastCompletedSession && (
+        <div className="modal-overlay" role="dialog" aria-modal="true" aria-label="Focus complete">
+          <div className="modal-content" style={{ width: 380, textAlign: 'center', padding: '32px 24px' }}>
+            <div style={{ width: 56, height: 56, borderRadius: '50%', background: 'rgba(255, 122, 0, 0.15)', border: '1px solid rgba(255, 122, 0, 0.3)', display: 'grid', placeItems: 'center', margin: '0 auto 16px' }}>
+              <CheckCircle2 size={32} style={{ color: 'var(--accent-primary, #ff7a00)' }} />
             </div>
-
-            <h3 style={{ fontSize: '22px', fontWeight: 800, color: '#ffffff', marginBottom: '8px', letterSpacing: '-0.3px' }}>
-              Sprint Complete
-            </h3>
-
-            <p style={{ fontSize: '14px', color: 'rgba(255, 255, 255, 0.7)', maxWidth: '340px', lineHeight: 1.5, marginBottom: '24px' }}>
-              {lastCompletedSession.goalName ? (
-                <>
-                  Logged <strong style={{ color: 'var(--accent-solar, #ff7a00)' }}>+{lastCompletedSession.durationMinutes} mins</strong> toward{' '}
-                  <strong style={{ color: '#ffffff' }}>{lastCompletedSession.goalName}</strong>.
-                </>
-              ) : (
-                <>
-                  Awesome job! You finished a <strong style={{ color: 'var(--accent-solar, #ff7a00)' }}>{lastCompletedSession.durationMinutes}-minute</strong> focus session.
-                </>
-              )}
+            <h2 style={{ margin: '0 0 6px', fontSize: 22, letterSpacing: '-0.02em' }}>Focus Complete</h2>
+            <p style={{ color: 'var(--text-secondary)', fontSize: 13, margin: '0 0 24px' }}>
+              {lastCompletedSession.durationMinutes} minutes dedicated{lastCompletedSession.goalName ? ` toward ${lastCompletedSession.goalName}` : ''}. Excellent momentum!
             </p>
-
-            <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap', justifyContent: 'center' }}>
-              <button
-                onClick={() => {
-                  soundEffects.playTickSound();
-                  clearCompletedSession();
-                  startFocus(5);
-                }}
-                className="btn-secondary"
-                style={{ padding: '9px 18px', fontSize: '13px', gap: '6px' }}
-              >
-                <span>Take 5m Break</span>
-              </button>
-
-              <button
-                onClick={() => {
-                  soundEffects.playTickSound();
-                  clearCompletedSession();
-                  startFocus(selectedDuration, selectedGoal?.id);
-                }}
-                className="btn-primary"
-                style={{ padding: '9px 20px', fontSize: '13px', gap: '6px' }}
-              >
-                <Play size={13} fill="#000000" />
-                <span>Next Sprint ({selectedDuration}m)</span>
-              </button>
-
-              <button
-                onClick={() => {
-                  soundEffects.playMilestonePop();
-                  clearCompletedSession();
-                }}
-                className="btn-ghost"
-                style={{ padding: '9px 16px', fontSize: '13px', backgroundColor: 'rgba(255, 255, 255, 0.06)' }}
-              >
-                <span>Done</span>
-              </button>
-            </div>
+            <button className="btn-primary" onClick={clearCompletedSession} style={{ width: '100%', padding: '10px 0', justifyContent: 'center' }}>
+              Return to Focus
+            </button>
           </div>
-        )}
+        </div>
+      )}
 
-        {/* Linked Goal / Independent Badge */}
-        <div
-          style={{
-            display: 'inline-flex',
-            alignItems: 'center',
-            gap: '8px',
-            padding: '6px 14px',
-            borderRadius: '9999px',
-            backgroundColor: selectedGoal ? 'rgba(255, 255, 255, 0.08)' : 'rgba(255, 255, 255, 0.04)',
-            border: '1px solid rgba(255, 255, 255, 0.12)',
-            marginBottom: '20px',
-          }}
-        >
-          {selectedGoal ? (
-            <>
-              <Target size={14} color="#ffffff" />
-              <span style={{ fontSize: '13px', fontWeight: 600, color: '#ffffff' }}>
-                Goal: {selectedGoal.name}
-              </span>
-              {selectedGoal.area && selectedGoal.area !== 'Personal' && (
-                <span style={{ color: 'var(--text-muted)', fontSize: '10px' }}>
-                  • {selectedGoal.area}
-                </span>
-              )}
-              {!focusState.isActive && (
-                <button
-                  onClick={() => setSelectedGoalId('')}
-                  className="btn-ghost"
-                  style={{ padding: '2px', marginLeft: '4px', borderRadius: '50%' }}
-                  title="Switch to Independent Timer"
-                >
-                  <X size={12} />
-                </button>
-              )}
-            </>
+      <div style={workspaceStyle}>
+        {/* Eyebrow / State indicator */}
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6 }}>
+          <span style={{
+            width: 7,
+            height: 7,
+            borderRadius: '50%',
+            backgroundColor: focusState.isActive ? (focusState.isPaused ? '#fbbf24' : '#34d399') : 'var(--text-muted)',
+            boxShadow: focusState.isActive && !focusState.isPaused ? '0 0 8px #34d399' : 'none',
+          }} />
+          <div style={eyebrowStyle}>
+            {focusState.isActive ? (focusState.isPaused ? 'Focus Paused' : 'Deep Work Session') : 'Focus Mode'}
+          </div>
+        </div>
+
+        {/* Goal & Action Info */}
+        <div style={goalStyle}>{selectedGoal?.name ?? 'Choose a goal to focus on'}</div>
+        <div style={actionStyle}>
+          {actionName ? (
+            <span style={{ display: 'inline-flex', alignItems: 'center', gap: 5 }}>
+              <Sparkles size={13} color="var(--accent-primary)" />
+              {actionName}
+            </span>
           ) : (
-            <>
-              <Zap size={14} color="#ffffff" />
-              <span style={{ fontSize: '13px', fontWeight: 600, color: '#ffffff' }}>
-                Independent Timer
-              </span>
-              <span style={{ fontSize: '11px', color: 'rgba(255, 255, 255, 0.5)' }}>
-                • No Goal Linked
-              </span>
-            </>
+            selectedGoal ? 'A dedicated block for deliberate, distraction-free work.' : 'Pick a goal below, set your timer, and begin.'
           )}
         </div>
 
-        {/* Large Circular Focus Clock */}
-        <div style={{ position: 'relative', width: '210px', height: '210px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-          <GoalProgressRing
-            progressFraction={focusState.isActive ? focusProgress : 0}
-            size={210}
-            strokeWidth={8}
-            showText={false}
-            color="#ffffff"
-          />
-          <div style={{ position: 'absolute', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '2px' }}>
-            <span style={{ fontSize: '46px', fontWeight: 800, color: '#ffffff', fontVariantNumeric: 'tabular-nums', letterSpacing: '-1px' }}>
-              {focusState.isActive ? focusTimeStr : `${selectedDuration}:00`}
-            </span>
-            <span style={{ fontSize: '11px', fontWeight: 600, color: 'rgba(255, 255, 255, 0.5)', textTransform: 'uppercase', letterSpacing: '1px' }}>
-              {focusState.isActive ? (focusState.isPaused ? 'PAUSED' : 'FOCUSING') : 'READY'}
-            </span>
+        {/* Visual Circular Aura & Timer Centerpiece */}
+        <div style={{ position: 'relative', width: 280, height: 280, margin: '26px auto 14px', display: 'grid', placeItems: 'center' }}>
+          <svg width="280" height="280" style={{ position: 'absolute', transform: 'rotate(-90deg)' }}>
+            <circle
+              cx="140"
+              cy="140"
+              r={ringRadius}
+              fill="transparent"
+              stroke="rgba(255, 255, 255, 0.05)"
+              strokeWidth="6"
+            />
+            <circle
+              cx="140"
+              cy="140"
+              r={ringRadius}
+              fill="transparent"
+              stroke={focusState.isPaused ? '#fbbf24' : 'var(--accent-primary, #ff7a00)'}
+              strokeWidth="6"
+              strokeDasharray={circumference}
+              strokeDashoffset={focusState.isActive ? strokeDashoffset : circumference}
+              strokeLinecap="round"
+              style={{ transition: 'stroke-dashoffset 1s linear, stroke 0.3s ease' }}
+            />
+          </svg>
+
+          {/* Central Digits / Editable Input */}
+          <div style={{ textAlign: 'center', zIndex: 2 }}>
+            {focusState.isActive ? (
+              <div style={timerStyle}>
+                {minutes}:{seconds}
+              </div>
+            ) : isEditingDuration ? (
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 4 }}>
+                <input
+                  ref={editInputRef}
+                  type="number"
+                  min="1"
+                  max="240"
+                  value={customInput}
+                  onChange={(e) => setCustomInput(e.target.value)}
+                  onBlur={handleCommitCustomDuration}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter') handleCommitCustomDuration();
+                    if (e.key === 'Escape') setIsEditingDuration(false);
+                  }}
+                  style={{
+                    width: 120,
+                    fontSize: 48,
+                    fontWeight: 700,
+                    textAlign: 'center',
+                    backgroundColor: 'rgba(255, 255, 255, 0.08)',
+                    border: '1px solid var(--accent-primary)',
+                    borderRadius: 'var(--radius-md)',
+                    color: '#ffffff',
+                    outline: 'none',
+                    padding: '4px',
+                  }}
+                />
+                <span style={{ fontSize: 18, color: 'var(--text-muted)' }}>min</span>
+              </div>
+            ) : (
+              <div
+                onClick={() => {
+                  setCustomInput(duration.toString());
+                  setIsEditingDuration(true);
+                }}
+                style={{ ...timerStyle, cursor: 'pointer' }}
+                title="Click to type custom duration"
+              >
+                {duration}:00
+              </div>
+            )}
+
+            {!focusState.isActive && (
+              <div
+                onClick={() => {
+                  setCustomInput(duration.toString());
+                  setIsEditingDuration(true);
+                }}
+                style={{
+                  fontSize: 11,
+                  color: 'var(--text-muted)',
+                  marginTop: 2,
+                  cursor: 'pointer',
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: 4,
+                }}
+              >
+                <Edit2 size={10} /> Click digits to edit
+              </div>
+            )}
           </div>
         </div>
 
-        {/* Manual Steppers & Custom Minutes Entry (When Idle) */}
+        {/* Fine Stepper Adjustments (When Idle) */}
         {!focusState.isActive && (
-          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '10px', marginTop: '20px' }}>
-            {/* Quick Steppers & Input */}
-            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-              <button
-                onClick={() => adjustDuration(-5)}
-                className="btn-ghost"
-                style={{ padding: '5px 8px', fontSize: '11px', fontWeight: 600, backgroundColor: 'rgba(255, 255, 255, 0.06)' }}
-                title="Subtract 5 minutes"
-              >
-                -5m
-              </button>
-              <button
-                onClick={() => adjustDuration(-1)}
-                className="btn-ghost"
-                style={{ padding: '5px 8px', fontSize: '11px', fontWeight: 600, backgroundColor: 'rgba(255, 255, 255, 0.06)' }}
-                title="Subtract 1 minute"
-              >
-                -1m
-              </button>
-
-              <div style={{ display: 'flex', alignItems: 'center', gap: '4px', backgroundColor: '#141417', padding: '4px 10px', borderRadius: '8px', border: '1px solid rgba(255, 255, 255, 0.12)' }}>
-                <input
-                  type="number"
-                  min="1"
-                  max="180"
-                  value={selectedDuration}
-                  onChange={(e) => {
-                    const val = parseInt(e.target.value, 10);
-                    if (!isNaN(val)) setSelectedDuration(Math.max(1, Math.min(180, val)));
-                  }}
-                  style={{
-                    width: '38px',
-                    textAlign: 'center',
-                    backgroundColor: 'transparent',
-                    border: 'none',
-                    color: '#ffffff',
-                    fontSize: '14px',
-                    fontWeight: 700,
-                    outline: 'none',
-                  }}
-                />
-                <span style={{ fontSize: '12px', color: 'rgba(255, 255, 255, 0.5)', fontWeight: 500 }}>min</span>
-              </div>
-
-              <button
-                onClick={() => adjustDuration(1)}
-                className="btn-ghost"
-                style={{ padding: '5px 8px', fontSize: '11px', fontWeight: 600, backgroundColor: 'rgba(255, 255, 255, 0.06)' }}
-                title="Add 1 minute"
-              >
-                +1m
-              </button>
-              <button
-                onClick={() => adjustDuration(5)}
-                className="btn-ghost"
-                style={{ padding: '5px 8px', fontSize: '11px', fontWeight: 600, backgroundColor: 'rgba(255, 255, 255, 0.06)' }}
-                title="Add 5 minutes"
-              >
-                +5m
-              </button>
-            </div>
-
-            {/* Quick Preset Chips */}
-            <div style={{ display: 'flex', gap: '6px' }}>
-              {presets.map((p) => (
-                <button
-                  key={p.mins}
-                  onClick={() => setSelectedDuration(p.mins)}
-                  style={{
-                    padding: '4px 10px',
-                    borderRadius: '8px',
-                    fontSize: '11px',
-                    fontWeight: selectedDuration === p.mins ? 700 : 500,
-                    backgroundColor: selectedDuration === p.mins ? '#ffffff' : 'rgba(255, 255, 255, 0.06)',
-                    color: selectedDuration === p.mins ? '#000000' : 'rgba(255, 255, 255, 0.7)',
-                    border: '1px solid rgba(255, 255, 255, 0.1)',
-                    cursor: 'pointer',
-                    transition: 'all 0.15s ease',
-                  }}
-                >
-                  {p.label}
-                </button>
-              ))}
-            </div>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6, margin: '6px 0 16px' }}>
+            <button
+              type="button"
+              className="btn-ghost"
+              onClick={() => handleAdjustDuration(-5)}
+              style={{ padding: '4px 10px', fontSize: 11, borderRadius: 'var(--radius-sm)' }}
+              title="Minus 5 minutes"
+            >
+              -5m
+            </button>
+            <button
+              type="button"
+              className="btn-ghost"
+              onClick={() => handleAdjustDuration(-1)}
+              style={{ padding: '4px 8px', fontSize: 11, borderRadius: 'var(--radius-sm)' }}
+              title="Minus 1 minute"
+            >
+              -1m
+            </button>
+            <span style={{ fontSize: 12, color: 'var(--text-muted)', padding: '0 4px', fontFamily: 'var(--font-mono)' }}>
+              {duration}m
+            </span>
+            <button
+              type="button"
+              className="btn-ghost"
+              onClick={() => handleAdjustDuration(1)}
+              style={{ padding: '4px 8px', fontSize: 11, borderRadius: 'var(--radius-sm)' }}
+              title="Plus 1 minute"
+            >
+              +1m
+            </button>
+            <button
+              type="button"
+              className="btn-ghost"
+              onClick={() => handleAdjustDuration(5)}
+              style={{ padding: '4px 10px', fontSize: 11, borderRadius: 'var(--radius-sm)' }}
+              title="Plus 5 minutes"
+            >
+              +5m
+            </button>
           </div>
         )}
 
-        {/* Action Controls */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginTop: focusState.isActive ? '24px' : '16px' }}>
+        {/* Quick Presets */}
+        {!focusState.isActive && (
+          <div style={presetStyle}>
+            {PRESET_DURATIONS.map((mins) => (
+              <button
+                key={mins}
+                type="button"
+                className={duration === mins ? 'btn-primary' : 'btn-ghost'}
+                onClick={() => {
+                  setDuration(mins);
+                  setCustomInput(mins.toString());
+                  setIsEditingDuration(false);
+                }}
+                style={{ minWidth: 64, padding: '6px 10px', fontSize: 12, borderRadius: 'var(--radius-md)' }}
+              >
+                {mins} min
+              </button>
+            ))}
+          </div>
+        )}
+
+        {/* Primary Controls */}
+        <div style={{ display: 'flex', gap: 10, justifyContent: 'center', marginTop: 22 }}>
           {!focusState.isActive ? (
             <button
-              onClick={() => startFocus(selectedDuration, selectedGoal?.id)}
+              type="button"
               className="btn-primary"
-              style={{ padding: '10px 28px', fontSize: '14px', gap: '8px' }}
+              onClick={() => startFocus(duration, selectedGoal?.id)}
+              style={{
+                padding: '10px 24px',
+                fontSize: 14,
+                fontWeight: 650,
+                borderRadius: 'var(--radius-md)',
+                boxShadow: '0 4px 20px rgba(255, 122, 0, 0.35)',
+              }}
             >
-              <Play size={16} fill="#000000" />
-              <span>Start {selectedDuration}m {selectedGoal ? 'Sprint' : 'Timer'}</span>
+              <Play size={16} fill="currentColor" /> Start Focus
             </button>
           ) : (
             <>
               {focusState.isPaused ? (
-                <button
-                  onClick={() => resumeFocus()}
-                  className="btn-primary"
-                  style={{ padding: '9px 20px', fontSize: '13px', gap: '8px' }}
-                >
-                  <Play size={14} fill="#000000" />
-                  <span>Resume</span>
+                <button type="button" className="btn-primary" onClick={resumeFocus} style={{ padding: '8px 18px', fontSize: 13 }}>
+                  <Play size={15} fill="currentColor" /> Resume
                 </button>
               ) : (
-                <button
-                  onClick={() => pauseFocus()}
-                  className="btn-secondary"
-                  style={{ padding: '9px 20px', fontSize: '13px', gap: '8px' }}
-                >
-                  <Pause size={14} />
-                  <span>Pause</span>
+                <button type="button" className="btn-primary" onClick={pauseFocus} style={{ padding: '8px 18px', fontSize: 13 }}>
+                  <Pause size={15} /> Pause
                 </button>
               )}
-
-              {/* Live Extend Buttons */}
-              <button
-                onClick={() => extendFocus(5)}
-                className="btn-ghost"
-                style={{ padding: '9px 12px', fontSize: '12px', fontWeight: 600, backgroundColor: 'rgba(255, 255, 255, 0.08)' }}
-                title="Add 5 minutes to running timer"
-              >
-                +5m
+              <button type="button" className="btn-ghost" onClick={() => extendFocus(5)} style={{ padding: '8px 14px', fontSize: 12 }}>
+                +5 min
               </button>
-
               <button
-                onClick={() => stopFocus(!!focusState.goalId)}
+                type="button"
                 className="btn-ghost"
-                style={{ padding: '9px 16px', fontSize: '13px', gap: '6px', backgroundColor: 'rgba(255, 255, 255, 0.08)' }}
+                onClick={() => stopFocus(Boolean(focusState.goalId))}
+                style={{ padding: '8px 14px', fontSize: 12, color: 'var(--text-muted)' }}
               >
-                <Square size={13} />
-                <span>{focusState.goalId ? 'End & Log' : 'Stop Timer'}</span>
+                <Square size={13} /> End & Log
               </button>
             </>
           )}
         </div>
-      </div>
 
-      {/* Right Column: Goal Switcher & Focus Stats */}
-      <div
-        style={{
-          flex: 1,
-          display: 'flex',
-          flexDirection: 'column',
-          gap: '18px',
-          overflow: 'hidden',
-        }}
-      >
-        {/* Goal Selector Panel */}
-        <div
-          style={{
-            flex: 1,
-            display: 'flex',
-            flexDirection: 'column',
-            padding: '20px',
-            backgroundColor: 'var(--bg-card, var(--bg-surface))',
-            backdropFilter: 'blur(40px) saturate(180%)',
-            WebkitBackdropFilter: 'blur(40px) saturate(180%)',
-            borderTop: '1px solid var(--bg-card-border-top, var(--border-subtle))',
-            borderBottom: '1px solid var(--border-subtle)',
-            borderLeft: '1px solid var(--border-subtle)',
-            borderRight: '1px solid var(--border-subtle)',
-            borderRadius: '20px',
-            overflow: 'hidden',
-            boxShadow: 'var(--shadow-md)',
-          }}
-        >
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '14px' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-              <Target size={15} color="#ffffff" />
-              <span style={{ fontSize: '13px', fontWeight: 700, color: 'var(--text-primary)' }}>Timer Mode / Linked Goal</span>
-            </div>
-            <button onClick={onOpenCreateGoal} className="btn-ghost" style={{ padding: '2px 8px', fontSize: '11px', gap: '4px' }}>
-              <Plus size={12} />
-              <span>New Goal</span>
-            </button>
-          </div>
-
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', overflowY: 'auto', flex: 1, paddingRight: '4px' }}>
-            {/* Card 1: Independent Timer Option */}
-            <div
-              onClick={() => {
-                if (!focusState.isActive) {
-                  setSelectedGoalId('');
-                }
-              }}
-              style={{
-                padding: '12px 14px',
-                borderRadius: '14px',
-                backgroundColor: !selectedGoalId ? 'rgba(255, 255, 255, 0.08)' : 'rgba(24, 28, 38, 0.85)',
-                backdropFilter: 'blur(16px)',
-                WebkitBackdropFilter: 'blur(16px)',
-                borderTop: !selectedGoalId ? '1px solid rgba(255, 255, 255, 0.25)' : '1px solid rgba(255, 255, 255, 0.14)',
-                borderBottom: !selectedGoalId ? '1px solid rgba(255, 255, 255, 0.12)' : '1px solid rgba(255, 255, 255, 0.04)',
-                borderLeft: !selectedGoalId ? '1px solid rgba(255, 255, 255, 0.18)' : '1px solid var(--border-subtle)',
-                borderRight: !selectedGoalId ? '1px solid rgba(255, 255, 255, 0.18)' : '1px solid var(--border-subtle)',
-                cursor: focusState.isActive ? 'default' : 'pointer',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'space-between',
-                gap: '10px',
-                boxShadow: !selectedGoalId ? '0 0 16px rgba(255, 255, 255, 0.08)' : '0 2px 8px rgba(0, 0, 0, 0.35)',
-                transition: 'all 0.15s ease',
-              }}
-            >
-              <div style={{ display: 'flex', alignItems: 'center', gap: '10px', minWidth: 0 }}>
-                <div
-                  style={{
-                    width: '32px',
-                    height: '32px',
-                    borderRadius: '8px',
-                    backgroundColor: !selectedGoalId ? 'rgba(255, 255, 255, 0.15)' : 'rgba(255, 255, 255, 0.08)',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    flexShrink: 0,
-                  }}
+        {/* Goal Selector */}
+        {!focusState.isActive && (
+          <div style={goalPickerStyle}>
+            <span style={{ color: 'var(--text-muted)', fontSize: 11, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '.09em' }}>
+              Select Focus Goal
+            </span>
+            <div style={{ display: 'flex', gap: 7, flexWrap: 'wrap', justifyContent: 'center', marginTop: 12 }}>
+              {activeGoals.map((goal) => (
+                <button
+                  key={goal.id}
+                  type="button"
+                  className={selectedGoalId === goal.id ? 'btn-primary' : 'btn-ghost'}
+                  onClick={() => setSelectedGoalId(goal.id)}
+                  style={{ fontSize: 12, padding: '5px 12px', borderRadius: 'var(--radius-sm)' }}
                 >
-                  <Zap size={15} color="#ffffff" />
-                </div>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
-                  <span style={{ fontSize: '13px', fontWeight: 600, color: '#ffffff' }}>Independent Quick Timer</span>
-                  <span style={{ fontSize: '11px', color: 'rgba(255, 255, 255, 0.75)', fontWeight: 500 }}>Standalone timer (no goal linked)</span>
-                </div>
-              </div>
-
-              {!selectedGoalId && (
-                <span
-                  style={{
-                    fontSize: '10px',
-                    fontWeight: 700,
-                    padding: '2px 8px',
-                    borderRadius: '6px',
-                    backgroundColor: '#ffffff',
-                    color: '#07080b',
-                    letterSpacing: '0.04em',
-                  }}
-                >
-                  ACTIVE
-                </span>
+                  {goal.name}
+                </button>
+              ))}
+              {activeGoals.length === 0 && (
+                <button type="button" className="btn-ghost" onClick={onOpenCreateGoal} style={{ fontSize: 12 }}>
+                  <Plus size={14} /> Create a Goal
+                </button>
               )}
             </div>
-
-            {/* Goal List Cards */}
-            {activeGoals.map((g) => {
-              const isSelected = (selectedGoalId === g.id);
-              const frac = g.targetValue > 0 ? Math.min(1.0, g.currentValue / g.targetValue) : 0;
-              const ringColor = frac >= 1.0 ? 'var(--accent-solar, #ff7a00)' : '#ffffff';
-
-              return (
-                <div
-                  key={g.id}
-                  onClick={() => {
-                    if (!focusState.isActive) {
-                      setSelectedGoalId(g.id);
-                    }
-                  }}
-                  style={{
-                    padding: '12px 14px',
-                    borderRadius: '14px',
-                    backgroundColor: isSelected ? 'rgba(255, 255, 255, 0.08)' : 'var(--bg-card, var(--bg-surface))',
-                    backdropFilter: 'blur(16px)',
-                    WebkitBackdropFilter: 'blur(16px)',
-                    borderTop: isSelected ? '1px solid rgba(255, 255, 255, 0.25)' : '1px solid var(--bg-card-border-top, var(--border-subtle))',
-                    borderBottom: isSelected ? '1px solid rgba(255, 255, 255, 0.12)' : '1px solid var(--border-subtle)',
-                    borderLeft: isSelected ? '1px solid rgba(255, 255, 255, 0.18)' : '1px solid var(--border-subtle)',
-                    borderRight: isSelected ? '1px solid rgba(255, 255, 255, 0.18)' : '1px solid var(--border-subtle)',
-                    cursor: focusState.isActive ? 'default' : 'pointer',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'space-between',
-                    gap: '10px',
-                    boxShadow: isSelected ? '0 0 16px rgba(255, 255, 255, 0.08)' : 'var(--shadow-sm)',
-                    transition: 'all 0.15s ease',
-                  }}
-                >
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: '2px', minWidth: 0, flex: 1 }}>
-                    <span style={{ fontSize: '13px', fontWeight: 600, color: 'var(--text-primary)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-                      {g.name}
-                    </span>
-                    <span style={{ fontSize: '11px', color: 'var(--text-secondary)', fontWeight: 500 }}>
-                      {g.currentValue} / {g.targetValue} {g.unit || ''}
-                    </span>
-                  </div>
-
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexShrink: 0 }}>
-                    <span style={{ fontSize: '11px', fontWeight: 700, color: isSelected ? '#ffffff' : 'var(--text-secondary)' }}>
-                      {Math.round(frac * 100)}%
-                    </span>
-                    <GoalProgressRing
-                      progressFraction={frac}
-                      size={24}
-                      strokeWidth={3}
-                      showText={false}
-                      color={ringColor}
-                    />
-                  </div>
-                </div>
-              );
-            })}
           </div>
-        </div>
-
-        {/* Daily Deep Work Metrics */}
-        <div
-          style={{
-            display: 'grid',
-            gridTemplateColumns: '1fr 1fr',
-            gap: '12px',
-          }}
-        >
-          <div
-            style={{
-              padding: '12px 14px',
-              backgroundColor: 'var(--bg-card, var(--bg-surface))',
-              backdropFilter: 'blur(16px)',
-              WebkitBackdropFilter: 'blur(16px)',
-              borderTop: '1px solid var(--bg-card-border-top, var(--border-subtle))',
-              borderBottom: '1px solid var(--border-subtle)',
-              borderLeft: '1px solid var(--border-subtle)',
-              borderRight: '1px solid var(--border-subtle)',
-              borderRadius: '16px',
-              display: 'flex',
-              flexDirection: 'column',
-              gap: '4px',
-              boxShadow: 'var(--shadow-sm)',
-            }}
-          >
-            <div style={{ display: 'flex', alignItems: 'center', gap: '6px', color: 'var(--text-secondary)', fontSize: '11px', fontWeight: 500 }}>
-              <Clock size={12} color="#ffffff" />
-              <span>Independent & Goals</span>
-            </div>
-            <span style={{ fontSize: '16px', fontWeight: 800, color: 'var(--text-primary)' }}>
-              Universal
-            </span>
-            <span style={{ fontSize: '10px', color: 'var(--text-muted)' }}>
-              Supports manual min entry & +5m
-            </span>
-          </div>
-
-          <div
-            style={{
-              padding: '12px 14px',
-              backgroundColor: 'var(--bg-card, var(--bg-surface))',
-              backdropFilter: 'blur(16px)',
-              WebkitBackdropFilter: 'blur(16px)',
-              borderTop: '1px solid var(--bg-card-border-top, var(--border-subtle))',
-              borderBottom: '1px solid var(--border-subtle)',
-              borderLeft: '1px solid var(--border-subtle)',
-              borderRight: '1px solid var(--border-subtle)',
-              borderRadius: '16px',
-              display: 'flex',
-              flexDirection: 'column',
-              gap: '4px',
-              boxShadow: 'var(--shadow-sm)',
-            }}
-          >
-            <div style={{ display: 'flex', alignItems: 'center', gap: '6px', color: 'var(--text-secondary)', fontSize: '11px', fontWeight: 500 }}>
-              <Radio size={12} color="#ffffff" />
-              <span>Dynamic Island</span>
-            </div>
-            <span style={{ fontSize: '16px', fontWeight: 800, color: 'var(--text-primary)' }}>
-              Live Synced
-            </span>
-            <span style={{ fontSize: '10px', color: 'var(--text-muted)' }}>
-              Visible in MacBook notch
-            </span>
-          </div>
-        </div>
+        )}
       </div>
     </div>
   );
 };
+
+const pageStyle: React.CSSProperties = {
+  flex: 1,
+  display: 'grid',
+  placeItems: 'center',
+  overflowY: 'auto',
+  padding: '24px 20px',
+};
+
+const workspaceStyle: React.CSSProperties = {
+  width: 'min(580px, 100%)',
+  textAlign: 'center',
+  padding: '36px 28px',
+  border: '1px solid var(--border-subtle)',
+  borderRadius: 'var(--radius-xl)',
+  background: 'var(--bg-card)',
+  boxShadow: 'var(--shadow-md)',
+  backdropFilter: 'blur(16px)',
+  WebkitBackdropFilter: 'blur(16px)',
+};
+
+const eyebrowStyle: React.CSSProperties = {
+  fontSize: 11,
+  fontWeight: 700,
+  letterSpacing: '.12em',
+  textTransform: 'uppercase',
+  color: 'var(--text-muted)',
+};
+
+const goalStyle: React.CSSProperties = {
+  marginTop: 12,
+  fontSize: 24,
+  lineHeight: 1.15,
+  fontWeight: 700,
+  letterSpacing: '-.04em',
+  color: 'var(--text-primary)',
+};
+
+const actionStyle: React.CSSProperties = {
+  marginTop: 6,
+  color: 'var(--text-secondary)',
+  fontSize: 13,
+  minHeight: 20,
+};
+
+const timerStyle: React.CSSProperties = {
+  fontVariantNumeric: 'tabular-nums',
+  fontSize: 'clamp(52px, 10vw, 76px)',
+  lineHeight: 1,
+  letterSpacing: '-.06em',
+  fontWeight: 700,
+  color: 'var(--text-primary)',
+};
+
+const presetStyle: React.CSSProperties = {
+  display: 'flex',
+  justifyContent: 'center',
+  gap: 7,
+  flexWrap: 'wrap',
+};
+
+const goalPickerStyle: React.CSSProperties = {
+  marginTop: 34,
+  paddingTop: 18,
+  borderTop: '1px solid var(--border-subtle)',
+};
+

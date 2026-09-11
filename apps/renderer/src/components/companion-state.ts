@@ -12,6 +12,8 @@ export const COMPANION_STATES: readonly CompanionState[] = [
   'tickled',
 ];
 
+export const COMPANION_VIEWBOX = '0 0 100 100';
+
 export interface CompanionEyePose {
   cx: number;
   cy: number;
@@ -40,8 +42,8 @@ export const COMPANION_TRANSIENT_DURATIONS_MS: Record<
 };
 
 const baseEyes = (): Pick<CompanionVisual, 'leftEye' | 'rightEye'> => ({
-  leftEye: { cx: 58, cy: 48, rx: 7, ry: 9, rotate: 0 },
-  rightEye: { cx: 102, cy: 48, rx: 7, ry: 9, rotate: 0 },
+  leftEye: { cx: 35, cy: 50, rx: 6, ry: 16, rotate: 0 },
+  rightEye: { cx: 65, cy: 50, rx: 6, ry: 16, rotate: 0 },
 });
 
 export function getCompanionVisual(state: CompanionState): CompanionVisual {

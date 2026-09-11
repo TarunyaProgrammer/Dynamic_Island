@@ -1,11 +1,11 @@
 // apps/renderer/src/components/GoalCard.tsx
 import React, { useState, useRef, useEffect } from 'react';
-import { Goal } from '@shared/types';
+import { Goal, GoalAction } from '@shared/types';
 import { GoalProgressRing } from './GoalProgressRing';
 import { QuickIncrementButton } from './QuickIncrementButton';
 import { MilestoneList } from './MilestoneList';
 import { useDesktopOverlay } from '../hooks/useDesktopOverlay';
-import { CheckCircle, ChevronDown, ChevronUp, MoreHorizontal, Archive, Trash2, Edit3, Calendar, Timer, Zap, Sparkles } from 'lucide-react';
+import { CheckCircle, ChevronDown, ChevronUp, MoreHorizontal, Archive, Trash2, Edit3, Calendar, Timer, Zap, Sparkles, Check, Plus } from 'lucide-react';
 
 interface GoalCardProps {
   goal: Goal;
@@ -20,6 +20,8 @@ interface GoalCardProps {
   onUpdateStreak?: (goalId: string, currentStreak: number, bestStreak: number) => void;
   onMenuToggle?: (isOpen: boolean) => void;
   onOpenFocusMode?: (goalId: string) => void;
+  onConfigureReminder?: (goal: Goal) => void;
+  onPlanAction?: (goalId: string) => void;
   compact?: boolean;
 }
 
@@ -36,11 +38,14 @@ export const GoalCard: React.FC<GoalCardProps> = ({
   onUpdateStreak,
   onMenuToggle,
   onOpenFocusMode,
+  onConfigureReminder,
+  onPlanAction,
   compact = false,
 }) => {
   const [expanded, setExpanded] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const [contextMenuPos, setContextMenuPos] = useState<{ x: number; y: number } | null>(null);
+  const [nextAction, setNextAction] = useState<GoalAction | null>(null);
 
   const [isStreakPopoverOpen, setIsStreakPopoverOpen] = useState(false);
   const [popoverCurrentStreak, setPopoverCurrentStreak] = useState(goal.streakConfig?.currentStreak ?? 0);
@@ -49,15 +54,38 @@ export const GoalCard: React.FC<GoalCardProps> = ({
   const menuButtonRef = useRef<HTMLButtonElement>(null);
   const menuContainerRef = useRef<HTMLDivElement>(null);
   const streakPopoverRef = useRef<HTMLDivElement>(null);
+  const isAnyMenuOpen = menuOpen || isStreakPopoverOpen || Boolean(contextMenuPos);
+  const onMenuToggleRef = useRef(onMenuToggle);
+  onMenuToggleRef.current = onMenuToggle;
+  const isFirstRender = useRef(true);
 
   useEffect(() => {
-    onMenuToggle?.(menuOpen || isStreakPopoverOpen || Boolean(contextMenuPos));
-  }, [menuOpen, isStreakPopoverOpen, contextMenuPos, onMenuToggle]);
+    if (isFirstRender.current) {
+      isFirstRender.current = false;
+      if (!isAnyMenuOpen) return;
+    }
+    onMenuToggleRef.current?.(isAnyMenuOpen);
+    return () => {
+      if (isAnyMenuOpen) {
+        onMenuToggleRef.current?.(false);
+      }
+    };
+  }, [isAnyMenuOpen]);
 
   useEffect(() => {
     setPopoverCurrentStreak(goal.streakConfig?.currentStreak ?? 0);
     setPopoverBestStreak(goal.streakConfig?.bestStreak ?? 0);
   }, [goal.streakConfig]);
+
+  useEffect(() => {
+    let live = true;
+    const loadNextAction = () => void window.beacon.actions.listForGoal(goal.id).then((actions) => {
+      if (live) setNextAction(actions.find((action) => action.status === 'open') ?? null);
+    });
+    loadNextAction();
+    const unsubscribe = window.beacon.onTodayChanged(loadNextAction);
+    return () => { live = false; unsubscribe?.(); };
+  }, [goal.id]);
 
   useEffect(() => {
     if (!isStreakPopoverOpen) return;
@@ -109,8 +137,6 @@ export const GoalCard: React.FC<GoalCardProps> = ({
     return { bg: 'rgba(255, 255, 255, 0.04)', color: 'var(--text-secondary)', border: 'var(--border-subtle)' };
   };
 
-  const isAnyMenuOpen = menuOpen || isStreakPopoverOpen || Boolean(contextMenuPos);
-
   return (
     <div
       onContextMenu={handleContextMenu}
@@ -128,7 +154,7 @@ export const GoalCard: React.FC<GoalCardProps> = ({
         flexDirection: 'column',
         gap: '10px',
         position: 'relative',
-        zIndex: isAnyMenuOpen ? 50 : 1,
+        zIndex: isAnyMenuOpen ? 100 : 1,
         transition: 'all 0.2s ease',
         boxShadow: isAnyMenuOpen ? 'var(--shadow-md), 0 8px 24px rgba(0, 0, 0, 0.25)' : 'var(--shadow-sm)',
       }}
@@ -435,6 +461,90 @@ export const GoalCard: React.FC<GoalCardProps> = ({
           </div>
         </div>
 
+        {!compact && !isComplete && (
+          nextAction ? (
+            <div style={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              gap: '8px',
+              padding: '8px 12px',
+              borderLeft: '2px solid var(--accent-beacon)',
+              background: 'var(--bg-surface)',
+              borderRadius: '0 var(--radius-sm) var(--radius-sm) 0',
+              flexWrap: 'wrap',
+            }}>
+              <div style={{ minWidth: 0, flex: 1 }}>
+                <div style={{ fontSize: '10px', color: 'var(--text-muted)', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '.09em' }}>Today’s Next Action</div>
+                <div style={{ fontSize: '12px', fontWeight: 600, marginTop: 2, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{nextAction.title}</div>
+              </div>
+              <button
+                type="button"
+                className="btn-ghost"
+                title="Mark action done"
+                onClick={async (e) => {
+                  e.stopPropagation();
+                  await window.beacon.actions.complete(nextAction.id);
+                  setNextAction(null);
+                }}
+                style={{
+                  padding: '4px 8px',
+                  borderRadius: 'var(--radius-sm)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '4px',
+                  fontSize: '11px',
+                  fontWeight: 600,
+                  color: '#ffffff',
+                  background: 'rgba(255, 255, 255, 0.08)',
+                  border: '1px solid rgba(255, 255, 255, 0.14)',
+                  cursor: 'pointer',
+                  flexShrink: 0,
+                }}
+              >
+                <Check size={12} strokeWidth={2.5} />
+                <span>Done</span>
+              </button>
+            </div>
+          ) : onPlanAction ? (
+            <button
+              type="button"
+              onClick={(e) => {
+                e.stopPropagation();
+                onPlanAction(goal.id);
+              }}
+              style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '5px',
+                alignSelf: 'flex-start',
+                fontSize: '11px',
+                fontWeight: 500,
+                color: 'var(--text-muted)',
+                padding: '4px 8px',
+                borderRadius: 'var(--radius-sm)',
+                border: '1px dashed var(--border-subtle)',
+                background: 'transparent',
+                cursor: 'pointer',
+                transition: 'all 0.15s ease',
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.color = 'var(--text-primary)';
+                e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.22)';
+                e.currentTarget.style.background = 'rgba(255, 255, 255, 0.04)';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.color = 'var(--text-muted)';
+                e.currentTarget.style.borderColor = 'var(--border-subtle)';
+                e.currentTarget.style.background = 'transparent';
+              }}
+            >
+              <Plus size={11} />
+              <span>Plan action for today</span>
+            </button>
+          ) : null
+        )}
+
         {/* Quick Action & Controls */}
         <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
           {!isComplete && (
@@ -475,7 +585,7 @@ export const GoalCard: React.FC<GoalCardProps> = ({
                   position: 'absolute',
                   top: 'calc(100% + 4px)',
                   right: 0,
-                  zIndex: 100,
+                  zIndex: 150,
                   width: '136px',
                   backgroundColor: 'var(--bg-card, rgba(28, 30, 39, 0.98))',
                   backdropFilter: 'blur(24px)',
@@ -514,6 +624,10 @@ export const GoalCard: React.FC<GoalCardProps> = ({
                   <Edit3 size={12} />
                   <span>Edit Goal</span>
                 </button>
+
+                {onConfigureReminder && <button onClick={() => { setMenuOpen(false); onConfigureReminder(goal); }} style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '6px 8px', fontSize: '11px', color: 'var(--text-primary)', borderRadius: '4px', border: 'none', backgroundColor: 'transparent', cursor: 'pointer', textAlign: 'left' }}>
+                  <Calendar size={12} /><span>Reminder…</span>
+                </button>}
 
                 {!isComplete && (
                   <button
