@@ -3,6 +3,7 @@
   "version": "1.1.0",
   "description": "Minimalist macOS Goal Operating Layer — Glance, Update, Move On",
   "main": "dist-electron/main/index.js",
+  "bin": { "beacon": "scripts/beacon-cli.js" },
   "type": "module",
   "scripts": {
     "dev": "npm run build:preload && vite",
@@ -10,8 +11,9 @@
     "build": "tsc --noEmit && npm run build:preload && vite build",
     "test": "vitest run",
     "test:watch": "vitest",
-    "package": "npm run build && electron-builder",
-    "package:dir": "npm run build && electron-builder --dir",
+    "build:eventkit": "node scripts/build-eventkit-helper.js",
+    "package": "npm run build && npm run build:eventkit && electron-builder",
+    "package:dir": "npm run build && npm run build:eventkit && electron-builder --dir",
     "postinstall": "node scripts/ensure-better-sqlite3.js"
   },
   "keywords": [
@@ -62,6 +64,10 @@
     },
     "afterSign": "scripts/notarize.js",
     "extraResources": [
+    {
+      "from": "build/BeaconEventKitHelper",
+      "to": "BeaconEventKitHelper"
+    },
       "assets/Beacon.png",
       "assets/icon.icns",
       "assets/menubar-icon.png",
@@ -70,7 +76,8 @@
     "files": [
       "dist/**/*",
       "dist-electron/**/*",
-      "node_modules/better-sqlite3/**/*"
+      "node_modules/better-sqlite3/**/*",
+      "node_modules/ws/**/*"
     ],
     "mac": {
       "icon": "assets/icon.icns",
@@ -101,6 +108,8 @@
         "NSSystemAdministrationUsageDescription": "Beacon needs permission to provide global keyboard shortcuts and ambient media controls.",
         "NSAccessibilityUsageDescription": "Beacon needs accessibility access to listen for global hotkeys (⌘⇧B) to open the Command Palette from anywhere.",
         "NSUserNotificationsUsageDescription": "Beacon sends subtle alerts when focus sessions and habit streaks are completed."
+        ,"NSCalendarsFullAccessUsageDescription": "Beacon reads the day’s calendar context only after you ask it to."
+        ,"NSRemindersFullAccessUsageDescription": "Beacon lists Reminders only when you choose to import one into a goal."
       }
     }
   }
