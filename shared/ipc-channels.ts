@@ -37,6 +37,7 @@ export const IPC_CHANNELS = {
   DATA_IMPORT_JSON: 'beacon:data:import-json',
   DATA_EXPORT_CSV: 'beacon:data:export-csv',
   APPLE_CALENDAR_TODAY: 'beacon:apple:calendar-today',
+  APPLE_OPEN_CALENDAR_SETTINGS: 'beacon:apple:open-calendar-settings',
   APPLE_REMINDERS_LIST: 'beacon:apple:reminders-list',
   APPLE_REMINDERS_IMPORT: 'beacon:apple:reminders-import',
 

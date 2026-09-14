@@ -47,7 +47,12 @@ export interface BeaconApi {
     previewImport: () => Promise<{ filePath: string; version: number; exportedAt: string; counts: Record<string, number> } | null>;
     importJson: (filePath: string) => Promise<void>;
   };
-  apple: { calendarToday: () => Promise<CalendarContextEvent[]>; reminders: () => Promise<ExternalReminder[]>; importReminder: (goalId: string, reminder: ExternalReminder) => Promise<GoalAction>; };
+  apple: {
+    calendarToday: () => Promise<CalendarContextEvent[]>;
+    openCalendarSettings: () => Promise<void>;
+    reminders: () => Promise<ExternalReminder[]>;
+    importReminder: (goalId: string, reminder: ExternalReminder) => Promise<GoalAction>;
+  };
 
   // Milestones
   milestones: {

@@ -14,6 +14,8 @@ func waitForAccess(_ request: (@escaping (Bool, Error?) -> Void) -> Void) -> Boo
   return granted
 }
 
+// EventKit has no replacement on macOS 13. The call is reached only on that
+// release; macOS 14+ takes the full-access API below.
 @available(macOS, introduced: 10.8, deprecated: 14.0)
 func legacyAccess(_ store: EKEventStore, _ entity: EKEntityType) -> Bool {
   waitForAccess { completion in store.requestAccess(to: entity, completion: completion) }

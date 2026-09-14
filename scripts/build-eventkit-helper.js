@@ -4,9 +4,14 @@ import path from 'node:path';
 
 if (process.platform !== 'darwin') process.exit(0);
 const root = process.cwd();
-const output = path.join(root, 'build', 'BeaconEventKitHelper');
-const infoPlist = path.join(root, 'build', 'TestInfo.plist');
-fs.mkdirSync(path.dirname(output), { recursive: true });
+const helperBundle = path.join(root, 'build', 'BeaconEventKitHelper.app');
+const contentsDir = path.join(helperBundle, 'Contents');
+const executableDir = path.join(contentsDir, 'MacOS');
+const output = path.join(executableDir, 'BeaconEventKitHelper');
+const infoPlist = path.join(root, 'apps', 'main', 'integrations', 'apple', 'BeaconEventKitHelper-Info.plist');
+fs.rmSync(helperBundle, { recursive: true, force: true });
+fs.mkdirSync(executableDir, { recursive: true });
+fs.copyFileSync(infoPlist, path.join(contentsDir, 'Info.plist'));
 const developerDirectory = execFileSync('xcode-select', ['-p'], { encoding: 'utf8' }).trim();
 if (!developerDirectory.endsWith('/Xcode.app/Contents/Developer')) {
   throw new Error('Beacon EventKit packaging requires full Xcode. Install a matching Xcode release, then run: sudo xcode-select -s /Applications/Xcode.app/Contents/Developer');
@@ -14,10 +19,8 @@ if (!developerDirectory.endsWith('/Xcode.app/Contents/Developer')) {
 const moduleCache = path.join(root, 'build', '.swift-module-cache');
 fs.mkdirSync(moduleCache, { recursive: true });
 execFileSync('xcrun', [
-  'swiftc', '-O', path.join(root, 'apps/main/integrations/apple/BeaconEventKitHelper.swift'), '-o', output,
-  // The helper is an executable, not an app bundle. Embed its privacy strings
-  // so EventKit can present Beacon's Calendar/Reminders permission prompt.
-  '-Xlinker', '-sectcreate', '-Xlinker', '__TEXT', '-Xlinker', '__info_plist', '-Xlinker', infoPlist,
+  'swiftc', '-O', '-suppress-warnings',
+  path.join(root, 'apps/main/integrations/apple/BeaconEventKitHelper.swift'), '-o', output,
 ], {
   stdio: 'inherit',
   env: {

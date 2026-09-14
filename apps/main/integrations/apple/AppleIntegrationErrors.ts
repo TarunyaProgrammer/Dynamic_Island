@@ -1,7 +1,7 @@
 /** Converts native EventKit helper failures into a next step a person can take. */
 export function shouldFallbackToJxa(error: unknown): boolean {
   const detail = error instanceof Error ? error.message : String(error);
-  return detail.includes('BeaconEventKitHelper binary not found');
+  return detail.includes('BeaconEventKitHelper app not found');
 }
 
 export function describeAppleIntegrationError(command: string, error: unknown): string {

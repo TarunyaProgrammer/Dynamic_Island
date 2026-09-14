@@ -1,5 +1,5 @@
 // apps/main/ipc/goalHandlers.ts - Central IPC Bridge Handlers
-import { BrowserWindow, app, dialog, ipcMain } from '@electron-bridge';
+import { BrowserWindow, app, dialog, ipcMain, shell } from '@electron-bridge';
 import { IPC_CHANNELS } from '@shared/ipc-channels';
 import { AppSettings, CompanionEvent, GoalDraft, GoalStatus, GoalUpdateDraft, LiveActivity, FocusSessionState, FocusCompletedEvent, ReminderPolicy } from '@shared/types';
 import { isCompanionEvent } from '@shared/companion';
@@ -204,6 +204,9 @@ export function registerIpcHandlers(
     const end = new Date(start); end.setDate(end.getDate() + 1);
     return appleCalendar.events(start, end);
   });
+  ipcMain.handle(IPC_CHANNELS.APPLE_OPEN_CALENDAR_SETTINGS, () =>
+    shell.openExternal('x-apple.systempreferences:com.apple.preference.security?Privacy_Calendars'),
+  );
   ipcMain.handle(IPC_CHANNELS.APPLE_REMINDERS_LIST, () => appleCalendar.reminders());
   ipcMain.handle(IPC_CHANNELS.APPLE_REMINDERS_IMPORT, (_, goalId: string, reminder: { id: string; title: string; dueDate?: string }) => {
     if (!goalService.getGoal(goalId)) throw new Error('Goal not found');

@@ -20,8 +20,8 @@ export interface AppleReminder { id: string; title: string; dueDate?: string; li
 export class AppleCalendarService {
   constructor(
     private readonly helperPath = app.isPackaged
-      ? path.join(process.resourcesPath, 'BeaconEventKitHelper')
-      : path.join(process.cwd(), 'build', 'BeaconEventKitHelper'),
+      ? path.join(process.resourcesPath, 'BeaconEventKitHelper.app', 'Contents', 'MacOS', 'BeaconEventKitHelper')
+      : path.join(process.cwd(), 'build', 'BeaconEventKitHelper.app', 'Contents', 'MacOS', 'BeaconEventKitHelper'),
   ) {}
 
   async events(start: Date, end: Date): Promise<AppleCalendarEvent[]> {
@@ -169,7 +169,7 @@ export class AppleCalendarService {
 
   private async run<T>(command: string, ...args: string[]): Promise<T> {
     if (!fs.existsSync(this.helperPath)) {
-      throw new Error('BeaconEventKitHelper binary not found — falling back to JXA.');
+      throw new Error('BeaconEventKitHelper app not found — falling back to JXA.');
     }
     try {
       const { stdout } = await execFileAsync(this.helperPath, [command, ...args], { timeout: 10_000 });

@@ -54,6 +54,7 @@ const api: BeaconApi = {
   },
   apple: {
     calendarToday: () => ipcRenderer.invoke(IPC_CHANNELS.APPLE_CALENDAR_TODAY),
+    openCalendarSettings: () => ipcRenderer.invoke(IPC_CHANNELS.APPLE_OPEN_CALENDAR_SETTINGS),
     reminders: () => ipcRenderer.invoke(IPC_CHANNELS.APPLE_REMINDERS_LIST),
     importReminder: (goalId: string, reminder: any) => ipcRenderer.invoke(IPC_CHANNELS.APPLE_REMINDERS_IMPORT, goalId, reminder),
   },

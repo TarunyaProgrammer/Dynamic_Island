@@ -65,6 +65,14 @@ const relativeTime = (iso: string) => {
   return `in ${Math.floor(mins / 60)}h`;
 };
 
+const calendarErrorMessage = (reason: unknown) => {
+  const message = reason instanceof Error ? reason.message : String(reason);
+  return message.replace(/^Error invoking remote method '[^']+': Error:\s*/, '');
+};
+
+const needsCalendarSettings = (error: string | null) =>
+  error?.includes('Beacon needs Calendar access.') ?? false;
+
 // ─── Main Component ───────────────────────────────────────────────────────────
 
 export const TodayView: React.FC<TodayViewProps> = (props) => {
@@ -116,14 +124,14 @@ export const TodayView: React.FC<TodayViewProps> = (props) => {
     setAppleLoading(true);
     setAppleError(null);
     try {
-      const [cal, rem] = await Promise.allSettled([
-        window.beacon.apple.calendarToday(),
-        window.beacon.apple.reminders(),
-      ]);
-      setCalendar(cal.status === 'fulfilled' ? cal.value : []);
-      setReminders(rem.status === 'fulfilled' ? rem.value : []);
-      if (cal.status === 'rejected') {
-        setAppleError(cal.reason instanceof Error ? cal.reason.message : 'Calendar unavailable.');
+      const cal = await Promise.allSettled([window.beacon.apple.calendarToday()]);
+      const rem = cal[0].status === 'fulfilled'
+        ? await Promise.allSettled([window.beacon.apple.reminders()])
+        : [{ status: 'rejected', reason: cal[0].reason }] as const;
+      setCalendar(cal[0].status === 'fulfilled' ? cal[0].value : []);
+      setReminders(rem[0].status === 'fulfilled' ? rem[0].value : []);
+      if (cal[0].status === 'rejected') {
+        setAppleError(calendarErrorMessage(cal[0].reason));
         setHasGrantedApple(false);
         localStorage.removeItem('beacon:apple-permission-granted');
         return false;
@@ -282,6 +290,7 @@ export const TodayView: React.FC<TodayViewProps> = (props) => {
             hasGranted={hasGrantedApple}
             onRequest={() => setShowPermissionModal(true)}
             onRefresh={loadCalendar}
+            onOpenSettings={() => void window.beacon.apple.openCalendarSettings()}
           />
 
           {/* Reminders panel */}
@@ -603,7 +612,8 @@ const CalendarPanel: React.FC<{
   hasGranted: boolean;
   onRequest: () => void;
   onRefresh: () => void;
-}> = ({ events, allEvents, loading, error, hasGranted, onRequest, onRefresh }) => (
+  onOpenSettings: () => void;
+}> = ({ events, allEvents, loading, error, hasGranted, onRequest, onRefresh, onOpenSettings }) => (
   <div style={cardStyle}>
     <SectionHeader
       icon={<CalendarIcon size={12} />}
@@ -623,8 +633,8 @@ const CalendarPanel: React.FC<{
         <div style={{ fontSize: '11px', color: 'var(--text-muted)', marginBottom: '8px' }}>
           {error ?? 'See today\'s events alongside your actions'}
         </div>
-        <button onClick={onRequest} style={primaryPillStyle}>
-          <CalendarIcon size={11} /> {error ? 'Grant Calendar Access' : 'Connect Calendar'}
+        <button onClick={needsCalendarSettings(error) ? onOpenSettings : onRequest} style={primaryPillStyle}>
+          <CalendarIcon size={11} /> {needsCalendarSettings(error) ? 'Open Calendar Settings' : error ? 'Try Calendar Access' : 'Connect Calendar'}
         </button>
       </div>
     ) : loading && !allEvents ? (

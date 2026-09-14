@@ -65,8 +65,8 @@
     "afterSign": "scripts/notarize.js",
     "extraResources": [
       {
-        "from": "build/BeaconEventKitHelper",
-        "to": "BeaconEventKitHelper"
+        "from": "build/BeaconEventKitHelper.app",
+        "to": "BeaconEventKitHelper.app"
       },
       "assets/Beacon.png",
       "assets/icon.icns",
