@@ -40,6 +40,17 @@ export const IPC_CHANNELS = {
   APPLE_REMINDERS_LIST: 'beacon:apple:reminders-list',
   APPLE_REMINDERS_IMPORT: 'beacon:apple:reminders-import',
 
+  // Unified Calendar (Apple + Google merged)
+  CALENDAR_GET_EVENTS: 'beacon:calendar:get-events',
+  CALENDAR_GET_CALENDARS: 'beacon:calendar:get-calendars',
+  CALENDAR_GOOGLE_AUTH_START: 'beacon:calendar:google-auth-start',
+  CALENDAR_GOOGLE_AUTH_STATUS: 'beacon:calendar:google-auth-status',
+  CALENDAR_GOOGLE_DISCONNECT: 'beacon:calendar:google-disconnect',
+
+  // App System
+  APP_OPEN_AT_LOGIN_SET: 'beacon:app:set-login-item',
+  APP_CHECK_FOR_UPDATE: 'beacon:app:check-update',
+
   // Milestones
   MILESTONES_CREATE: 'beacon:milestones:create',
   MILESTONES_TOGGLE: 'beacon:milestones:toggle',
@@ -97,6 +108,7 @@ export const IPC_CHANNELS = {
   EVENT_FOCUS_COMPLETED: 'beacon:event:focus-completed',
   EVENT_COMPANION_CHANGED: 'beacon:event:companion-changed',
   EVENT_NAVIGATE: 'beacon:event:navigate',
+  EVENT_CALENDAR_CHANGED: 'beacon:event:calendar-changed',
 } as const;
 
 export type IpcChannel = (typeof IPC_CHANNELS)[keyof typeof IPC_CHANNELS];

@@ -12,7 +12,7 @@ import { ConfettiCanvas } from '../components/ConfettiCanvas';
 import { triggerLightPulse } from '../components/LightBeamFeedback';
 import { ConfirmationModal } from '../components/ConfirmationModal';
 import { soundEffects } from '../utils/audio';
-import { Plus, Undo2, Redo2, Layers, CheckCircle2, Archive, Timer, Search, X, Sparkles, MessageSquare, Database } from 'lucide-react';
+import { Plus, Undo2, Redo2, Layers, CheckCircle2, Archive, Timer, Search, X, Sparkles, MessageSquare, Database, Settings as SettingsIcon, CalendarDays } from 'lucide-react';
 import { FocusDashboardView } from '../components/FocusDashboardView';
 import { useCompanion } from '../hooks/useCompanion';
 import { SolarHorizonGraph } from '../components/SolarHorizonGraph';
@@ -27,9 +27,10 @@ import { OnboardingModal } from '../components/OnboardingModal';
 import { ReminderPolicyModal } from '../components/ReminderPolicyModal';
 import { DataTrustModal } from '../components/DataTrustModal';
 import { WeeklyReviewView } from '../components/WeeklyReviewView';
+import { SettingsView } from '../components/SettingsView';
 
 export const MainAppView: React.FC = () => {
-  const [viewMode, setViewMode] = useState<'today' | 'goals' | 'focus' | 'review'>('today');
+  const [viewMode, setViewMode] = useState<'today' | 'goals' | 'focus' | 'review' | 'calendar' | 'settings' | 'help'>('today');
   const [focusGoalId, setFocusGoalId] = useState<string>('');
   const [activeTab, setActiveTab] = useState<GoalStatus | 'all'>('active');
   const [searchQuery, setSearchQuery] = useState('');
@@ -336,6 +337,28 @@ export const MainAppView: React.FC = () => {
               style={{ padding: '3px 10px', borderRadius: 'var(--radius-sm)', fontSize: '11px', fontWeight: 600, backgroundColor: viewMode === 'review' ? 'var(--btn-primary-bg)' : 'transparent', color: viewMode === 'review' ? 'var(--btn-primary-text)' : 'var(--text-secondary)', border: 'none', cursor: 'pointer', transition: 'all 0.15s ease' }}
               title="Weekly review"
             >Review</button>
+            <button
+              type="button"
+              onClick={(e) => { e.stopPropagation(); setViewMode('calendar'); }}
+              style={{
+                padding: '3px 10px',
+                borderRadius: 'var(--radius-sm)',
+                fontSize: '11px',
+                fontWeight: 600,
+                backgroundColor: viewMode === 'calendar' ? 'var(--btn-primary-bg)' : 'transparent',
+                color: viewMode === 'calendar' ? 'var(--btn-primary-text)' : 'var(--text-secondary)',
+                border: 'none',
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '4px',
+                transition: 'all 0.15s ease',
+              }}
+              title="Calendar (⌘4)"
+            >
+              <CalendarDays size={11} />
+              <span>Calendar</span>
+            </button>
           </div>
         </div>
 
@@ -354,6 +377,20 @@ export const MainAppView: React.FC = () => {
         {/* Action Controls (Right Cluster: 100% Clickable) */}
         <div className="no-drag" style={{ display: 'flex', alignItems: 'center', gap: '8px', zIndex: 10 }}>
           <button type="button" onClick={(e) => { e.stopPropagation(); setShowDataTrust(true); }} className="btn-ghost" title="Backups and exports" style={{ padding: '5px 7px' }}><Database size={14} /></button>
+          <button
+            type="button"
+            onClick={(e) => { e.stopPropagation(); setViewMode(viewMode === 'settings' ? 'today' : 'settings'); }}
+            className="btn-ghost"
+            title="Settings (⌘,)"
+            style={{
+              padding: '5px 7px',
+              color: viewMode === 'settings' ? 'var(--accent-primary)' : undefined,
+              background: viewMode === 'settings' ? 'rgba(217,119,6,0.1)' : undefined,
+              borderRadius: '6px',
+            }}
+          >
+            <SettingsIcon size={14} />
+          </button>
           <button
             type="button"
             onClick={(e) => {
@@ -403,6 +440,18 @@ export const MainAppView: React.FC = () => {
         />
       ) : viewMode === 'review' ? (
         <WeeklyReviewView onPlanAction={() => { setViewMode('today'); setIsActionEditorOpen(true); }} />
+      ) : viewMode === 'settings' ? (
+        <SettingsView />
+      ) : viewMode === 'calendar' ? (
+        <div style={{ flex: 1, overflow: 'hidden', display: 'flex', flexDirection: 'column', padding: '20px 24px' }}>
+          <div style={{ marginBottom: '12px' }}>
+            <div style={{ fontSize: '10px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.1em', color: 'var(--text-muted)', marginBottom: '4px' }}>Calendar</div>
+            <div style={{ fontSize: '18px', fontWeight: 700, color: 'var(--text-primary)' }}>Your Schedule</div>
+          </div>
+          <div style={{ color: 'var(--text-muted)', fontSize: '13px' }}>
+            Full calendar view coming soon — see today's events in the Today tab.
+          </div>
+        </div>
       ) : viewMode === 'today' ? (
         <TodayView
           plan={today.plan}

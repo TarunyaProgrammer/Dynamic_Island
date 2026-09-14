@@ -1,5 +1,5 @@
 // apps/preload/types.ts - Typed Preload Bridge Interface
-import { AppSettings, BeaconStats, CalendarContextEvent, CompanionEvent, ExternalReminder, Goal, GoalAction, GoalDraft, GoalStatus, GoalUpdateDraft, Milestone, ProgressEvent, ReminderPolicy, SkipReason, TodayPlan, TodayPlanBucket, WeeklyReview } from '@shared/types';
+import { AppSettings, BeaconStats, CalendarContextEvent, CalendarEvent, CompanionEvent, ExternalReminder, Goal, GoalAction, GoalDraft, GoalStatus, GoalUpdateDraft, GoogleCalendarInfo, GoogleOAuthStatus, Milestone, ProgressEvent, ReminderPolicy, SkipReason, TodayPlan, TodayPlanBucket, WeeklyReview } from '@shared/types';
 
 export interface BeaconApi {
   // Goal CRUD & Progress
@@ -116,16 +116,35 @@ export interface BeaconApi {
     quitApp: () => Promise<void>;
   };
 
+  // Unified Calendar (Apple + Google)
+  calendar: {
+    getEvents: (startIso: string, endIso: string) => Promise<CalendarEvent[]>;
+    getCalendars: () => Promise<GoogleCalendarInfo[]>;
+    googleAuth: {
+      start: () => Promise<{ success: boolean }>;
+      status: () => Promise<{ status: GoogleOAuthStatus; connected: boolean }>;
+      disconnect: () => Promise<{ success: boolean }>;
+    };
+  };
+
+  // App system
+  app: {
+    setOpenAtLogin: (enabled: boolean) => Promise<{ success: boolean; openAtLogin: boolean }>;
+    checkForUpdate: () => Promise<{ updateAvailable: boolean; currentVersion: string }>;
+    getVersion: () => string;
+  };
+
   // Event Subscriptions
   onGoalsChanged: (callback: () => void) => () => void;
   onTodayChanged: (callback: () => void) => () => void;
-  onNavigate: (callback: (surface: 'today' | 'goals' | 'focus' | 'review') => void) => () => void;
+  onNavigate: (callback: (surface: 'today' | 'goals' | 'focus' | 'review' | 'calendar' | 'settings' | 'help') => void) => () => void;
   onRemindersChanged: (callback: () => void) => () => void;
   onSettingsChanged: (callback: (settings: AppSettings) => void) => () => void;
   onActivitiesChanged: (callback: (stack: import('@shared/types').LiveActivity[]) => void) => () => void;
   onFocusTick: (callback: (state: import('@shared/types').FocusSessionState) => void) => () => void;
   onFocusCompleted: (callback: (event: import('@shared/types').FocusCompletedEvent) => void) => () => void;
   onCompanionChanged: (callback: (event: CompanionEvent) => void) => () => void;
+  onCalendarChanged: (callback: (payload: any) => void) => () => void;
 }
 
 declare global {

@@ -17,6 +17,8 @@ import { PaletteWindowController } from './windows/PaletteWindow';
 import { TrayController } from './tray/TrayController';
 import { ShortcutManager } from './shortcuts/ShortcutManager';
 import { registerIpcHandlers } from './ipc/goalHandlers';
+import { registerCalendarHandlers } from './ipc/calendarHandlers';
+import { CredentialRepository } from '@database/repository/credential-repository';
 import { ReminderRunner } from './reminders/ReminderRunner';
 import { ReminderPolicyRepository } from '@database/repository/reminder-policy-repository';
 import { OperationLogRepository } from '@database/repository/operation-log-repository';
@@ -56,6 +58,7 @@ class BeaconApp {
   private db = DatabaseConnection.getDatabase();
   private goalRepository = new SQLiteGoalRepository(this.db);
   private settingsRepository = new SettingsRepository(this.db);
+  private credentialRepository = new CredentialRepository(this.db);
   private operationLog = new OperationLogRepository(this.db);
   private goalService = new GoalService(this.goalRepository, undefined, { record: (operation) => { this.operationLog.append(operation); } });
   private dailyServices = createDailyServices(this.db, this.goalService);
@@ -104,6 +107,9 @@ class BeaconApp {
       RENDERER_URL,
       this.dailyServices,
     );
+
+    // Register Calendar + App System IPC handlers
+    registerCalendarHandlers(this.settingsRepository, this.credentialRepository);
 
     // Initialize Tray
     this.trayController.initialize();
@@ -154,8 +160,8 @@ app.whenReady().then(async () => {
   // In production: strict origin isolation with Google Fonts and local asset loading.
   session.defaultSession.webRequest.onHeadersReceived((details, callback) => {
     const csp = isDev
-      ? "default-src 'self' http://localhost:* http://127.0.0.1:*; script-src 'self' 'unsafe-inline' 'unsafe-eval' http://localhost:* http://127.0.0.1:*; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' data: https://fonts.gstatic.com; connect-src 'self' ws://localhost:* ws://127.0.0.1:* http://localhost:* http://127.0.0.1:*; img-src 'self' data: blob: https:;"
-      : "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' data: https://fonts.gstatic.com; connect-src 'self'; img-src 'self' data: blob: https:;";
+      ? "default-src 'self' http://localhost:* http://127.0.0.1:*; script-src 'self' 'unsafe-inline' 'unsafe-eval' http://localhost:* http://127.0.0.1:*; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' data: https://fonts.gstatic.com; connect-src 'self' ws://localhost:* ws://127.0.0.1:* http://localhost:* http://127.0.0.1:* https://oauth2.googleapis.com https://www.googleapis.com https://accounts.google.com; img-src 'self' data: blob: https:;"
+      : "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' data: https://fonts.gstatic.com; connect-src 'self' https://oauth2.googleapis.com https://www.googleapis.com https://accounts.google.com; img-src 'self' data: blob: https:;";
 
     callback({
       responseHeaders: {

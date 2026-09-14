@@ -9,7 +9,13 @@ export const DEFAULT_SETTINGS: AppSettings = {
   showInAllSpaces: true,
   globalShortcut: 'CommandOrControl+Shift+B',
   theme: 'dark',
+  soundMode: 'subtle',
   onboardingCompleted: false,
+  googleCalendarConnected: false,
+  googleCalendarSyncedCalendars: [],
+  calendarShowInIsland: true,
+  notificationBadge: true,
+  islandOpacity: 1.0,
 };
 
 export class SettingsRepository {

@@ -122,6 +122,23 @@ const api: BeaconApi = {
     quitApp: () => ipcRenderer.invoke(IPC_CHANNELS.APP_QUIT),
   },
 
+  calendar: {
+    getEvents: (startIso: string, endIso: string) =>
+      ipcRenderer.invoke(IPC_CHANNELS.CALENDAR_GET_EVENTS, startIso, endIso),
+    getCalendars: () => ipcRenderer.invoke(IPC_CHANNELS.CALENDAR_GET_CALENDARS),
+    googleAuth: {
+      start: () => ipcRenderer.invoke(IPC_CHANNELS.CALENDAR_GOOGLE_AUTH_START),
+      status: () => ipcRenderer.invoke(IPC_CHANNELS.CALENDAR_GOOGLE_AUTH_STATUS),
+      disconnect: () => ipcRenderer.invoke(IPC_CHANNELS.CALENDAR_GOOGLE_DISCONNECT),
+    },
+  },
+
+  app: {
+    setOpenAtLogin: (enabled: boolean) => ipcRenderer.invoke(IPC_CHANNELS.APP_OPEN_AT_LOGIN_SET, enabled),
+    checkForUpdate: () => ipcRenderer.invoke(IPC_CHANNELS.APP_CHECK_FOR_UPDATE),
+    getVersion: () => process.env.npm_package_version ?? '1.0.0',
+  },
+
   onGoalsChanged: (callback: () => void) => {
     const handler = () => callback();
     ipcRenderer.on(IPC_CHANNELS.EVENT_GOALS_CHANGED, handler);
@@ -186,6 +203,12 @@ const api: BeaconApi = {
     return () => {
       ipcRenderer.removeListener(IPC_CHANNELS.EVENT_COMPANION_CHANGED, handler);
     };
+  },
+
+  onCalendarChanged: (callback: (payload: any) => void) => {
+    const handler = (_: any, payload: any) => callback(payload);
+    ipcRenderer.on(IPC_CHANNELS.EVENT_CALENDAR_CHANGED, handler);
+    return () => ipcRenderer.removeListener(IPC_CHANNELS.EVENT_CALENDAR_CHANGED, handler);
   },
 };
 

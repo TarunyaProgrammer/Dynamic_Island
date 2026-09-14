@@ -133,6 +133,35 @@ export interface ReminderPolicy {
 export interface CalendarContextEvent { id: string; title: string; start: string; end: string; calendar: string; }
 export interface ExternalReminder { id: string; title: string; dueDate?: string; list: string; }
 
+// ─── Unified Calendar Integration ────────────────────────────────────────────
+
+/** Source of a calendar event — determines dot colour in the UI */
+export type CalendarEventSource = 'apple' | 'google';
+
+/** Unified shape for events from Apple Calendar and Google Calendar */
+export interface CalendarEvent {
+  id: string;
+  title: string;
+  start: string;        // ISO 8601
+  end: string;          // ISO 8601
+  calendar: string;     // Calendar/account name
+  source: CalendarEventSource;
+  isAllDay?: boolean;
+  location?: string;
+  color?: string;       // hex, passed through from Google
+}
+
+/** OAuth connection state for Google Calendar */
+export type GoogleOAuthStatus = 'disconnected' | 'connecting' | 'connected' | 'error';
+
+/** Summary returned to renderer about connected Google calendars */
+export interface GoogleCalendarInfo {
+  id: string;
+  name: string;
+  color: string;
+  enabled: boolean;
+}
+
 /** Append-only unit for future multi-device sync; never sync the SQLite file. */
 export interface SyncOperation {
   id: string;
@@ -332,6 +361,22 @@ export interface AppSettings {
   soundMode?: 'silent' | 'subtle' | 'full';
   /** Kept locally; setup never requires a Beacon account. */
   onboardingCompleted?: boolean;
+
+  // ─── Calendar ──────────────────────────────────────────────────────────────
+  /** Whether Google Calendar OAuth is active */
+  googleCalendarConnected?: boolean;
+  /** Calendar IDs the user has opted into syncing */
+  googleCalendarSyncedCalendars?: string[];
+  /** Show next upcoming event pill in the Dynamic Island expanded view */
+  calendarShowInIsland?: boolean;
+
+  // ─── Notification & License ────────────────────────────────────────────────
+  notificationBadge?: boolean;
+  /** User-entered license key for offline validation */
+  licenseKey?: string;
+
+  // ─── Island Appearance ─────────────────────────────────────────────────────
+  islandOpacity?: number; // 0.6 – 1.0
 }
 
 export interface BeaconStats {

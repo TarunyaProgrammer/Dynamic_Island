@@ -3,22 +3,36 @@ import { execFile } from 'node:child_process';
 import { promisify } from 'node:util';
 import path from 'node:path';
 import fs from 'node:fs';
-import { describeAppleIntegrationError } from './AppleIntegrationErrors';
+import { describeAppleIntegrationError, shouldFallbackToJxa } from './AppleIntegrationErrors';
 
 const execFileAsync = promisify(execFile);
 export interface AppleCalendarEvent { id: string; title: string; start: string; end: string; calendar: string; }
 export interface AppleReminder { id: string; title: string; dueDate?: string; list: string; }
 
-/** Native EventKit boundary. It is read-only by design: converting a reminder
- * into an action remains an explicit Beacon command made by the user. */
+/**
+ * Native EventKit boundary. Read-only by design.
+ *
+ * Strategy:
+ *   1. Try the compiled BeaconEventKitHelper binary, which requests access on demand.
+ *   2. Fall back to JXA via osascript (works when binary is absent in dev).
+ *   3. On any failure, surface a clean human-readable error (never the raw script).
+ */
 export class AppleCalendarService {
-  constructor(private readonly helperPath = app.isPackaged ? path.join(process.resourcesPath, 'BeaconEventKitHelper') : path.join(process.cwd(), 'build', 'BeaconEventKitHelper')) {}
+  constructor(
+    private readonly helperPath = app.isPackaged
+      ? path.join(process.resourcesPath, 'BeaconEventKitHelper')
+      : path.join(process.cwd(), 'build', 'BeaconEventKitHelper'),
+  ) {}
+
   async events(start: Date, end: Date): Promise<AppleCalendarEvent[]> {
     try {
       const startIso = start.toISOString().replace(/\.\d{3}Z$/, 'Z');
       const endIso = end.toISOString().replace(/\.\d{3}Z$/, 'Z');
       return await this.run<AppleCalendarEvent[]>('calendar', startIso, endIso);
-    } catch {
+    } catch (error) {
+      // EventKit is the only path that can request Calendar permission. Do not
+      // replace a denial or request failure with an unrelated AppleScript error.
+      if (!shouldFallbackToJxa(error)) throw error;
       return this.runJxaCalendar(start, end);
     }
   }
@@ -26,103 +40,136 @@ export class AppleCalendarService {
   async reminders(): Promise<AppleReminder[]> {
     try {
       return await this.run<AppleReminder[]>('reminders');
-    } catch {
+    } catch (error) {
+      if (!shouldFallbackToJxa(error)) throw error;
       return this.runJxaReminders();
     }
   }
 
+  // ─── JXA Fallback ─────────────────────────────────────────────────────────
+
   private async runJxaCalendar(start: Date, end: Date): Promise<AppleCalendarEvent[]> {
+    // Minimal script — avoids any Application("Calendar").launch() that triggers
+    // a permission dialog. We simply query; if access is denied the error is clean.
+    const startIso = start.toISOString();
+    const endIso = end.toISOString();
+
     const script = `
 (() => {
   try {
-    const app = Application("Calendar");
-    const start = new Date("${start.toISOString()}");
-    const end = new Date("${end.toISOString()}");
-    const cals = app.calendars();
+    const cal = Application("Calendar");
+    const startDate = new Date("${startIso}");
+    const endDate = new Date("${endIso}");
+    const cals = cal.calendars();
     const results = [];
     for (let i = 0; i < cals.length; i++) {
-      const cal = cals[i];
-      const evts = cal.events.whose({
-        _and: [
-          { startDate: { _greaterThanEquals: start } },
-          { startDate: { _lessThan: end } }
-        ]
-      })();
+      const c = cals[i];
+      let evts;
+      try {
+        evts = c.events.whose({
+          _and: [
+            { startDate: { _greaterThanEquals: startDate } },
+            { startDate: { _lessThan: endDate } }
+          ]
+        })();
+      } catch(e) { evts = []; }
       for (let j = 0; j < evts.length; j++) {
         const e = evts[j];
-        results.push({
-          id: e.id(),
-          title: e.summary() || "Untitled Event",
-          start: e.startDate().toISOString(),
-          end: e.endDate().toISOString(),
-          calendar: cal.name()
-        });
+        try {
+          results.push({
+            id: String(e.uid()),
+            title: e.summary() || "Untitled Event",
+            start: e.startDate().toISOString(),
+            end: e.endDate().toISOString(),
+            calendar: c.name()
+          });
+        } catch(e2) {}
       }
     }
     return JSON.stringify(results);
   } catch(err) {
-    return JSON.stringify({ error: err.message });
+    return JSON.stringify({ error: String(err.message || err) });
   }
 })()
 `;
-    try {
-      const { stdout } = await execFileAsync('osascript', ['-l', 'JavaScript', '-e', script], { timeout: 10_000 });
-      const parsed = JSON.parse(stdout.trim());
-      if (parsed && typeof parsed === 'object' && 'error' in parsed) {
-        throw new Error(parsed.error);
-      }
-      return Array.isArray(parsed) ? parsed : [];
-    } catch (err) {
-      throw new Error(describeAppleIntegrationError('calendar', err));
-    }
+
+    return this.execOsascript<AppleCalendarEvent[]>(script, 'calendar');
   }
 
   private async runJxaReminders(): Promise<AppleReminder[]> {
     const script = `
 (() => {
   try {
-    const app = Application("Reminders");
-    const lists = app.lists();
+    const rem = Application("Reminders");
+    const lists = rem.lists();
     const results = [];
     for (let i = 0; i < lists.length; i++) {
       const list = lists[i];
-      const items = list.reminders.whose({ completed: false })();
+      let items;
+      try { items = list.reminders.whose({ completed: false })(); } catch(e) { items = []; }
       for (let j = 0; j < Math.min(items.length, 50); j++) {
         const item = items[j];
-        let dueStr = undefined;
+        let dueStr;
+        try { const d = item.dueDate(); if (d) dueStr = d.toISOString(); } catch(e) {}
         try {
-          const due = item.dueDate();
-          if (due) dueStr = due.toISOString();
-        } catch(e) {}
-        results.push({
-          id: item.id(),
-          title: item.name() || "Untitled Reminder",
-          dueDate: dueStr,
-          list: list.name()
-        });
+          results.push({
+            id: item.id(),
+            title: item.name() || "Untitled Reminder",
+            dueDate: dueStr,
+            list: list.name()
+          });
+        } catch(e2) {}
       }
     }
     return JSON.stringify(results);
   } catch(err) {
-    return JSON.stringify({ error: err.message });
+    return JSON.stringify({ error: String(err.message || err) });
   }
 })()
 `;
-    try {
-      const { stdout } = await execFileAsync('osascript', ['-l', 'JavaScript', '-e', script], { timeout: 10_000 });
-      const parsed = JSON.parse(stdout.trim());
-      if (parsed && typeof parsed === 'object' && 'error' in parsed) {
-        throw new Error(parsed.error);
-      }
-      return Array.isArray(parsed) ? parsed : [];
-    } catch (err) {
-      throw new Error(describeAppleIntegrationError('reminders', err));
-    }
+
+    return this.execOsascript<AppleReminder[]>(script, 'reminders');
   }
+
+  /**
+   * Runs an osascript JXA string and parses the JSON output.
+   * Never throws with the raw script in the message — always sanitized.
+   */
+  private async execOsascript<T>(script: string, command: string): Promise<T> {
+    let stdout: string;
+    try {
+      ({ stdout } = await execFileAsync('osascript', ['-l', 'JavaScript', '-e', script], {
+        timeout: 12_000,
+        // Prevent the raw script from appearing in error.message via the cmd line
+        windowsHide: true,
+      }));
+    } catch (err: any) {
+      // err.message often contains the full command string with the script embedded.
+      // Extract only the stderr/message part, not the cmd.
+      const detail: string = (err.stderr ?? err.message ?? '').split('\n')[0] ?? '';
+      throw new Error(describeAppleIntegrationError(command, new Error(detail)));
+    }
+
+    let parsed: unknown;
+    try {
+      parsed = JSON.parse(stdout.trim());
+    } catch {
+      throw new Error(describeAppleIntegrationError(command, new Error('Invalid response from Calendar')));
+    }
+
+    if (parsed && typeof parsed === 'object' && 'error' in (parsed as object)) {
+      const msg = (parsed as { error: string }).error;
+      throw new Error(describeAppleIntegrationError(command, new Error(msg)));
+    }
+
+    return Array.isArray(parsed) ? (parsed as T) : ([] as T);
+  }
+
+  // ─── Binary Helper ────────────────────────────────────────────────────────
 
   private async run<T>(command: string, ...args: string[]): Promise<T> {
     if (!fs.existsSync(this.helperPath)) {
-      throw new Error('Apple Calendar and Reminders helper binary not found.');
+      throw new Error('BeaconEventKitHelper binary not found — falling back to JXA.');
     }
     try {
       const { stdout } = await execFileAsync(this.helperPath, [command, ...args], { timeout: 10_000 });

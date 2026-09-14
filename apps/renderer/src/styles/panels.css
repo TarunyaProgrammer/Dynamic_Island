@@ -1,0 +1,332 @@
+/* apps/renderer/src/styles/panels.css
+   Shared design tokens and base styles for Settings, Help, and Calendar panels.
+   All new panels import this file. No external dependencies. */
+
+/* ─── Settings Panel Tokens ──────────────────────────────────────────────── */
+:root {
+  --settings-section-bg:      rgba(255, 255, 255, 0.04);
+  --settings-section-border:  1px solid rgba(255, 255, 255, 0.07);
+  --settings-section-radius:  12px;
+
+  --toggle-track-active:      #D97706;
+  --toggle-track-inactive:    rgba(255, 255, 255, 0.12);
+  --toggle-thumb:             #ffffff;
+
+  --kbd-bg:                   rgba(255, 255, 255, 0.08);
+  --kbd-border:               rgba(255, 255, 255, 0.15);
+  --kbd-color:                #e2e8f0;
+  --kbd-radius:               5px;
+
+  --cal-dot-apple:            #FF6B6B;
+  --cal-dot-google:           #4285F4;
+  --cal-event-bg:             rgba(255, 255, 255, 0.04);
+  --cal-event-hover-bg:       rgba(255, 255, 255, 0.08);
+
+  --danger-zone-bg:           rgba(239, 68, 68, 0.06);
+  --danger-zone-border:       rgba(239, 68, 68, 0.18);
+  --danger-text:              #f87171;
+
+  --success-bg:               rgba(34, 197, 94, 0.08);
+  --success-border:           rgba(34, 197, 94, 0.2);
+  --success-text:             #4ade80;
+}
+
+/* ─── Toggle Switch ──────────────────────────────────────────────────────── */
+.beacon-toggle {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  cursor: pointer;
+  gap: 10px;
+}
+
+.beacon-toggle input[type='checkbox'] {
+  position: absolute;
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.beacon-toggle-track {
+  position: relative;
+  width: 40px;
+  height: 22px;
+  border-radius: 999px;
+  background: var(--toggle-track-inactive);
+  transition: background 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+  flex-shrink: 0;
+}
+
+.beacon-toggle input:checked ~ .beacon-toggle-track {
+  background: var(--toggle-track-active);
+  box-shadow: 0 0 10px rgba(217, 119, 6, 0.35);
+}
+
+.beacon-toggle-thumb {
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: var(--toggle-thumb);
+  transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.4);
+}
+
+.beacon-toggle input:checked ~ .beacon-toggle-track .beacon-toggle-thumb {
+  transform: translateX(18px);
+}
+
+/* ─── Settings Section Card ──────────────────────────────────────────────── */
+.settings-section {
+  background: var(--settings-section-bg);
+  border: var(--settings-section-border);
+  border-radius: var(--settings-section-radius);
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.settings-section-title {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  padding-bottom: 4px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.settings-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  min-height: 36px;
+}
+
+.settings-row-label {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.settings-row-label-text {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text-primary);
+}
+
+.settings-row-label-hint {
+  font-size: 11px;
+  color: var(--text-muted);
+  line-height: 1.4;
+}
+
+.settings-divider {
+  height: 1px;
+  background: rgba(255, 255, 255, 0.05);
+  margin: 0;
+}
+
+/* ─── Integration Card ───────────────────────────────────────────────────── */
+.integration-card {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  border-radius: 10px;
+  padding: 14px 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  transition: border-color 0.15s ease;
+}
+
+.integration-card:hover {
+  border-color: rgba(255, 255, 255, 0.12);
+}
+
+.integration-card-connected {
+  border-color: var(--success-border);
+  background: var(--success-bg);
+}
+
+.integration-icon {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  flex-shrink: 0;
+}
+
+.integration-meta {
+  flex: 1;
+  min-width: 0;
+}
+
+.integration-name {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.integration-status {
+  font-size: 11px;
+  color: var(--text-muted);
+  margin-top: 2px;
+}
+
+.integration-status-connected {
+  color: var(--success-text);
+}
+
+/* ─── kbd Styling ────────────────────────────────────────────────────────── */
+kbd {
+  display: inline-block;
+  padding: 2px 6px;
+  background: var(--kbd-bg);
+  border: 1px solid var(--kbd-border);
+  border-radius: var(--kbd-radius);
+  font-family: 'JetBrains Mono', 'SF Mono', monospace;
+  font-size: 11px;
+  color: var(--kbd-color);
+  box-shadow: 0 1px 0 rgba(0, 0, 0, 0.3);
+  line-height: 1.4;
+}
+
+/* ─── Calendar Event Cards ───────────────────────────────────────────────── */
+.cal-event-card {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 10px 12px;
+  background: var(--cal-event-bg);
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.04);
+  transition: background 0.12s ease, border-color 0.12s ease;
+  cursor: default;
+}
+
+.cal-event-card:hover {
+  background: var(--cal-event-hover-bg);
+  border-color: rgba(255, 255, 255, 0.09);
+}
+
+.cal-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  margin-top: 5px;
+}
+
+.cal-dot-apple  { background: var(--cal-dot-apple); }
+.cal-dot-google { background: var(--cal-dot-google); }
+
+.cal-event-title {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text-primary);
+  line-height: 1.35;
+}
+
+.cal-event-meta {
+  font-size: 11px;
+  color: var(--text-muted);
+  margin-top: 2px;
+}
+
+.cal-day-header {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  padding: 4px 0 8px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+/* ─── Accordion (Help FAQ) ───────────────────────────────────────────────── */
+.accordion-item {
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.accordion-trigger {
+  width: 100%;
+  background: none;
+  border: none;
+  padding: 14px 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text-primary);
+  text-align: left;
+  gap: 12px;
+  transition: color 0.12s ease;
+}
+
+.accordion-trigger:hover { color: #ffffff; }
+
+.accordion-chevron {
+  flex-shrink: 0;
+  transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+  color: var(--text-muted);
+}
+
+.accordion-chevron-open { transform: rotate(180deg); }
+
+.accordion-body {
+  overflow: hidden;
+  max-height: 0;
+  transition: max-height 0.25s ease, padding 0.15s ease;
+}
+
+.accordion-body-open {
+  max-height: 400px;
+  padding-bottom: 14px;
+}
+
+.accordion-body p {
+  font-size: 12px;
+  color: var(--text-secondary);
+  line-height: 1.65;
+}
+
+/* ─── Danger Zone ────────────────────────────────────────────────────────── */
+.danger-zone {
+  background: var(--danger-zone-bg);
+  border: var(--danger-zone-border) solid;
+  border-radius: var(--settings-section-radius);
+  padding: 20px;
+}
+
+.danger-zone-title {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--danger-text);
+  margin-bottom: 12px;
+}
+
+/* ─── Version Badge ──────────────────────────────────────────────────────── */
+.version-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 999px;
+  font-size: 11px;
+  font-family: 'JetBrains Mono', monospace;
+  color: var(--text-muted);
+}

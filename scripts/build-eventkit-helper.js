@@ -5,6 +5,7 @@ import path from 'node:path';
 if (process.platform !== 'darwin') process.exit(0);
 const root = process.cwd();
 const output = path.join(root, 'build', 'BeaconEventKitHelper');
+const infoPlist = path.join(root, 'build', 'TestInfo.plist');
 fs.mkdirSync(path.dirname(output), { recursive: true });
 const developerDirectory = execFileSync('xcode-select', ['-p'], { encoding: 'utf8' }).trim();
 if (!developerDirectory.endsWith('/Xcode.app/Contents/Developer')) {
@@ -12,7 +13,12 @@ if (!developerDirectory.endsWith('/Xcode.app/Contents/Developer')) {
 }
 const moduleCache = path.join(root, 'build', '.swift-module-cache');
 fs.mkdirSync(moduleCache, { recursive: true });
-execFileSync('xcrun', ['swiftc', '-O', path.join(root, 'apps/main/integrations/apple/BeaconEventKitHelper.swift'), '-o', output], {
+execFileSync('xcrun', [
+  'swiftc', '-O', path.join(root, 'apps/main/integrations/apple/BeaconEventKitHelper.swift'), '-o', output,
+  // The helper is an executable, not an app bundle. Embed its privacy strings
+  // so EventKit can present Beacon's Calendar/Reminders permission prompt.
+  '-Xlinker', '-sectcreate', '-Xlinker', '__TEXT', '-Xlinker', '__info_plist', '-Xlinker', infoPlist,
+], {
   stdio: 'inherit',
   env: {
     ...process.env,

@@ -8,7 +8,7 @@
   },
   "type": "module",
   "scripts": {
-    "dev": "npm run build:preload && vite",
+    "dev": "npm run build:eventkit && npm run build:preload && vite",
     "build:preload": "esbuild apps/preload/index.ts --bundle --platform=node --format=cjs --external:electron --outfile=dist-electron/preload/index.cjs",
     "build": "tsc --noEmit && npm run build:preload && vite build",
     "test": "vitest run",
@@ -103,6 +103,7 @@
       "entitlements": "build/entitlements.mac.plist",
       "entitlementsInherit": "build/entitlements.mac.inherit.plist",
       "extendInfo": {
+        "NSAppleEventsUsageDescription": "Beacon accesses Apple Calendar and Reminders only after you choose to connect them.",
         "NSAccessibilityUsageDescription": "Beacon needs accessibility access to listen for global hotkeys (⌘⇧B) to open the Command Palette from anywhere.",
         "NSUserNotificationsUsageDescription": "Beacon sends subtle alerts when focus sessions and habit streaks are completed.",
         "NSCalendarsFullAccessUsageDescription": "Beacon reads the day’s calendar context only after you ask it to.",
