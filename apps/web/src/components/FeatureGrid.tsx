@@ -7,8 +7,7 @@ import {
   Hourglass, 
   ShieldAlert,
   Command,
-  Database,
-  Headphones
+  Database
 } from "lucide-react";
 
 interface Paradigm {
@@ -213,31 +212,6 @@ export const FeatureGrid: React.FC = () => {
             </div>
           </div>
 
-          <div className="card-editorial" style={{ display: "flex", gap: "16px", alignItems: "flex-start", padding: "28px" }}>
-            <div
-              style={{
-                width: "40px",
-                height: "40px",
-                borderRadius: "10px",
-                backgroundColor: "#0F1117",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                flexShrink: 0,
-                boxShadow: "0 2px 8px rgba(15, 17, 23, 0.18)",
-              }}
-            >
-              <Headphones size={18} color="var(--accent-solar)" />
-            </div>
-            <div>
-              <h4 style={{ fontSize: "15px", fontWeight: 700, color: "var(--text-ink)", marginBottom: "4px" }}>
-                Apple Music & Spotify
-              </h4>
-              <p style={{ fontSize: "13px", color: "var(--text-body)", lineHeight: 1.55, margin: 0 }}>
-                Media controls inside the notch HUD keep you locked in flow without breaking focus.
-              </p>
-            </div>
-          </div>
         </div>
       </div>
     </section>

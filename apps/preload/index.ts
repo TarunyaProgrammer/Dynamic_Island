@@ -99,17 +99,6 @@ const api: BeaconApi = {
     getState: () => ipcRenderer.invoke(IPC_CHANNELS.FOCUS_GET_STATE),
   },
 
-  media: {
-    getState: () => ipcRenderer.invoke(IPC_CHANNELS.MEDIA_GET_STATE),
-    playPause: () => ipcRenderer.invoke(IPC_CHANNELS.MEDIA_PLAY_PAUSE),
-    next: () => ipcRenderer.invoke(IPC_CHANNELS.MEDIA_NEXT),
-    previous: () => ipcRenderer.invoke(IPC_CHANNELS.MEDIA_PREVIOUS),
-    setVolume: (volume: number) => ipcRenderer.invoke(IPC_CHANNELS.MEDIA_SET_VOLUME, volume),
-    // Credentials are requested only from an explicit pairing action in the renderer.
-    getBrowserConnection: () => ipcRenderer.invoke(IPC_CHANNELS.MEDIA_GET_BROWSER_CONNECTION),
-    copyBrowserConnection: () => ipcRenderer.invoke(IPC_CHANNELS.MEDIA_COPY_BROWSER_CONNECTION),
-  },
-
   companion: {
     emit: (event: CompanionEvent) => ipcRenderer.invoke(IPC_CHANNELS.COMPANION_EMIT, event),
   },
@@ -188,14 +177,6 @@ const api: BeaconApi = {
     ipcRenderer.on(IPC_CHANNELS.EVENT_FOCUS_COMPLETED, handler);
     return () => {
       ipcRenderer.removeListener(IPC_CHANNELS.EVENT_FOCUS_COMPLETED, handler);
-    };
-  },
-
-  onMediaChanged: (callback: (state: any) => void) => {
-    const handler = (_: any, state: any) => callback(state);
-    ipcRenderer.on(IPC_CHANNELS.EVENT_MEDIA_CHANGED, handler);
-    return () => {
-      ipcRenderer.removeListener(IPC_CHANNELS.EVENT_MEDIA_CHANGED, handler);
     };
   },
 

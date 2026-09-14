@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { NotchTab } from "../types";
-import { 
-  Music2,
+import {
   Flame, 
   Search, 
   BatteryCharging,
@@ -22,7 +21,6 @@ export const IslandSimulator: React.FC = () => {
   const [goalName] = useState("Launch SaaS App");
   const [focusSeconds, setFocusSeconds] = useState(25 * 60 - 42); // 24:18
   const [isFocusRunning, setIsFocusRunning] = useState(true);
-  const [isPlayingMusic] = useState(true);
   const [streakDays] = useState(14);
   const [completedFlash, setCompletedFlash] = useState(false);
   const [currentTime] = useState("10:24 AM");
@@ -312,22 +310,6 @@ export const IslandSimulator: React.FC = () => {
                           >
                             Focus
                           </button>
-                          <button
-                            type="button"
-                            onClick={(e) => { e.stopPropagation(); setActiveTab("media"); }}
-                            style={{
-                              padding: "3px 10px",
-                              borderRadius: "6px",
-                              fontSize: "11px",
-                              fontWeight: 700,
-                              border: "none",
-                              cursor: "pointer",
-                              backgroundColor: activeTab === "media" ? "rgba(255, 255, 255, 0.15)" : "transparent",
-                              color: activeTab === "media" ? "#FFFFFF" : "rgba(255, 255, 255, 0.55)",
-                            }}
-                          >
-                            Media
-                          </button>
                         </div>
                         <span style={{ fontSize: "10px", color: "rgba(255, 255, 255, 0.4)" }}>
                           <span style={{ display: "inline-flex", alignItems: "center", gap: "3px" }}>{isPinned ? <><Pin size={10} /> Pinned</> : "Hover to expand"}</span>
@@ -365,15 +347,6 @@ export const IslandSimulator: React.FC = () => {
                                 <span style={{ fontSize: "17px", fontWeight: 900, color: "#38bdf8", fontFamily: "var(--font-mono)" }}>{formatTimer(focusSeconds)}</span>
                               </div>
                               <button type="button" onClick={(e) => { e.stopPropagation(); setIsFocusRunning(!isFocusRunning); }} style={{ padding: "4px 10px", borderRadius: "6px", backgroundColor: "rgba(56, 189, 248, 0.2)", border: "1px solid rgba(56, 189, 248, 0.4)", color: "#38bdf8", fontSize: "10px", fontWeight: 700, cursor: "pointer" }}>{isFocusRunning ? "Pause" : "Resume"}</button>
-                            </div>
-                          )}
-                          {activeTab === "media" && (
-                            <div style={{ display: "flex", alignItems: "center", gap: "8px", width: "100%" }}>
-                              <Music2 size={16} color="#c084fc" />
-                              <div style={{ display: "flex", flexDirection: "column", flex: 1, minWidth: 0 }}>
-                                <span style={{ fontSize: "11px", fontWeight: 700, color: "#ffffff" }}>Interstellar (Day One)</span>
-                                <span style={{ fontSize: "9px", color: "#c084fc" }}>Hans Zimmer • Spotify</span>
-                              </div>
                             </div>
                           )}
                         </div>

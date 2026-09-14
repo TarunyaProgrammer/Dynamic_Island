@@ -63,7 +63,7 @@ Beacon provides five distinct interfaces for interaction:
 - Pinned directly beneath the MacBook physical camera notch.
 - Adapts smoothly to notch geometry or displays a floating island on external monitors.
 - **Collapsed**: Ultra-compact 200px pill displaying current habit streak and active focus timer.
-- **Expanded**: 640px × 146px spring-loaded 3-column HUD with one-click increment pills (`[+10]`, `[+1]`), weekly streak calendar, and music playback controls.
+- **Expanded**: 640px × 146px spring-loaded 3-column HUD with one-click increment pills (`[+10]`, `[+1]`), weekly streak calendar, and focus controls.
 
 ### Surface 2: System Menu Bar Hub
 - Single-click tray popover accessible from the macOS top status bar.

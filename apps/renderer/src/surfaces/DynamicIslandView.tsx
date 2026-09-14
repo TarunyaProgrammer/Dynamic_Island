@@ -2,7 +2,6 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { useGoals } from '../hooks/useGoals';
 import { useActivities } from '../hooks/useActivities';
-import { useMedia } from '../hooks/useMedia';
 import { GoalProgressRing } from '../components/GoalProgressRing';
 import { ProgressBar } from '../components/ProgressBar';
 import { BeaconCompanion } from '../components/BeaconCompanion';
@@ -17,23 +16,16 @@ import {
   Timer,
   Play,
   Pause,
-  SkipBack,
-  SkipForward,
-  Music,
-  Volume2,
   Sparkles,
 } from 'lucide-react';
 
 export const DynamicIslandView: React.FC = () => {
   const { goals, stats, incrementProgress, completeGoal } = useGoals('active');
   const { focusState, startFocus, pauseFocus, resumeFocus, stopFocus, extendFocus } = useActivities();
-  const { mediaState, playPause, nextTrack, previousTrack, setVolume } = useMedia();
   const { state: companionState, message: companionMessage, celebrate } = useCompanion('island');
   const [isExpanded, setIsExpanded] = useState(false);
-  const [activeTab, setActiveTab] = useState<'goal' | 'focus' | 'media'>('goal');
+  const [activeTab, setActiveTab] = useState<'goal' | 'focus'>('goal');
   const [selectedGoalId, setSelectedGoalId] = useState('');
-  const [artworkFailed, setArtworkFailed] = useState(false);
-  const [pairingMessage, setPairingMessage] = useState<string | null>(null);
 
   const collapseTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const clearCollapseTimer = useCallback(() => {
@@ -54,22 +46,6 @@ export const DynamicIslandView: React.FC = () => {
       : 0;
 
   const percent = stats ? Math.round(stats.overallProgressFraction * 100) : 0;
-  const hasMediaTarget = mediaState.title !== 'No Media Playing';
-  const showArtwork = Boolean(mediaState.artworkUrl && !artworkFailed);
-  const copyBrowserPairingDetails = useCallback(async () => {
-    try {
-      const connection = await window.beacon.media.copyBrowserConnection();
-      setPairingMessage(`Port ${connection.port} key copied!`);
-      setTimeout(() => setPairingMessage(null), 3500);
-    } catch {
-      setPairingMessage('Restart Beacon, then pair Chrome');
-      setTimeout(() => setPairingMessage(null), 3500);
-    }
-  }, []);
-
-  useEffect(() => {
-    setArtworkFailed(false);
-  }, [mediaState.artworkUrl]);
 
   const [selectedFocusGoalId, setSelectedFocusGoalId] = useState<string>('');
   const [selectedDuration, setSelectedDuration] = useState<number>(25);
@@ -130,9 +106,9 @@ export const DynamicIslandView: React.FC = () => {
       if (!isExpanded) return;
 
       if (e.key === 'ArrowRight') {
-        setActiveTab((prev) => (prev === 'goal' ? 'focus' : prev === 'focus' ? 'media' : 'goal'));
+        setActiveTab((prev) => (prev === 'goal' ? 'focus' : 'goal'));
       } else if (e.key === 'ArrowLeft') {
-        setActiveTab((prev) => (prev === 'media' ? 'focus' : prev === 'focus' ? 'goal' : 'media'));
+        setActiveTab((prev) => (prev === 'goal' ? 'focus' : 'goal'));
       } else if (e.key === ' ' && activeTab === 'focus') {
         e.preventDefault();
         if (focusState.isActive) {
@@ -141,9 +117,6 @@ export const DynamicIslandView: React.FC = () => {
         } else {
           startFocus(25, primaryGoal?.id);
         }
-      } else if (e.key === ' ' && activeTab === 'media') {
-        e.preventDefault();
-        playPause();
       } else if ((e.key === '+' || e.key === '=') && primaryGoal) {
         void handlePrimaryProgress(primaryGoal.defaultIncrement || 1);
       } else if (e.key === '-' && primaryGoal) {
@@ -155,7 +128,7 @@ export const DynamicIslandView: React.FC = () => {
 
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [activeTab, focusState, handlePrimaryProgress, isExpanded, playPause, primaryGoal, requestExpanded, resumeFocus, startFocus, pauseFocus]);
+  }, [activeTab, focusState, handlePrimaryProgress, isExpanded, primaryGoal, requestExpanded, resumeFocus, startFocus, pauseFocus]);
 
   // Auto-collapse when window loses focus (e.g. user clicks another window or switches spaces)
   useEffect(() => {
@@ -375,34 +348,6 @@ export const DynamicIslandView: React.FC = () => {
                   <span>{focusState.isActive ? focusTimeStr : 'Focus'}</span>
                 </button>
 
-                <button
-                  type="button"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    resetCollapseTimer();
-                    setActiveTab('media');
-                  }}
-                  style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '4px',
-                    padding: '3px 10px',
-                    borderRadius: '9999px',
-                    backgroundColor: activeTab === 'media' ? 'rgba(255, 255, 255, 0.14)' : 'rgba(255, 255, 255, 0.04)',
-                    border: activeTab === 'media' ? '1px solid rgba(255, 255, 255, 0.3)' : '1px solid transparent',
-                    color: activeTab === 'media' ? '#ffffff' : 'rgba(255, 255, 255, 0.65)',
-                    fontSize: '11px',
-                    fontWeight: activeTab === 'media' ? 700 : 500,
-                    cursor: 'pointer',
-                    outline: 'none',
-                    transition: 'background-color 0.15s ease, border-color 0.15s ease, color 0.15s ease',
-                    boxShadow: 'none',
-                  }}
-                  title="Media Controls"
-                >
-                  <Music size={11} color={activeTab === 'media' ? '#ffffff' : 'currentColor'} />
-                  <span>Media</span>
-                </button>
               </div>
 
               <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
@@ -761,182 +706,6 @@ export const DynamicIslandView: React.FC = () => {
                       </button>
                     </div>
                   )}
-                </div>
-              </div>
-            )}
-
-            {activeTab === 'media' && (
-              <div
-                style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '12px',
-                  padding: '10px 12px',
-                  background: showArtwork
-                    ? 'linear-gradient(105deg, rgba(124, 108, 255, 0.16), rgba(255, 255, 255, 0.045) 42%)'
-                    : 'rgba(255, 255, 255, 0.05)',
-                  border: '1px solid rgba(255, 255, 255, 0.10)',
-                  borderRadius: '18px',
-                  minWidth: 0,
-                  overflow: 'hidden',
-                }}
-              >
-                <div
-                  style={{
-                    width: '54px',
-                    height: '54px',
-                    borderRadius: '14px',
-                    backgroundColor: 'rgba(255, 255, 255, 0.08)',
-                    border: '1px solid rgba(255, 255, 255, 0.14)',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    flexShrink: 0,
-                    overflow: 'hidden',
-                    boxShadow: showArtwork ? '0 8px 18px rgba(0, 0, 0, 0.28)' : undefined,
-                  }}
-                >
-                  {showArtwork ? (
-                    <img
-                      src={mediaState.artworkUrl}
-                      alt=""
-                      onError={() => setArtworkFailed(true)}
-                      style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-                    />
-                  ) : (
-                    <Music size={22} color="rgba(255, 255, 255, 0.92)" />
-                  )}
-                </div>
-
-                <div style={{ display: 'flex', flexDirection: 'column', flex: 1, minWidth: 0, gap: '2px' }}>
-                  <span
-                    style={{
-                      fontSize: '12px',
-                      fontWeight: 600,
-                      color: '#ffffff',
-                      whiteSpace: 'nowrap',
-                      overflow: 'hidden',
-                      textOverflow: 'ellipsis',
-                    }}
-                  >
-                    {mediaState.title || 'No Media Playing'}
-                  </span>
-                  <span
-                    style={{
-                      fontSize: '10px',
-                      color: 'rgba(255, 255, 255, 0.55)',
-                      whiteSpace: 'nowrap',
-                      overflow: 'hidden',
-                      textOverflow: 'ellipsis',
-                    }}
-                  >
-                    {hasMediaTarget ? (mediaState.artist || 'Unknown artist') : 'System volume is ready'} {mediaState.album ? `• ${mediaState.album}` : ''}
-                  </span>
-
-                  <button
-                    type="button"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      resetCollapseTimer();
-                      void copyBrowserPairingDetails();
-                    }}
-                    className="btn-ghost"
-                    style={{ alignSelf: 'flex-start', padding: '1px 0', fontSize: '9px', color: pairingMessage ? 'rgba(140, 211, 255, 0.92)' : 'rgba(255, 255, 255, 0.65)', cursor: 'pointer' }}
-                    title="Copy details to pair the Beacon Chrome Media Companion"
-                  >
-                    {pairingMessage ?? 'Pair Chrome companion'}
-                  </button>
-
-                  {/* Playback Progress */}
-                  {mediaState.durationSeconds > 0 && (
-                    <div style={{ marginTop: '1px' }}>
-                      <ProgressBar
-                        progressFraction={mediaState.progressSeconds / mediaState.durationSeconds}
-                        color="#ffffff"
-                        height={2.5}
-                      />
-                    </div>
-                  )}
-
-                  {/* Playback Controls */}
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginTop: '2px', minWidth: 0 }}>
-                    <button
-                      type="button"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        resetCollapseTimer();
-                        previousTrack();
-                      }}
-                      className="btn-ghost"
-                      disabled={!hasMediaTarget}
-                      style={{ padding: '2px 4px', cursor: hasMediaTarget ? 'pointer' : 'not-allowed', opacity: hasMediaTarget ? 1 : 0.35 }}
-                      title="Previous Track"
-                    >
-                      <SkipBack size={11} />
-                    </button>
-                    <button
-                      type="button"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        resetCollapseTimer();
-                        playPause();
-                      }}
-                      className="btn-ghost"
-                      disabled={!hasMediaTarget}
-                      style={{ padding: '4px 9px', backgroundColor: 'rgba(255, 255, 255, 0.16)', color: '#ffffff', cursor: hasMediaTarget ? 'pointer' : 'not-allowed', opacity: hasMediaTarget ? 1 : 0.35, borderRadius: '8px' }}
-                      title={mediaState.isPlaying ? 'Pause' : 'Play'}
-                    >
-                      {mediaState.isPlaying ? <Pause size={11} /> : <Play size={11} />}
-                    </button>
-                    <button
-                      type="button"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        resetCollapseTimer();
-                        nextTrack();
-                      }}
-                      className="btn-ghost"
-                      disabled={!hasMediaTarget}
-                      style={{ padding: '2px 4px', cursor: hasMediaTarget ? 'pointer' : 'not-allowed', opacity: hasMediaTarget ? 1 : 0.35 }}
-                      title="Next Track"
-                    >
-                      <SkipForward size={11} />
-                    </button>
-
-                    {/* Quick Volume Steppers */}
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '2px', marginLeft: 'auto', flexShrink: 0 }}>
-                      <Volume2 size={10} color="rgba(255, 255, 255, 0.5)" />
-                      <button
-                        type="button"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          resetCollapseTimer();
-                          setVolume(Math.max(0, (mediaState.volume ?? 50) - 10));
-                        }}
-                        className="btn-ghost"
-                        style={{ padding: '1px 3px', fontSize: '9px', cursor: 'pointer' }}
-                        title="Volume Down (-10%)"
-                      >
-                        -
-                      </button>
-                      <span style={{ fontSize: '9px', color: 'rgba(255, 255, 255, 0.6)', fontVariantNumeric: 'tabular-nums' }}>
-                        {mediaState.volume ?? 50}%
-                      </span>
-                      <button
-                        type="button"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          resetCollapseTimer();
-                          setVolume(Math.min(100, (mediaState.volume ?? 50) + 10));
-                        }}
-                        className="btn-ghost"
-                        style={{ padding: '1px 3px', fontSize: '9px', cursor: 'pointer' }}
-                        title="Volume Up (+10%)"
-                      >
-                        +
-                      </button>
-                    </div>
-                  </div>
                 </div>
               </div>
             )}

@@ -194,7 +194,6 @@ export const PricingSection: React.FC<PricingSectionProps> = ({ onSelectPlan, cu
               "Dynamic Island notch HUD + Menu Bar hub + Spotlight Command Engine",
               "All 6 behavioral paradigms (Habits, Deadlines, Sprints, Quotas)",
               "100% private offline SQLite WAL database (No tracking or cloud accounts)",
-              "Apple Music & Spotify playback integration directly in notch",
               "Free feature updates and maintenance releases across version 1.x",
               "Instant automated license key delivery on-screen & via email",
             ].map((feature, i) => (

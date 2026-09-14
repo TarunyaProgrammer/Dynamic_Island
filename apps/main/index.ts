@@ -17,7 +17,6 @@ import { PaletteWindowController } from './windows/PaletteWindow';
 import { TrayController } from './tray/TrayController';
 import { ShortcutManager } from './shortcuts/ShortcutManager';
 import { registerIpcHandlers } from './ipc/goalHandlers';
-import { BrowserMediaBridge } from './media/BrowserMediaBridge';
 import { ReminderRunner } from './reminders/ReminderRunner';
 import { ReminderPolicyRepository } from '@database/repository/reminder-policy-repository';
 import { OperationLogRepository } from '@database/repository/operation-log-repository';
@@ -60,7 +59,6 @@ class BeaconApp {
   private operationLog = new OperationLogRepository(this.db);
   private goalService = new GoalService(this.goalRepository, undefined, { record: (operation) => { this.operationLog.append(operation); } });
   private dailyServices = createDailyServices(this.db, this.goalService);
-  private browserMediaBridge = new BrowserMediaBridge();
   private reminderRunner = new ReminderRunner(
     this.goalService,
     new ReminderPolicyRepository(this.db),
@@ -93,8 +91,6 @@ class BeaconApp {
   }
 
   async start(): Promise<void> {
-    // One loopback bridge per app lifecycle; the companion opts in by pairing.
-    await this.browserMediaBridge.start();
     this.reminderRunner.start();
     // Register all IPC handlers
     registerIpcHandlers(
@@ -106,7 +102,6 @@ class BeaconApp {
       this.popoverWindow,
       PRELOAD_PATH,
       RENDERER_URL,
-      this.browserMediaBridge,
       this.dailyServices,
     );
 
@@ -133,7 +128,6 @@ class BeaconApp {
 
   cleanup(): void {
     this.shortcutManager.unregisterAll();
-    void this.browserMediaBridge.stop().catch(() => undefined);
     this.reminderRunner.stop();
     DatabaseConnection.close();
   }

@@ -91,17 +91,6 @@ export interface BeaconApi {
     getState: () => Promise<import('@shared/types').FocusSessionState>;
   };
 
-  // macOS Media Controls
-  media: {
-    getState: () => Promise<import('@shared/types').MediaActivityState>;
-    playPause: () => Promise<import('@shared/types').MediaActivityState>;
-    next: () => Promise<import('@shared/types').MediaActivityState>;
-    previous: () => Promise<import('@shared/types').MediaActivityState>;
-    setVolume: (volume: number) => Promise<import('@shared/types').MediaActivityState>;
-    getBrowserConnection: () => Promise<{ port: number; token: string }>;
-    copyBrowserConnection: () => Promise<{ port: number }>;
-  };
-
   // Companion Presence
   companion: {
     emit: (event: CompanionEvent) => Promise<void>;
@@ -136,7 +125,6 @@ export interface BeaconApi {
   onActivitiesChanged: (callback: (stack: import('@shared/types').LiveActivity[]) => void) => () => void;
   onFocusTick: (callback: (state: import('@shared/types').FocusSessionState) => void) => () => void;
   onFocusCompleted: (callback: (event: import('@shared/types').FocusCompletedEvent) => void) => () => void;
-  onMediaChanged: (callback: (state: import('@shared/types').MediaActivityState) => void) => () => void;
   onCompanionChanged: (callback: (event: CompanionEvent) => void) => () => void;
 }
 

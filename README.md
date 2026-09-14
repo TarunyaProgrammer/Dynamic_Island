@@ -29,10 +29,9 @@ It eliminates the friction of traditional goal-tracking tools by embedding progr
 - One-click `+1` / `+step` quick increments from the menu bar popover, top notch pill, or keyboard palette.
 - Instant feedback with undo/redo stack (`⌘Z` / `⌘⇧Z`) and automatic goal completion detection.
 
-### 🏝️ Dynamic Island Top Notch Overlay & Ambient Media
+### 🏝️ Dynamic Island Top Notch Overlay
 - Frameless, translucent pill pinned to the top center of your screen.
 - Auto-detects notch geometry, expands smoothly on hover to reveal focus goals, and auto-collapses on leave.
-- Real-time media controls for Apple Music, Spotify, and Chrome embedded directly in the notch pill.
 
 ### 🧘 Ambient AI Spirit Companion & Focus Engine
 - Contextual spirit companion that reacts to session productivity, milestones, and focus timers.

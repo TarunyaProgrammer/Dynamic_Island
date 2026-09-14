@@ -76,15 +76,6 @@ export const IPC_CHANNELS = {
   FOCUS_EXTEND: 'beacon:focus:extend',
   FOCUS_GET_STATE: 'beacon:focus:get-state',
 
-  // macOS Media Controls
-  MEDIA_GET_STATE: 'beacon:media:get-state',
-  MEDIA_PLAY_PAUSE: 'beacon:media:play-pause',
-  MEDIA_NEXT: 'beacon:media:next',
-  MEDIA_PREVIOUS: 'beacon:media:previous',
-  MEDIA_SET_VOLUME: 'beacon:media:set-volume',
-  MEDIA_GET_BROWSER_CONNECTION: 'beacon:media:get-browser-connection',
-  MEDIA_COPY_BROWSER_CONNECTION: 'beacon:media:copy-browser-connection',
-
   // Companion Presence
   COMPANION_EMIT: 'beacon:companion:emit',
 
@@ -104,7 +95,6 @@ export const IPC_CHANNELS = {
   EVENT_ACTIVITIES_CHANGED: 'beacon:event:activities-changed',
   EVENT_FOCUS_TICK: 'beacon:event:focus-tick',
   EVENT_FOCUS_COMPLETED: 'beacon:event:focus-completed',
-  EVENT_MEDIA_CHANGED: 'beacon:event:media-changed',
   EVENT_COMPANION_CHANGED: 'beacon:event:companion-changed',
   EVENT_NAVIGATE: 'beacon:event:navigate',
 } as const;

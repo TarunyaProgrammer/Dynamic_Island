@@ -3,7 +3,9 @@
   "version": "1.1.0",
   "description": "Minimalist macOS Goal Operating Layer — Glance, Update, Move On",
   "main": "dist-electron/main/index.js",
-  "bin": { "beacon": "scripts/beacon-cli.js" },
+  "bin": {
+    "beacon": "scripts/beacon-cli.js"
+  },
   "type": "module",
   "scripts": {
     "dev": "npm run build:preload && vite",
@@ -27,12 +29,10 @@
   "author": "Tarunya K <https://github.com/TarunyaProgrammer>",
   "license": "Proprietary",
   "dependencies": {
-    "@types/ws": "^8.18.1",
     "better-sqlite3": "^11.8.1",
     "lucide-react": "^1.16.0",
     "react": "^19.0.0",
-    "react-dom": "^19.0.0",
-    "ws": "^8.21.3"
+    "react-dom": "^19.0.0"
   },
   "devDependencies": {
     "@types/better-sqlite3": "^7.6.12",
@@ -64,10 +64,10 @@
     },
     "afterSign": "scripts/notarize.js",
     "extraResources": [
-    {
-      "from": "build/BeaconEventKitHelper",
-      "to": "BeaconEventKitHelper"
-    },
+      {
+        "from": "build/BeaconEventKitHelper",
+        "to": "BeaconEventKitHelper"
+      },
       "assets/Beacon.png",
       "assets/icon.icns",
       "assets/menubar-icon.png",
@@ -76,8 +76,7 @@
     "files": [
       "dist/**/*",
       "dist-electron/**/*",
-      "node_modules/better-sqlite3/**/*",
-      "node_modules/ws/**/*"
+      "node_modules/better-sqlite3/**/*"
     ],
     "mac": {
       "icon": "assets/icon.icns",
@@ -104,12 +103,10 @@
       "entitlements": "build/entitlements.mac.plist",
       "entitlementsInherit": "build/entitlements.mac.inherit.plist",
       "extendInfo": {
-        "NSAppleEventsUsageDescription": "Beacon needs automation permission to detect currently playing tracks and provide media playback controls in the Dynamic Island.",
-        "NSSystemAdministrationUsageDescription": "Beacon needs permission to provide global keyboard shortcuts and ambient media controls.",
         "NSAccessibilityUsageDescription": "Beacon needs accessibility access to listen for global hotkeys (⌘⇧B) to open the Command Palette from anywhere.",
-        "NSUserNotificationsUsageDescription": "Beacon sends subtle alerts when focus sessions and habit streaks are completed."
-        ,"NSCalendarsFullAccessUsageDescription": "Beacon reads the day’s calendar context only after you ask it to."
-        ,"NSRemindersFullAccessUsageDescription": "Beacon lists Reminders only when you choose to import one into a goal."
+        "NSUserNotificationsUsageDescription": "Beacon sends subtle alerts when focus sessions and habit streaks are completed.",
+        "NSCalendarsFullAccessUsageDescription": "Beacon reads the day’s calendar context only after you ask it to.",
+        "NSRemindersFullAccessUsageDescription": "Beacon lists Reminders only when you choose to import one into a goal."
       }
     }
   }

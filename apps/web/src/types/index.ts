@@ -1,4 +1,4 @@
-export type NotchTab = "beacon" | "focus" | "media";
+export type NotchTab = "beacon" | "focus";
 
 export interface PricingPlan {
   id: "lifetime" | "annual" | "team";

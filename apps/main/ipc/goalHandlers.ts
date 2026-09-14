@@ -1,5 +1,5 @@
 // apps/main/ipc/goalHandlers.ts - Central IPC Bridge Handlers
-import { BrowserWindow, app, clipboard, dialog, ipcMain } from '@electron-bridge';
+import { BrowserWindow, app, dialog, ipcMain } from '@electron-bridge';
 import { IPC_CHANNELS } from '@shared/ipc-channels';
 import { AppSettings, CompanionEvent, GoalDraft, GoalStatus, GoalUpdateDraft, LiveActivity, FocusSessionState, FocusCompletedEvent, ReminderPolicy } from '@shared/types';
 import { isCompanionEvent } from '@shared/companion';
@@ -7,7 +7,6 @@ import { GoalService } from '@core/services/goal-service';
 import { SettingsRepository } from '@database/repository/settings-repository';
 import { ActivityEngine } from '@core/activities/activity-engine';
 import { FocusSessionManager } from '@core/activities/focus-manager';
-import { MediaService } from '@core/services/media-service';
 import { NotificationService } from '../notifications/NotificationService';
 import { MainWindowController } from '../windows/MainWindow';
 import { PaletteWindowController } from '../windows/PaletteWindow';
@@ -24,7 +23,6 @@ import { DataTrustService } from '../data/DataTrustService';
 import { AppleCalendarService } from '../integrations/apple/AppleCalendarService';
 import path from 'path';
 import { registerAIHandlers } from './aiHandlers';
-import type { BrowserMediaBridge } from '../media/BrowserMediaBridge';
 import type { DailyServices } from '../daily/DailyServices';
 
 export function registerIpcHandlers(
@@ -36,13 +34,11 @@ export function registerIpcHandlers(
   popoverWindow: TrayPopoverController,
   preloadPath: string,
   rendererUrl?: string,
-  browserMediaBridge?: BrowserMediaBridge,
   dailyServices?: DailyServices,
 ): void {
-  // Initialize Activity Engine, Goal-Linked Focus Manager, and Media Service
+  // Initialize Activity Engine and Goal-Linked Focus Manager
   const activityEngine = new ActivityEngine();
   const focusManager = new FocusSessionManager(goalService, activityEngine);
-  const mediaService = new MediaService(activityEngine, browserMediaBridge);
   const database = DatabaseConnection.getDatabase();
   if (!dailyServices) throw new Error('Daily services must be initialized before IPC handlers.');
   const { actionRepository, actionService, todayService } = dailyServices;
@@ -93,10 +89,6 @@ export function registerIpcHandlers(
     safeBroadcast(IPC_CHANNELS.EVENT_FOCUS_COMPLETED, event);
   };
 
-  const broadcastMediaChanged = (state: any) => {
-    safeBroadcast(IPC_CHANNELS.EVENT_MEDIA_CHANGED, state);
-  };
-
   const broadcastCompanionChanged = (event: CompanionEvent) => {
     safeBroadcast(IPC_CHANNELS.EVENT_COMPANION_CHANGED, event);
   };
@@ -108,7 +100,6 @@ export function registerIpcHandlers(
   activityEngine.subscribe(broadcastActivitiesChanged);
   focusManager.subscribe(broadcastFocusTick);
   focusManager.onComplete(broadcastFocusCompleted);
-  mediaService.subscribe(broadcastMediaChanged);
 
   ipcMain.handle(IPC_CHANNELS.COMPANION_EMIT, (_event, value: unknown) => {
     if (!isCompanionEvent(value)) {
@@ -380,37 +371,4 @@ export function registerIpcHandlers(
     return focusManager.getState();
   });
 
-  // macOS Media Handlers
-  ipcMain.handle(IPC_CHANNELS.MEDIA_GET_STATE, () => {
-    return mediaService.getState();
-  });
-
-  ipcMain.handle(IPC_CHANNELS.MEDIA_PLAY_PAUSE, () => {
-    return mediaService.playPause();
-  });
-
-  ipcMain.handle(IPC_CHANNELS.MEDIA_NEXT, () => {
-    return mediaService.nextTrack();
-  });
-
-  ipcMain.handle(IPC_CHANNELS.MEDIA_PREVIOUS, () => {
-    return mediaService.previousTrack();
-  });
-
-  ipcMain.handle(IPC_CHANNELS.MEDIA_SET_VOLUME, (_, volume: number) => {
-    return mediaService.setVolume(volume);
-  });
-
-  // The pairing secret is deliberately not pushed to any renderer. A settings
-  // surface must explicitly request it when the user chooses to pair Chrome.
-  ipcMain.handle(IPC_CHANNELS.MEDIA_GET_BROWSER_CONNECTION, () => {
-    if (!browserMediaBridge) throw new Error('Browser media companion is unavailable');
-    return { ...browserMediaBridge.connectionDetails(), token: browserMediaBridge.pairingToken() };
-  });
-  ipcMain.handle(IPC_CHANNELS.MEDIA_COPY_BROWSER_CONNECTION, () => {
-    if (!browserMediaBridge) throw new Error('Browser media companion is unavailable');
-    const connection = { ...browserMediaBridge.connectionDetails(), token: browserMediaBridge.pairingToken() };
-    clipboard.writeText(`beacon://pair/${connection.port}/${connection.token}`);
-    return { port: connection.port };
-  });
 }

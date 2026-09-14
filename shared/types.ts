@@ -385,15 +385,3 @@ export interface FocusCompletedEvent {
   durationMinutes: number;
   timestamp: string;
 }
-
-export interface MediaActivityState {
-  title: string;
-  artist: string;
-  album?: string;
-  /** Artwork supplied by a trusted media provider, when one is available. */
-  artworkUrl?: string;
-  isPlaying: boolean;
-  progressSeconds: number;
-  durationSeconds: number;
-  volume?: number;
-}
