@@ -1,0 +1,361 @@
+/* apps/renderer/src/styles/DynamicIsland.css - Apple-Grade Dynamic Island Glass Aesthetics */
+
+/* Island Notch Shell Container */
+.island-notch-shell {
+  background-color: rgba(9, 10, 15, 0.94);
+  backdrop-filter: blur(28px) saturate(190%);
+  -webkit-backdrop-filter: blur(28px) saturate(190%);
+  position: relative;
+  box-sizing: border-box;
+  overflow: visible;
+  pointer-events: auto;
+  transition: width 0.28s cubic-bezier(0.16, 1, 0.3, 1),
+              min-height 0.28s cubic-bezier(0.16, 1, 0.3, 1),
+              max-height 0.28s cubic-bezier(0.16, 1, 0.3, 1),
+              background-color 0.28s ease,
+              border-radius 0.28s cubic-bezier(0.16, 1, 0.3, 1),
+              box-shadow 0.28s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.island-notch-shell--expanded {
+  width: 640px;
+  min-height: 154px;
+  max-height: 168px;
+  border-left: 1px solid rgba(255, 255, 255, 0.12);
+  border-right: 1px solid rgba(255, 255, 255, 0.12);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.14);
+  border-top: none;
+  border-radius: 0 0 22px 22px;
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.88),
+              0 4px 16px rgba(0, 0, 0, 0.5),
+              inset 0 1px 0 rgba(255, 255, 255, 0.12),
+              inset 0 -1px 0 rgba(255, 255, 255, 0.04);
+}
+
+.island-notch-shell--collapsed {
+  width: 200px;
+  min-height: 32px;
+  max-height: 32px;
+  border: none;
+  border-radius: 0 0 12px 12px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.4);
+  cursor: pointer;
+}
+
+/* Inverted Notch Ear Fillets */
+.island-fillet-left {
+  position: absolute;
+  top: 0;
+  left: -14px;
+  width: 14px;
+  height: 14px;
+  background-color: transparent;
+  border-top-right-radius: 14px;
+  box-shadow: 5px -5px 0 5px rgba(9, 10, 15, 0.94);
+  pointer-events: none;
+  z-index: 3;
+}
+
+.island-fillet-right {
+  position: absolute;
+  top: 0;
+  right: -14px;
+  width: 14px;
+  height: 14px;
+  background-color: transparent;
+  border-top-left-radius: 14px;
+  box-shadow: -5px -5px 0 5px rgba(9, 10, 15, 0.94);
+  pointer-events: none;
+  z-index: 3;
+}
+
+/* Header Segmented Pill Bar */
+.island-tab-pill-bar {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 9999px;
+  padding: 2px;
+}
+
+.island-tab-btn {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  padding: 3px 9px;
+  border-radius: 9999px;
+  font-size: 11px;
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.6);
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  outline: none;
+  transition: all 0.16s cubic-bezier(0.16, 1, 0.3, 1);
+  user-select: none;
+}
+
+.island-tab-btn:hover:not(.island-tab-btn--active) {
+  color: #ffffff;
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.island-tab-btn--active {
+  background: rgba(255, 255, 255, 0.14) !important;
+  color: #ffffff !important;
+  font-weight: 600;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.35);
+}
+
+.island-tab-btn:focus:not(:focus-visible) {
+  box-shadow: none !important;
+  outline: none !important;
+}
+
+.island-tab-btn:focus-visible {
+  box-shadow: 0 0 0 1.5px rgba(255, 122, 0, 0.4) !important;
+  outline: none !important;
+}
+
+/* Bento Cards in Island Body */
+.island-body-grid {
+  flex: 1;
+  display: grid;
+  grid-template-columns: 1.4fr 1fr;
+  gap: 8px;
+  padding: 4px 12px 12px 12px;
+  box-sizing: border-box;
+  position: relative;
+  z-index: 1;
+  min-height: 0;
+}
+
+.island-card {
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.045) 0%, rgba(255, 255, 255, 0.015) 100%);
+  border: 1px solid rgba(255, 255, 255, 0.09);
+  border-radius: 14px;
+  padding: 9px 11px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.28), inset 0 1px 0 rgba(255, 255, 255, 0.06);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  min-width: 0;
+  position: relative;
+  overflow: hidden;
+  transition: border-color 0.18s ease, background 0.18s ease;
+}
+
+.island-card--interactive:hover {
+  border-color: rgba(255, 255, 255, 0.14);
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.06) 0%, rgba(255, 255, 255, 0.025) 100%);
+}
+
+/* Companion Squircle Avatar */
+.island-companion-avatar {
+  width: 42px;
+  height: 42px;
+  border-radius: 12px;
+  background: radial-gradient(circle at center, rgba(255, 122, 0, 0.14) 0%, rgba(255, 255, 255, 0.03) 80%);
+  border: 1px solid rgba(255, 255, 255, 0.10);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.08);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  cursor: pointer;
+  transition: transform 0.18s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.18s ease, border-color 0.18s ease;
+}
+
+.island-companion-avatar:hover {
+  transform: scale(1.05);
+  border-color: rgba(255, 122, 0, 0.35);
+  box-shadow: 0 0 12px rgba(255, 122, 0, 0.22);
+}
+
+.island-companion-avatar:active {
+  transform: scale(0.95);
+}
+
+/* Goal Selector Dropdown Wrapper */
+.island-goal-select-wrap {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  max-width: 100%;
+}
+
+.island-goal-select {
+  appearance: none;
+  -webkit-appearance: none;
+  background: transparent;
+  color: #ffffff;
+  font-size: 13px;
+  font-weight: 600;
+  font-family: inherit;
+  border: none;
+  outline: none;
+  cursor: pointer;
+  padding-right: 18px;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.island-goal-select-arrow {
+  position: absolute;
+  right: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  pointer-events: none;
+  color: rgba(255, 255, 255, 0.5);
+  transition: color 0.15s ease;
+}
+
+.island-goal-select-wrap:hover .island-goal-select-arrow {
+  color: #ffffff;
+}
+
+/* Luminous Gradient Progress Bar */
+.island-progress-track {
+  width: 100%;
+  height: 6px;
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 9999px;
+  overflow: hidden;
+  position: relative;
+}
+
+.island-progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #ff7a00 0%, #ffb347 100%);
+  border-radius: 9999px;
+  box-shadow: 0 0 8px rgba(255, 122, 0, 0.45);
+  transition: width 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* Action Pill Buttons */
+.island-btn-increment {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 3px 10px;
+  border-radius: 8px;
+  font-size: 11px;
+  font-weight: 700;
+  background: linear-gradient(180deg, rgba(255, 122, 0, 0.24) 0%, rgba(255, 122, 0, 0.14) 100%);
+  border: 1px solid rgba(255, 122, 0, 0.38);
+  color: #ffffff;
+  cursor: pointer;
+  box-shadow: 0 1px 4px rgba(255, 122, 0, 0.15);
+  transition: all 0.15s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.island-btn-increment:hover {
+  background: linear-gradient(180deg, rgba(255, 122, 0, 0.36) 0%, rgba(255, 122, 0, 0.20) 100%);
+  border-color: rgba(255, 122, 0, 0.55);
+  box-shadow: 0 0 10px rgba(255, 122, 0, 0.3);
+  transform: translateY(-1px);
+}
+
+.island-btn-increment:active {
+  transform: scale(0.95);
+}
+
+.island-btn-ghost {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 3px 8px;
+  border-radius: 8px;
+  font-size: 11px;
+  font-weight: 500;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.10);
+  color: rgba(255, 255, 255, 0.85);
+  cursor: pointer;
+  transition: all 0.15s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.island-btn-ghost:hover {
+  background: rgba(255, 255, 255, 0.12);
+  color: #ffffff;
+  border-color: rgba(255, 255, 255, 0.18);
+  transform: translateY(-1px);
+}
+
+.island-btn-ghost:active {
+  transform: scale(0.95);
+}
+
+.island-btn-ghost--done:hover {
+  background: rgba(16, 185, 129, 0.18);
+  border-color: rgba(16, 185, 129, 0.38);
+  color: #34d399;
+}
+
+/* Event Badge & Schedule Items */
+.island-badge-solar {
+  font-size: 10px;
+  font-weight: 700;
+  padding: 1px 6px;
+  border-radius: 9999px;
+  background: rgba(255, 122, 0, 0.14);
+  color: #ffaa40;
+  border: 1px solid rgba(255, 122, 0, 0.28);
+}
+
+.island-badge-event {
+  font-size: 9px;
+  font-weight: 700;
+  padding: 1px 5px;
+  border-radius: 5px;
+  background: rgba(59, 130, 246, 0.16);
+  color: #60a5fa;
+  border: 1px solid rgba(59, 130, 246, 0.3);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.island-badge-now {
+  background: rgba(239, 68, 68, 0.18);
+  color: #f87171;
+  border-color: rgba(239, 68, 68, 0.32);
+}
+
+/* Digital Timer Display */
+.island-timer-digits {
+  font-family: var(--font-mono);
+  font-size: 18px;
+  font-weight: 700;
+  color: #ffffff;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.02em;
+}
+
+/* Duration presets */
+.island-duration-chip {
+  padding: 2px 6px;
+  font-size: 9px;
+  font-weight: 600;
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.07);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  color: rgba(255, 255, 255, 0.7);
+  cursor: pointer;
+  transition: all 0.14s ease;
+}
+
+.island-duration-chip:hover {
+  background: rgba(255, 255, 255, 0.12);
+  color: #ffffff;
+}
+
+.island-duration-chip--active {
+  background: #ffffff !important;
+  color: #0b0c10 !important;
+  border-color: #ffffff !important;
+  font-weight: 700;
+}

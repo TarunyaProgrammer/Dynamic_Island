@@ -3,9 +3,9 @@
 :root {
   color-scheme: dark;
 
-  /* Typography Hierarchy (Apple SF Pro & SF Mono) */
-  --font-sans: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'SF Pro Display', 'Helvetica Neue', sans-serif;
-  --font-mono: 'SF Mono', SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  /* Typography Hierarchy (Plus Jakarta Sans & Apple SF Pro) */
+  --font-sans: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'SF Pro Display', sans-serif;
+  --font-mono: 'JetBrains Mono', 'SF Mono', Menlo, Monaco, Consolas, monospace;
 
   /* Signature True Pure Black & Deep Obsidian Palette */
   --bg-app: #0b0c10;

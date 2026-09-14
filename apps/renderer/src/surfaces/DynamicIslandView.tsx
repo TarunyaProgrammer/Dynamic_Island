@@ -2,12 +2,13 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { useGoals } from '../hooks/useGoals';
 import { useActivities } from '../hooks/useActivities';
+import { useCompanion } from '../hooks/useCompanion';
+import { useCalendar } from '../hooks/useCalendar';
+import { useToday } from '../hooks/useToday';
 import { GoalProgressRing } from '../components/GoalProgressRing';
-import { ProgressBar } from '../components/ProgressBar';
 import { BeaconCompanion } from '../components/BeaconCompanion';
 import { ConfettiCanvas } from '../components/ConfettiCanvas';
 import { soundEffects } from '../utils/audio';
-import { useCompanion } from '../hooks/useCompanion';
 import {
   ExternalLink,
   Minus,
@@ -16,29 +17,41 @@ import {
   Timer,
   Play,
   Pause,
+  ChevronDown,
   Sparkles,
+  Clock,
+  Video,
 } from 'lucide-react';
+import '../styles/DynamicIsland.css';
 
 export const DynamicIslandView: React.FC = () => {
   const { goals, stats, incrementProgress, completeGoal } = useGoals('active');
   const { focusState, startFocus, pauseFocus, resumeFocus, stopFocus, extendFocus } = useActivities();
   const { state: companionState, message: companionMessage, celebrate } = useCompanion('island');
+  const calendar = useCalendar();
+  const today = useToday();
+
   const [isExpanded, setIsExpanded] = useState(false);
-  const [activeTab, setActiveTab] = useState<'goal' | 'focus'>('goal');
+  const [activeTab, setActiveTab] = useState<'goal' | 'focus' | 'calendar'>('goal');
   const [selectedGoalId, setSelectedGoalId] = useState('');
+  const [selectedFocusGoalId, setSelectedFocusGoalId] = useState<string>('');
+  const [selectedDuration, setSelectedDuration] = useState<number>(25);
 
   const collapseTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+
   const clearCollapseTimer = useCallback(() => {
     if (collapseTimer.current) {
       clearTimeout(collapseTimer.current);
       collapseTimer.current = null;
     }
   }, []);
+
   const requestExpanded = useCallback((next: boolean) => {
     clearCollapseTimer();
     setIsExpanded(next);
     void window.beacon.windows.setIslandExpanded(next);
   }, [clearCollapseTimer]);
+
   const primaryGoal = goals.find((goal) => goal.id === selectedGoalId) ?? goals[0];
   const primaryFrac =
     primaryGoal && primaryGoal.targetValue > 0
@@ -46,9 +59,6 @@ export const DynamicIslandView: React.FC = () => {
       : 0;
 
   const percent = stats ? Math.round(stats.overallProgressFraction * 100) : 0;
-
-  const [selectedFocusGoalId, setSelectedFocusGoalId] = useState<string>('');
-  const [selectedDuration, setSelectedDuration] = useState<number>(25);
 
   // Auto-select first goal if not set
   useEffect(() => {
@@ -76,46 +86,34 @@ export const DynamicIslandView: React.FC = () => {
       ? (focusState.durationSeconds - focusState.remainingSeconds) / focusState.durationSeconds
       : 0;
 
-  const today = new Date();
-  const monthName = today.toLocaleDateString('en-US', { month: 'short' });
-  const calendarDays = [-3, -2, -1, 0, 1, 2, 3].map((offset) => {
-    const date = new Date(today);
-    date.setDate(today.getDate() + offset);
-    return {
-      date: date.getDate().toString().padStart(2, '0'),
-      dayName: date.toLocaleDateString('en-US', { weekday: 'narrow' }),
-      isToday: offset === 0,
-    };
-  });
-
   const handlePrimaryProgress = useCallback(async (delta: number) => {
     if (!primaryGoal) return;
     await incrementProgress(primaryGoal.id, delta);
-    celebrate(delta > 0 ? 'Progress logged' : 'Progress adjusted');
+    celebrate(delta > 0 ? '✦ Progress logged' : 'Progress adjusted');
   }, [celebrate, incrementProgress, primaryGoal]);
 
   const handleCompletePrimaryGoal = useCallback(async () => {
     if (!primaryGoal) return;
     const completedGoal = await completeGoal(primaryGoal.id);
-    celebrate(`${completedGoal.name} completed`);
+    celebrate(`${completedGoal.name} complete! ✦`);
   }, [celebrate, completeGoal, primaryGoal]);
 
   // Keyboard navigation & quick shortcuts
-  React.useEffect(() => {
+  useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (!isExpanded) return;
 
       if (e.key === 'ArrowRight') {
-        setActiveTab((prev) => (prev === 'goal' ? 'focus' : 'goal'));
+        setActiveTab((prev) => (prev === 'goal' ? 'focus' : prev === 'focus' ? 'calendar' : 'goal'));
       } else if (e.key === 'ArrowLeft') {
-        setActiveTab((prev) => (prev === 'goal' ? 'focus' : 'goal'));
+        setActiveTab((prev) => (prev === 'calendar' ? 'focus' : prev === 'focus' ? 'goal' : 'calendar'));
       } else if (e.key === ' ' && activeTab === 'focus') {
         e.preventDefault();
         if (focusState.isActive) {
           if (focusState.isPaused) resumeFocus();
           else pauseFocus();
         } else {
-          startFocus(25, primaryGoal?.id);
+          startFocus(selectedDuration, primaryGoal?.id);
         }
       } else if ((e.key === '+' || e.key === '=') && primaryGoal) {
         void handlePrimaryProgress(primaryGoal.defaultIncrement || 1);
@@ -128,9 +126,9 @@ export const DynamicIslandView: React.FC = () => {
 
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [activeTab, focusState, handlePrimaryProgress, isExpanded, primaryGoal, requestExpanded, resumeFocus, startFocus, pauseFocus]);
+  }, [activeTab, focusState, handlePrimaryProgress, isExpanded, primaryGoal, requestExpanded, resumeFocus, startFocus, pauseFocus, selectedDuration]);
 
-  // Auto-collapse when window loses focus (e.g. user clicks another window or switches spaces)
+  // Auto-collapse when window loses focus
   useEffect(() => {
     const handleBlur = () => {
       if (isExpanded) {
@@ -153,8 +151,23 @@ export const DynamicIslandView: React.FC = () => {
   const handleMouseLeave = () => {
     collapseTimer.current = setTimeout(() => {
       requestExpanded(false);
-    }, 600);
+    }, 650);
   };
+
+  // Helper to format event time
+  const formatEventTime = (timeStr: string) => {
+    try {
+      const d = new Date(timeStr);
+      return d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false });
+    } catch {
+      return timeStr;
+    }
+  };
+
+  const todayActionIds = new Set(
+    today.plan?.entries.filter((entry) => entry.bucket === 'today').map((entry) => entry.actionId) ?? [],
+  );
+  const nextTodayAction = today.actions.find((action) => todayActionIds.has(action.id));
 
   return (
     <main
@@ -172,65 +185,19 @@ export const DynamicIslandView: React.FC = () => {
       }}
     >
       <ConfettiCanvas />
-      {/* Notch Shell Container — hover or click here triggers expand/collapse.
-          Dynamically resizes between 200×32 (stealth notch) and 640×160 (expanded). */}
+
+      {/* Notch Shell Container */}
       <section
         aria-label={isExpanded ? 'Beacon Island controls' : 'Beacon Island summary'}
-        style={{
-          width: isExpanded ? '640px' : '200px',
-          minHeight: isExpanded ? '146px' : '32px',
-          maxHeight: isExpanded ? '160px' : '32px',
-          backgroundColor: '#07080b',
-          position: 'relative',
-          borderLeft: isExpanded ? '1px solid rgba(255, 255, 255, 0.14)' : 'none',
-          borderRight: isExpanded ? '1px solid rgba(255, 255, 255, 0.14)' : 'none',
-          borderBottom: isExpanded ? '1px solid rgba(255, 255, 255, 0.16)' : 'none',
-          borderTop: 'none',
-          borderRadius: isExpanded ? '0 0 22px 22px' : '0 0 12px 12px',
-          boxShadow: isExpanded
-            ? '0 18px 48px rgba(0, 0, 0, 0.75), 0 2px 8px rgba(0, 0, 0, 0.5), inset 0 -1px 0 rgba(255, 255, 255, 0.08)'
-            : '0 2px 8px rgba(0, 0, 0, 0.4)',
-          display: 'flex',
-          flexDirection: 'column',
-          transition: 'background-color 0.28s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.28s cubic-bezier(0.16, 1, 0.3, 1), border-radius 0.28s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.28s cubic-bezier(0.16, 1, 0.3, 1)',
-          cursor: isExpanded ? 'default' : 'pointer',
-          overflow: 'visible',
-          pointerEvents: 'auto',
-        }}
+        className={`island-notch-shell ${isExpanded ? 'island-notch-shell--expanded' : 'island-notch-shell--collapsed'}`}
         onMouseEnter={handleMouseEnter}
         onMouseLeave={handleMouseLeave}
       >
         {/* Seamless Inverted Notch Ear Fillets */}
         {isExpanded && (
           <>
-            <div
-              style={{
-                position: 'absolute',
-                top: 0,
-                left: '-14px',
-                width: '14px',
-                height: '14px',
-                backgroundColor: 'transparent',
-                borderTopRightRadius: '14px',
-                boxShadow: '5px -5px 0 5px #000000',
-                pointerEvents: 'none',
-                zIndex: 3,
-              }}
-            />
-            <div
-              style={{
-                position: 'absolute',
-                top: 0,
-                right: '-14px',
-                width: '14px',
-                height: '14px',
-                backgroundColor: 'transparent',
-                borderTopLeftRadius: '14px',
-                boxShadow: '-5px -5px 0 5px #000000',
-                pointerEvents: 'none',
-                zIndex: 3,
-              }}
-            />
+            <div className="island-fillet-left" />
+            <div className="island-fillet-right" />
           </>
         )}
 
@@ -250,7 +217,7 @@ export const DynamicIslandView: React.FC = () => {
           }}
         >
           {!isExpanded ? (
-            /* Stealth Notch State: Fits inside the 200px MacBook Camera Notch without Overflow */
+            /* Stealth Notch State: Fits inside the 200px MacBook Camera Notch */
             <button
               type="button"
               aria-label="Expand Beacon Island"
@@ -271,25 +238,25 @@ export const DynamicIslandView: React.FC = () => {
             >
               <BeaconCompanion state={companionState} size="tiny" label={companionMessage} />
               <span style={{ fontSize: '11px', fontWeight: 600, color: '#ffffff', letterSpacing: '-0.01em' }}>
-                {focusState.isActive ? 'Focus' : 'Beacon'}
+                {focusState.isActive ? 'Focus' : calendar.nextEvent && calendar.minutesUntilNext !== null && calendar.minutesUntilNext <= 15 ? 'Meeting' : 'Beacon'}
               </span>
               <span
                 style={{
-                  width: '5px',
-                  height: '5px',
+                  width: '4px',
+                  height: '4px',
                   borderRadius: '50%',
-                  backgroundColor: '#ffffff',
-                  boxShadow: focusState.isActive ? '0 0 6px rgba(255, 255, 255, 0.6)' : 'none',
+                  backgroundColor: focusState.isActive ? '#ff7a00' : calendar.nextEvent && calendar.minutesUntilNext !== null && calendar.minutesUntilNext <= 15 ? '#f87171' : '#ffffff',
+                  boxShadow: focusState.isActive ? '0 0 6px rgba(255, 122, 0, 0.8)' : 'none',
                 }}
               />
-              <span style={{ fontSize: '10px', fontWeight: 600, color: 'rgba(255, 255, 255, 0.7)' }}>
-                {focusState.isActive ? focusTimeStr : `${percent}%`}
+              <span style={{ fontSize: '10px', fontWeight: 600, color: 'rgba(255, 255, 255, 0.7)', fontVariantNumeric: 'tabular-nums' }}>
+                {focusState.isActive ? focusTimeStr : calendar.nextEvent && calendar.minutesUntilNext !== null && calendar.minutesUntilNext <= 15 ? `In ${calendar.minutesUntilNext}m` : `${percent}%`}
               </span>
             </button>
           ) : (
             /* Expanded Top Notch Header: Navigation Tabs + Open Main App Action */
             <>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+              <div className="island-tab-pill-bar">
                 <button
                   type="button"
                   onClick={(e) => {
@@ -297,22 +264,7 @@ export const DynamicIslandView: React.FC = () => {
                     resetCollapseTimer();
                     setActiveTab('goal');
                   }}
-                  style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '5px',
-                    padding: '3px 10px',
-                    borderRadius: '9999px',
-                    backgroundColor: activeTab === 'goal' ? 'rgba(255, 255, 255, 0.12)' : 'transparent',
-                    border: activeTab === 'goal' ? '1px solid rgba(255, 255, 255, 0.25)' : '1px solid transparent',
-                    color: activeTab === 'goal' ? '#ffffff' : 'rgba(255, 255, 255, 0.65)',
-                    fontSize: '11px',
-                    fontWeight: 600,
-                    cursor: 'pointer',
-                    outline: 'none',
-                    transition: 'background-color 0.15s ease, border-color 0.15s ease, color 0.15s ease',
-                    boxShadow: 'none',
-                  }}
+                  className={`island-tab-btn ${activeTab === 'goal' ? 'island-tab-btn--active' : ''}`}
                   title="Goals View"
                 >
                   <BeaconCompanion state={companionState} size="tiny" label={companionMessage} />
@@ -326,31 +278,52 @@ export const DynamicIslandView: React.FC = () => {
                     resetCollapseTimer();
                     setActiveTab('focus');
                   }}
-                  style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '4px',
-                    padding: '3px 10px',
-                    borderRadius: '9999px',
-                    backgroundColor: activeTab === 'focus' ? 'rgba(255, 255, 255, 0.14)' : 'rgba(255, 255, 255, 0.04)',
-                    border: activeTab === 'focus' ? '1px solid rgba(255, 255, 255, 0.3)' : '1px solid transparent',
-                    color: activeTab === 'focus' ? '#ffffff' : 'rgba(255, 255, 255, 0.65)',
-                    fontSize: '11px',
-                    fontWeight: activeTab === 'focus' ? 700 : 500,
-                    cursor: 'pointer',
-                    outline: 'none',
-                    transition: 'background-color 0.15s ease, border-color 0.15s ease, color 0.15s ease',
-                    boxShadow: 'none',
-                  }}
+                  className={`island-tab-btn ${activeTab === 'focus' ? 'island-tab-btn--active' : ''}`}
                   title="Focus Timer"
                 >
-                  <Timer size={11} color={activeTab === 'focus' ? '#ffffff' : 'currentColor'} />
+                  <Timer size={11} />
                   <span>{focusState.isActive ? focusTimeStr : 'Focus'}</span>
                 </button>
 
+                <button
+                  type="button"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    resetCollapseTimer();
+                    setActiveTab('calendar');
+                  }}
+                  className={`island-tab-btn ${activeTab === 'calendar' ? 'island-tab-btn--active' : ''}`}
+                  title="Schedule & Calendar Events"
+                >
+                  <Calendar size={11} />
+                  <span>
+                    {calendar.nextEvent && calendar.minutesUntilNext !== null && calendar.minutesUntilNext <= 60
+                      ? `In ${calendar.minutesUntilNext}m`
+                      : 'Calendar'}
+                  </span>
+                </button>
               </div>
 
-              <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
+                {calendar.nextEvent && activeTab !== 'calendar' && (
+                  <button
+                    type="button"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      resetCollapseTimer();
+                      setActiveTab('calendar');
+                    }}
+                    className="island-tab-btn"
+                    style={{ padding: '2px 8px', fontSize: '10px', gap: '5px', background: 'rgba(255, 122, 0, 0.12)', border: '1px solid rgba(255, 122, 0, 0.25)' }}
+                    title={`Next meeting: ${calendar.nextEvent.title}`}
+                  >
+                    <span style={{ width: '4px', height: '4px', borderRadius: '50%', backgroundColor: '#ff7a00', boxShadow: '0 0 6px rgba(255, 122, 0, 0.8)' }} />
+                    <span style={{ maxWidth: '110px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', color: '#ffaa40', fontWeight: 600 }}>
+                      {calendar.nextEvent.title}
+                    </span>
+                  </button>
+                )}
+
                 <button
                   type="button"
                   onClick={(e) => {
@@ -358,9 +331,9 @@ export const DynamicIslandView: React.FC = () => {
                     resetCollapseTimer();
                     window.beacon.windows.toggleMain();
                   }}
-                  className="btn-ghost"
-                  title="Open Main App (⌘⇧B)"
-                  style={{ padding: '3px 6px', color: 'rgba(255, 255, 255, 0.8)', cursor: 'pointer' }}
+                  className="island-btn-ghost"
+                  title="Open Full Workspace (⌘⇧B)"
+                  style={{ padding: '3px 7px' }}
                 >
                   <ExternalLink size={12} />
                 </button>
@@ -369,248 +342,295 @@ export const DynamicIslandView: React.FC = () => {
           )}
         </div>
 
-        {/* Expanded 3-Column Beacon Dynamic Island Body (Strictly Below Notch) */}
+        {/* Expanded 2-Column Balanced Liquid Bento Grid */}
         {isExpanded && (
-          <div
-            style={{
-              flex: 1,
-              display: 'grid',
-              gridTemplateColumns: 'minmax(0, 1fr)',
-              gap: '10px',
-              padding: '6px 14px 14px 14px',
-              boxSizing: 'border-box',
-              position: 'relative',
-              zIndex: 1,
-            }}
-          >
-            {/* Column 1: Active Focus Goal OR Focus Sprint Timer OR Media Controller */}
+          <div className="island-body-grid">
+            {/* TAB 1: GOAL / BEACON */}
             {activeTab === 'goal' && (
-              <div
-                style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '10px',
-                  padding: '8px 10px',
-                  backgroundColor: 'rgba(18, 20, 28, 0.95)',
-                  borderTop: '1px solid rgba(255, 255, 255, 0.16)',
-                  borderBottom: '1px solid rgba(255, 255, 255, 0.08)',
-                  borderLeft: '1px solid rgba(255, 255, 255, 0.08)',
-                  borderRight: '1px solid rgba(255, 255, 255, 0.08)',
-                  borderRadius: '16px',
-                  minWidth: 0,
-                  overflow: 'hidden',
-                  boxShadow: '0 2px 8px rgba(0, 0, 0, 0.4)',
-                }}
-              >
-                <div
-                  style={{
-                    width: '56px',
-                    height: '42px',
-                    borderRadius: '12px',
-                    backgroundColor: 'rgba(255, 122, 0, 0.12)',
-                    border: '1px solid rgba(255, 122, 0, 0.28)',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    flexShrink: 0,
-                    boxShadow: '0 0 12px rgba(255, 122, 0, 0.15)',
-                  }}
-                >
-                  <BeaconCompanion state={companionState} size="compact" label={companionMessage} />
+              <>
+                {/* Left Card: Primary Goal Hero */}
+                <div className="island-card">
+                  {primaryGoal ? (
+                    <>
+                      {/* Header Row: Companion + Goal Name + Progress Stats */}
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '10px', minWidth: 0 }}>
+                        <div
+                          className="island-companion-avatar"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            celebrate('✦ Looking good!');
+                          }}
+                          title="Click to interact with companion"
+                        >
+                          <BeaconCompanion state={companionState} size="compact" label={companionMessage} />
+                        </div>
+
+                        <div style={{ display: 'flex', flexDirection: 'column', flex: 1, minWidth: 0, gap: '2px' }}>
+                          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '6px' }}>
+                            {/* Goal Dropdown with integrated Chevron */}
+                            <div className="island-goal-select-wrap">
+                              <select
+                                aria-label="Choose goal"
+                                value={primaryGoal.id}
+                                onChange={(event) => setSelectedGoalId(event.target.value)}
+                                onClick={(event) => event.stopPropagation()}
+                                className="island-goal-select"
+                              >
+                                {goals.map((goal) => (
+                                  <option key={goal.id} value={goal.id} style={{ backgroundColor: '#12141a', color: '#ffffff' }}>
+                                    {goal.name}
+                                  </option>
+                                ))}
+                              </select>
+                              <ChevronDown size={11} className="island-goal-select-arrow" />
+                            </div>
+
+                            {/* Percentage badge */}
+                            <span className="island-badge-solar">
+                              {Math.round(primaryFrac * 100)}%
+                            </span>
+                          </div>
+
+                          <div style={{ display: 'flex', alignItems: 'baseline', gap: '5px' }}>
+                            <span style={{ fontSize: '13px', fontWeight: 700, color: '#ffffff', fontVariantNumeric: 'tabular-nums' }}>
+                              {primaryGoal.currentValue.toLocaleString()}
+                            </span>
+                            <span style={{ fontSize: '10px', color: 'rgba(255, 255, 255, 0.5)', fontWeight: 500 }}>
+                              / {primaryGoal.targetValue.toLocaleString()} {primaryGoal.unit || ''}
+                            </span>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Middle: Luminous Progress Bar */}
+                      <div className="island-progress-track">
+                        <div
+                          className="island-progress-fill"
+                          style={{ width: `${Math.min(100, Math.max(0, Math.round(primaryFrac * 100)))}%` }}
+                        />
+                      </div>
+
+                      {/* Bottom Row: Quick Action Pill Buttons */}
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
+                        <button
+                          type="button"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            void handlePrimaryProgress(-(primaryGoal.defaultIncrement || 1));
+                          }}
+                          className="island-btn-ghost"
+                          title={`Subtract ${primaryGoal.defaultIncrement || 1}`}
+                        >
+                          <Minus size={11} />
+                        </button>
+
+                        <button
+                          type="button"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            void handlePrimaryProgress(primaryGoal.defaultIncrement || 1);
+                          }}
+                          className="island-btn-increment"
+                          title={`Add ${primaryGoal.defaultIncrement || 1}`}
+                        >
+                          +{primaryGoal.defaultIncrement || 1} {primaryGoal.unit || ''}
+                        </button>
+
+                        {(primaryGoal.defaultIncrement || 1) > 1 && (
+                          <button
+                            type="button"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              void handlePrimaryProgress(1);
+                            }}
+                            className="island-btn-ghost"
+                            style={{ fontSize: '10px', padding: '3px 6px' }}
+                            title="Add 1"
+                          >
+                            +1
+                          </button>
+                        )}
+
+                        <button
+                          type="button"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            void handleCompletePrimaryGoal();
+                          }}
+                          className="island-btn-ghost island-btn-ghost--done"
+                          title="Complete Goal"
+                          style={{ marginLeft: 'auto' }}
+                        >
+                          <CheckCircle2 size={11} />
+                          <span style={{ marginLeft: '3px', fontSize: '10px', fontWeight: 600 }}>Done</span>
+                        </button>
+                      </div>
+                    </>
+                  ) : (
+                    <div
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        resetCollapseTimer();
+                        window.beacon.windows.toggleMain();
+                      }}
+                      style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', flex: 1, gap: '4px', cursor: 'pointer' }}
+                    >
+                      <Sparkles size={16} color="#ff7a00" />
+                      <span style={{ fontSize: '12px', fontWeight: 600, color: '#ffffff' }}>No Active Goals</span>
+                      <span style={{ fontSize: '10px', color: 'rgba(255, 255, 255, 0.5)' }}>Click to create your first goal</span>
+                    </div>
+                  )}
                 </div>
 
-                {primaryGoal ? (
-                  <div style={{ display: 'flex', flexDirection: 'column', flex: 1, minWidth: 0, gap: '2px' }}>
-                    <select
-                      aria-label="Choose goal"
-                      value={primaryGoal.id}
-                      onChange={(event) => setSelectedGoalId(event.target.value)}
-                      onClick={(event) => event.stopPropagation()}
+                {/* Right Card: Today Momentum & Next Up */}
+                <div
+                  className="island-card island-card--interactive"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    resetCollapseTimer();
+                    window.beacon.windows.toggleMain();
+                  }}
+                  title="Click to open Today's Schedule & Momentum in Beacon"
+                >
+                  {/* Top: Progress Ring + Stat */}
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '8px' }}>
+                    <div style={{ display: 'flex', flexDirection: 'column' }}>
+                      <span style={{ fontSize: '9px', fontWeight: 700, color: 'rgba(255, 255, 255, 0.5)', textTransform: 'uppercase', letterSpacing: '0.06em' }}>
+                        Today
+                      </span>
+                      <span style={{ fontSize: '14px', fontWeight: 800, color: '#ffffff', fontVariantNumeric: 'tabular-nums' }}>
+                        {percent}% Complete
+                      </span>
+                    </div>
+
+                    <GoalProgressRing
+                      progressFraction={stats?.overallProgressFraction ?? 0}
+                      size={34}
+                      strokeWidth={3.5}
+                      showText={false}
+                      color="#ff7a00"
+                    />
+                  </div>
+
+                  {/* Bottom: Upcoming Calendar Event OR Next Action OR Streak */}
+                  {calendar.nextEvent ? (
+                    <div
                       style={{
-                        fontSize: '12px',
-                        fontWeight: 600,
-                        color: '#ffffff',
-                        backgroundColor: 'transparent',
-                        border: 'none',
-                        cursor: 'pointer',
-                        minWidth: 0,
-                        width: '100%',
-                        padding: 0,
-                        overflow: 'hidden',
-                        textOverflow: 'ellipsis',
+                        display: 'flex',
+                        flexDirection: 'column',
+                        gap: '2px',
+                        padding: '4px 6px',
+                        borderRadius: '8px',
+                        background: 'rgba(255, 255, 255, 0.04)',
+                        border: '1px solid rgba(255, 255, 255, 0.06)',
                       }}
                     >
-                      {goals.map((goal) => (
-                        <option key={goal.id} value={goal.id}>{goal.name}</option>
-                      ))}
-                    </select>
-                    <span style={{ fontSize: '10px', color: 'rgba(255, 255, 255, 0.65)', fontWeight: 500 }}>
-                      {primaryGoal.currentValue} / {primaryGoal.targetValue} {primaryGoal.unit || ''}
-                    </span>
-                    <div style={{ marginTop: '2px' }}>
-                      <ProgressBar progressFraction={primaryFrac} color="#ffffff" height={3} />
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                        <span className={`island-badge-event ${calendar.minutesUntilNext !== null && calendar.minutesUntilNext <= 15 ? 'island-badge-now' : ''}`}>
+                          {calendar.minutesUntilNext !== null && calendar.minutesUntilNext <= 15
+                            ? 'NOW'
+                            : calendar.minutesUntilNext !== null
+                              ? `${calendar.minutesUntilNext}m`
+                              : formatEventTime(calendar.nextEvent.start)}
+                        </span>
+                        <span style={{ fontSize: '10px', fontWeight: 600, color: '#ffffff', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                          {calendar.nextEvent.title}
+                        </span>
+                      </div>
                     </div>
-
-                    {/* Increment Controls */}
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '5px', marginTop: '3px' }}>
-                      <button
-                        type="button"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          void handlePrimaryProgress(-(primaryGoal.defaultIncrement || 1));
-                        }}
-                        className="btn-ghost"
-                        style={{ padding: '2px 5px', fontSize: '9px', backgroundColor: 'rgba(255, 255, 255, 0.08)' }}
-                      >
-                        <Minus size={9} />
-                      </button>
-                      <button
-                        type="button"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          void handlePrimaryProgress(primaryGoal.defaultIncrement || 1);
-                        }}
-                        style={{
-                          padding: '2px 8px',
-                          fontSize: '9px',
-                          fontWeight: 700,
-                          backgroundColor: 'rgba(255, 255, 255, 0.1)',
-                          border: '1px solid rgba(255, 255, 255, 0.2)',
-                          color: '#ffffff',
-                          borderRadius: '6px',
-                          cursor: 'pointer',
-                          boxShadow: 'none',
-                        }}
-                      >
-                        +{primaryGoal.defaultIncrement || 1} {primaryGoal.unit || ''}
-                      </button>
-                      <button
-                        type="button"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          void handleCompletePrimaryGoal();
-                        }}
-                        className="btn-ghost"
-                        style={{ padding: '2px 5px', fontSize: '9px', backgroundColor: 'rgba(255, 255, 255, 0.08)' }}
-                        title="Complete Goal"
-                      >
-                        <CheckCircle2 size={10} color="#ffffff" />
-                      </button>
+                  ) : nextTodayAction ? (
+                    <div
+                      style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'space-between',
+                        gap: '4px',
+                        padding: '4px 6px',
+                        borderRadius: '8px',
+                        background: 'rgba(255, 255, 255, 0.04)',
+                        border: '1px solid rgba(255, 255, 255, 0.06)',
+                      }}
+                    >
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '4px', minWidth: 0, flex: 1 }}>
+                        <Clock size={10} color="#ffaa40" />
+                        <span style={{ fontSize: '10px', fontWeight: 500, color: 'rgba(255, 255, 255, 0.9)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                          {nextTodayAction.title}
+                        </span>
+                      </div>
+                      <span style={{ fontSize: '9px', color: 'rgba(255, 255, 255, 0.45)', flexShrink: 0 }}>Next</span>
                     </div>
-                  </div>
-                ) : (
-                  <button
-                    type="button"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      resetCollapseTimer();
-                      window.beacon.windows.toggleMain();
-                    }}
-                    style={{
-                      display: 'flex',
-                      flexDirection: 'column',
-                      gap: '3px',
-                      cursor: 'pointer',
-                      background: 'transparent',
-                      border: 'none',
-                      padding: '4px 6px',
-                      borderRadius: '8px',
-                      textAlign: 'left',
-                      transition: 'background-color 0.15s ease',
-                      minWidth: 0,
-                    }}
-                    title="Open Beacon to Create a Goal"
-                  >
-                    <span style={{ fontSize: '12px', fontWeight: 600, color: '#ffffff' }}>No Active Goals</span>
-                    <span style={{ fontSize: '10px', color: 'var(--text-secondary)', fontWeight: 500 }}>✦ Click to create one</span>
-                  </button>
-                )}
-              </div>
+                  ) : (
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '4px', fontSize: '10px', color: 'rgba(255, 255, 255, 0.6)' }}>
+                      <Sparkles size={11} color="#ff7a00" />
+                      <span>{stats?.activeGoals ?? 0} active goals</span>
+                      <span style={{ opacity: 0.4 }}>•</span>
+                      <span>{stats?.todayIncrementsCount ?? 0} logged</span>
+                    </div>
+                  )}
+                </div>
+              </>
             )}
 
+            {/* TAB 2: FOCUS TIMER */}
             {activeTab === 'focus' && (
-              <div
-                style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  padding: '8px 10px',
-                  backgroundColor: 'rgba(255, 255, 255, 0.05)',
-                  border: '1px solid rgba(255, 255, 255, 0.08)',
-                  borderRadius: '16px',
-                  minWidth: 0,
-                  overflow: 'hidden',
-                }}
-              >
-                <div style={{ display: 'flex', flexDirection: 'column', flex: 1, gap: '3px', minWidth: 0 }}>
-                  {/* Active Header & Timer */}
-                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '6px', minWidth: 0 }}>
+              <>
+                {/* Left Card: Focus Timer Controller */}
+                <div className="island-card">
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '6px' }}>
                     {!focusState.isActive ? (
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '4px', flex: 1, minWidth: 0 }}>
-                        <span style={{ fontSize: '10px', color: 'rgba(255, 255, 255, 0.5)', fontWeight: 500, flexShrink: 0 }}>Goal:</span>
-                        <select
-                          value={selectedFocusGoalId}
-                          onChange={(e) => {
-                            e.stopPropagation();
-                            setSelectedFocusGoalId(e.target.value);
-                          }}
-                          onClick={(e) => e.stopPropagation()}
-                          style={{
-                            backgroundColor: '#16161a',
-                            color: '#ffffff',
-                            border: '1px solid rgba(255, 255, 255, 0.14)',
-                            borderRadius: '5px',
-                            padding: '1px 4px',
-                            fontSize: '10px',
-                            fontWeight: 600,
-                            flex: 1,
-                            minWidth: 0,
-                            maxWidth: '110px',
-                            overflow: 'hidden',
-                            textOverflow: 'ellipsis',
-                            whiteSpace: 'nowrap',
-                          }}
-                        >
-                          <option value="">⚡️ Independent</option>
-                          {goals.map((g) => (
-                            <option key={g.id} value={g.id}>
-                              {g.name}
-                            </option>
-                          ))}
-                        </select>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '5px', flex: 1, minWidth: 0 }}>
+                        <span style={{ fontSize: '10px', color: 'rgba(255, 255, 255, 0.5)', fontWeight: 600 }}>Goal:</span>
+                        <div className="island-goal-select-wrap" style={{ flex: 1 }}>
+                          <select
+                            value={selectedFocusGoalId}
+                            onChange={(e) => {
+                              e.stopPropagation();
+                              setSelectedFocusGoalId(e.target.value);
+                            }}
+                            onClick={(e) => e.stopPropagation()}
+                            className="island-goal-select"
+                            style={{ fontSize: '11px' }}
+                          >
+                            <option value="" style={{ backgroundColor: '#12141a', color: '#ffffff' }}>⚡️ Independent Sprint</option>
+                            {goals.map((g) => (
+                              <option key={g.id} value={g.id} style={{ backgroundColor: '#12141a', color: '#ffffff' }}>
+                                {g.name}
+                              </option>
+                            ))}
+                          </select>
+                          <ChevronDown size={10} className="island-goal-select-arrow" />
+                        </div>
                       </div>
                     ) : (
-                      <span
-                        style={{
-                          fontSize: '11px',
-                          color: '#ffffff',
-                          fontWeight: 600,
-                          whiteSpace: 'nowrap',
-                          overflow: 'hidden',
-                          textOverflow: 'ellipsis',
-                          flex: 1,
-                          minWidth: 0,
-                        }}
-                      >
-                        {focusState.goalName ? `Sprint: ${focusState.goalName}` : 'Independent Timer'}
+                      <span style={{ fontSize: '11px', color: '#ffffff', fontWeight: 600, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', flex: 1 }}>
+                        {focusState.goalName ? `Sprint: ${focusState.goalName}` : 'Deep Focus Sprint'}
                       </span>
                     )}
 
-                    <span style={{ fontSize: '13px', fontWeight: 700, color: '#ffffff', fontVariantNumeric: 'tabular-nums', flexShrink: 0 }}>
+                    <span className="island-timer-digits">
                       {focusTimeStr}
                     </span>
                   </div>
 
+                  {/* Progress track if active */}
                   {focusState.isActive && (
-                    <div style={{ marginTop: '1px' }}>
-                      <ProgressBar progressFraction={focusProgress} color="#ffffff" height={3} />
+                    <div className="island-progress-track">
+                      <div
+                        className="island-progress-fill"
+                        style={{
+                          width: `${Math.round(focusProgress * 100)}%`,
+                          background: 'linear-gradient(90deg, #3b82f6 0%, #60a5fa 100%)',
+                          boxShadow: '0 0 8px rgba(59, 130, 246, 0.5)',
+                        }}
+                      />
                     </div>
                   )}
 
-                  {/* Duration Presets (When Idle) & Actions */}
+                  {/* Idle: Presets + Start Button; Active: Pause/Resume + Extend */}
                   {!focusState.isActive ? (
-                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '4px', marginTop: '2px', minWidth: 0 }}>
-                      <div style={{ display: 'flex', gap: '2px', flexShrink: 0 }}>
-                        {[5, 15, 25, 45, 60].map((mins) => (
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '6px' }}>
+                      <div style={{ display: 'flex', gap: '3px' }}>
+                        {[15, 25, 45, 60].map((mins) => (
                           <button
                             key={mins}
                             type="button"
@@ -618,16 +638,7 @@ export const DynamicIslandView: React.FC = () => {
                               e.stopPropagation();
                               setSelectedDuration(mins);
                             }}
-                            style={{
-                              padding: '2px 4px',
-                              fontSize: '9px',
-                              fontWeight: selectedDuration === mins ? 700 : 500,
-                              borderRadius: '4px',
-                              backgroundColor: selectedDuration === mins ? '#ffffff' : 'rgba(255, 255, 255, 0.08)',
-                              color: selectedDuration === mins ? '#000000' : 'rgba(255, 255, 255, 0.7)',
-                              cursor: 'pointer',
-                              border: 'none',
-                            }}
+                            className={`island-duration-chip ${selectedDuration === mins ? 'island-duration-chip--active' : ''}`}
                           >
                             {mins}m
                           </button>
@@ -641,14 +652,15 @@ export const DynamicIslandView: React.FC = () => {
                           soundEffects.playTickSound();
                           startFocus(selectedDuration, selectedFocusGoalId || undefined);
                         }}
-                        className="btn-ghost"
-                        style={{ padding: '2px 6px', fontSize: '9px', fontWeight: 700, backgroundColor: 'rgba(255, 255, 255, 0.16)', color: '#ffffff', flexShrink: 0 }}
+                        className="island-btn-increment"
+                        style={{ gap: '4px' }}
                       >
-                        <Play size={9} style={{ marginRight: '2px' }} /> Start
+                        <Play size={10} fill="currentColor" />
+                        <span>Start</span>
                       </button>
                     </div>
                   ) : (
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '5px', marginTop: '2px', minWidth: 0 }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
                       {focusState.isPaused ? (
                         <button
                           type="button"
@@ -657,10 +669,11 @@ export const DynamicIslandView: React.FC = () => {
                             soundEffects.playTickSound();
                             resumeFocus();
                           }}
-                          className="btn-ghost"
-                          style={{ padding: '2px 7px', fontSize: '9px', fontWeight: 600, backgroundColor: 'rgba(255, 255, 255, 0.14)', color: '#ffffff' }}
+                          className="island-btn-increment"
+                          style={{ gap: '4px' }}
                         >
-                          <Play size={9} style={{ marginRight: '2px' }} /> Resume
+                          <Play size={10} fill="currentColor" />
+                          <span>Resume</span>
                         </button>
                       ) : (
                         <button
@@ -670,10 +683,11 @@ export const DynamicIslandView: React.FC = () => {
                             soundEffects.playTickSound();
                             pauseFocus();
                           }}
-                          className="btn-ghost"
-                          style={{ padding: '2px 7px', fontSize: '9px', fontWeight: 600, backgroundColor: 'rgba(255, 255, 255, 0.1)', color: '#ffffff' }}
+                          className="island-btn-ghost"
+                          style={{ gap: '4px', background: 'rgba(255, 255, 255, 0.12)' }}
                         >
-                          <Pause size={9} style={{ marginRight: '2px' }} /> Pause
+                          <Pause size={10} />
+                          <span>Pause</span>
                         </button>
                       )}
 
@@ -684,8 +698,7 @@ export const DynamicIslandView: React.FC = () => {
                           soundEffects.playMilestonePop();
                           extendFocus(5);
                         }}
-                        className="btn-ghost"
-                        style={{ padding: '2px 5px', fontSize: '9px', backgroundColor: 'rgba(255, 255, 255, 0.08)' }}
+                        className="island-btn-ghost"
                         title="Add 5 minutes"
                       >
                         +5m
@@ -698,130 +711,113 @@ export const DynamicIslandView: React.FC = () => {
                           soundEffects.playMilestonePop();
                           stopFocus(!!focusState.goalId);
                         }}
-                        className="btn-ghost"
-                        style={{ padding: '2px 5px', fontSize: '9px', backgroundColor: 'rgba(255, 255, 255, 0.08)' }}
-                        title="End timer"
+                        className="island-btn-ghost"
+                        style={{ marginLeft: 'auto' }}
+                        title="End session"
                       >
-                        {focusState.goalId ? 'Stop & Log' : 'Stop'}
+                        {focusState.goalId ? 'Stop & Log' : 'End'}
                       </button>
                     </div>
                   )}
                 </div>
-              </div>
+
+                {/* Right Card: Focus Companion & Context */}
+                <div className="island-card" style={{ justifyContent: 'center', alignItems: 'center', textAlign: 'center', gap: '6px' }}>
+                  <BeaconCompanion state={focusState.isActive ? 'thinking' : companionState} size="compact" label={focusState.isActive ? 'Focus active ✦' : companionMessage} />
+                  <span style={{ fontSize: '11px', fontWeight: 600, color: '#ffffff' }}>
+                    {focusState.isActive ? (focusState.isPaused ? 'Session Paused' : 'In The Zone') : 'Deep Work Timer'}
+                  </span>
+                  <span style={{ fontSize: '9px', color: 'rgba(255, 255, 255, 0.5)' }}>
+                    Press Space to pause/resume
+                  </span>
+                </div>
+              </>
             )}
 
-            {/* Column 2: Date / Calendar & Streak Strip */}
-            <div
-              style={{
-                display: 'none',
-                flexDirection: 'column',
-                justifyContent: 'center',
-                alignItems: 'center',
-                gap: '6px',
-                padding: '8px 10px',
-                backgroundColor: 'rgba(18, 20, 28, 0.95)',
-                borderTop: '1px solid rgba(255, 255, 255, 0.16)',
-                borderBottom: '1px solid rgba(255, 255, 255, 0.08)',
-                borderLeft: '1px solid rgba(255, 255, 255, 0.08)',
-                borderRight: '1px solid rgba(255, 255, 255, 0.08)',
-                borderRadius: '16px',
-                minWidth: 0,
-                overflow: 'hidden',
-                boxShadow: '0 2px 8px rgba(0, 0, 0, 0.4)',
-              }}
-            >
-              <div style={{ display: 'flex', alignItems: 'center', gap: '5px', minWidth: 0 }}>
-                <span style={{ fontSize: '12px', fontWeight: 700, color: '#ffffff', flexShrink: 0 }}>{monthName}</span>
-                <div style={{ display: 'flex', gap: '3px', flexShrink: 0 }}>
-                  {calendarDays.map((c, i) => (
-                    <button
-                      key={i}
-                      type="button"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        resetCollapseTimer();
-                        window.beacon.windows.toggleMain();
-                      }}
-                      style={{
-                        display: 'flex',
-                        flexDirection: 'column',
-                        alignItems: 'center',
-                        padding: '2px 4px',
-                        borderRadius: '5px',
-                        backgroundColor: c.isToday ? 'rgba(255, 255, 255, 0.2)' : 'transparent',
-                        color: c.isToday ? '#ffffff' : 'rgba(255, 255, 255, 0.45)',
-                        border: 'none',
-                        cursor: 'pointer',
-                        outline: 'none',
-                        transition: 'all 0.15s ease',
-                        boxShadow: 'none',
-                      }}
-                      title={c.isToday ? 'Today (Click to open Beacon)' : `Day ${c.date} (Click to open Beacon)`}
-                    >
-                      <span style={{ fontSize: '7px', fontWeight: 600, textTransform: 'uppercase' }}>{c.dayName}</span>
-                      <span style={{ fontSize: '9px', fontWeight: c.isToday ? 800 : 500 }}>{c.date}</span>
-                    </button>
-                  ))}
-                </div>
-              </div>
+            {/* TAB 3: CALENDAR & EVENTS */}
+            {activeTab === 'calendar' && (
+              <>
+                {/* Left Card: Upcoming Events List */}
+                <div className="island-card" style={{ overflowY: 'auto' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '4px' }}>
+                    <span style={{ fontSize: '10px', fontWeight: 700, color: 'rgba(255, 255, 255, 0.5)', textTransform: 'uppercase', letterSpacing: '0.06em' }}>
+                      Today's Schedule
+                    </span>
+                    <span style={{ fontSize: '10px', color: 'rgba(255, 255, 255, 0.45)' }}>
+                      {calendar.upcomingEvents.length} upcoming
+                    </span>
+                  </div>
 
-              <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '9px', color: 'rgba(255, 255, 255, 0.65)', whiteSpace: 'nowrap' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '3px' }}>
-                  <Calendar size={10} color="rgba(255, 255, 255, 0.7)" />
-                  <span>{goals.length > 0 ? `${goals.length} active` : 'Nothing today'}</span>
-                </div>
-                {goals.some((g) => (g.streakConfig?.currentStreak ?? 0) > 0) && (
-                  <>
-                    <span style={{ opacity: 0.4 }}>•</span>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '3px', color: '#ffffff', fontWeight: 700 }}>
-                      <Sparkles size={10} color="#ffffff" />
-                      <span>{Math.max(...goals.map((g) => g.streakConfig?.currentStreak ?? 0))}d streak</span>
+                  {calendar.upcomingEvents.length > 0 ? (
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                      {calendar.upcomingEvents.slice(0, 2).map((ev) => (
+                        <div
+                          key={ev.id}
+                          style={{
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'space-between',
+                            gap: '6px',
+                            padding: '4px 6px',
+                            borderRadius: '7px',
+                            background: 'rgba(255, 255, 255, 0.04)',
+                            border: '1px solid rgba(255, 255, 255, 0.06)',
+                          }}
+                        >
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '5px', minWidth: 0, flex: 1 }}>
+                            <span style={{ width: '6px', height: '6px', borderRadius: '50%', backgroundColor: ev.source === 'google' ? '#3b82f6' : '#f87171', flexShrink: 0 }} />
+                            <span style={{ fontSize: '11px', fontWeight: 600, color: '#ffffff', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                              {ev.title}
+                            </span>
+                          </div>
+
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '4px', flexShrink: 0 }}>
+                            <span style={{ fontSize: '10px', color: 'rgba(255, 255, 255, 0.6)', fontVariantNumeric: 'tabular-nums' }}>
+                              {formatEventTime(ev.start)}
+                            </span>
+                            {ev.location && ev.location.startsWith('http') && (
+                              <a
+                                href={ev.location}
+                                target="_blank"
+                                rel="noreferrer"
+                                onClick={(e) => e.stopPropagation()}
+                                className="island-btn-ghost"
+                                style={{ padding: '1px 4px', fontSize: '9px' }}
+                                title="Join Meeting"
+                              >
+                                <Video size={9} />
+                              </a>
+                            )}
+                          </div>
+                        </div>
+                      ))}
                     </div>
-                  </>
-                )}
-              </div>
-            </div>
+                  ) : (
+                    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', flex: 1, gap: '3px' }}>
+                      <Calendar size={14} color="rgba(255, 255, 255, 0.4)" />
+                      <span style={{ fontSize: '11px', color: 'rgba(255, 255, 255, 0.7)' }}>No more events today</span>
+                      <span style={{ fontSize: '9px', color: 'rgba(255, 255, 255, 0.4)' }}>Apple & Google Calendar synced</span>
+                    </div>
+                  )}
+                </div>
 
-            {/* Column 3: Overall Progress Ring & Quick Actions */}
-            <div
-              onClick={(e) => {
-                e.stopPropagation();
-                resetCollapseTimer();
-                window.beacon.windows.toggleMain();
-              }}
-              style={{
-                display: 'none',
-                alignItems: 'center',
-                justifyContent: 'space-between',
-                padding: '8px 12px',
-                backgroundColor: 'rgba(18, 20, 28, 0.95)',
-                borderTop: '1px solid rgba(255, 255, 255, 0.16)',
-                borderBottom: '1px solid rgba(255, 255, 255, 0.08)',
-                borderLeft: '1px solid rgba(255, 255, 255, 0.08)',
-                borderRight: '1px solid rgba(255, 255, 255, 0.08)',
-                borderRadius: '16px',
-                cursor: 'pointer',
-                minWidth: 0,
-                overflow: 'hidden',
-                transition: 'background-color 0.15s ease',
-                boxShadow: '0 2px 8px rgba(0, 0, 0, 0.4)',
-              }}
-              title="Open Beacon Main Dashboard"
-            >
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '1px', minWidth: 0 }}>
-                <span style={{ fontSize: '9px', color: 'rgba(255, 255, 255, 0.6)', fontWeight: 500 }}>Overall</span>
-                <span style={{ fontSize: '15px', fontWeight: 800, color: '#ffffff' }}>{percent}%</span>
-                <span style={{ fontSize: '8px', color: 'rgba(255, 255, 255, 0.45)' }}>{stats?.activeGoals ?? 0} active</span>
-              </div>
-
-              <GoalProgressRing
-                progressFraction={stats?.overallProgressFraction ?? 0}
-                size={38}
-                strokeWidth={3}
-                color="#ffffff"
-                showText={false}
-              />
-            </div>
+                {/* Right Card: Calendar Status & Quick Actions */}
+                <div
+                  className="island-card island-card--interactive"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    resetCollapseTimer();
+                    window.beacon.windows.toggleMain();
+                  }}
+                  title="Open Full Calendar in Beacon"
+                  style={{ justifyContent: 'center', alignItems: 'center', textAlign: 'center', gap: '5px' }}
+                >
+                  <Calendar size={18} color="#ff7a00" />
+                  <span style={{ fontSize: '11px', fontWeight: 600, color: '#ffffff' }}>Full Calendar</span>
+                  <span style={{ fontSize: '9px', color: 'rgba(255, 255, 255, 0.5)' }}>Click to view full agenda</span>
+                </div>
+              </>
+            )}
           </div>
         )}
       </section>
