@@ -1,66 +1,50 @@
 # Contributing to Beacon
 
-Thank you for your interest in **Beacon**. 
+Thanks for helping build Beacon — a quiet layer of motivation for macOS.
 
-Beacon is a proprietary, source-available macOS goal and progress operating layer created and maintained by **Tarunya K** ([@TarunyaProgrammer](https://github.com/TarunyaProgrammer)). To ensure the highest level of software quality, security, and architectural integrity, all contributions are subject to the governance described below.
+## Before you start
 
----
+- Search existing issues before opening a new one.
+- For substantial features or product changes, open a feature proposal first so we can agree on scope.
+- Pick issues labeled `good first issue`, `help wanted`, or `swoc` if you are looking for a place to begin.
 
-## 1. Contributor Agreement
+## Development setup
 
-By submitting a Pull Request, issue, patch, code snippet, documentation, or suggestion to the Beacon project, you explicitly agree that:
+```bash
+git clone https://github.com/TarunyaProgrammer/Dynamic_Island.git
+cd Dynamic_Island
+npm install
+npm run dev
+```
 
-1. **Intellectual Property Assignment**: You assign and transfer all right, title, interest, and intellectual property in and to your contribution to **Tarunya K**.
-2. **Originality Guarantee**: You warrant that all submitted code is your own original work and does not infringe upon third-party copyrights, patents, or trade secrets. Code adapted from copyleft licenses (e.g. GPL) is strictly prohibited.
-3. **Monetization & Licensing**: The project owner retains the exclusive right to commercialize, distribute, and license the codebase in any form without compensation obligations.
+Beacon requires macOS, Node.js 22+, and npm 10+. The EventKit helper and production build are macOS-specific.
 
----
+## Making a change
 
-## 2. Contribution Workflow
+1. Fork the repository and create a branch such as `feat/goal-templates`, `fix/island-hover`, or `docs/setup-guide`.
+2. Keep the change focused on one issue or improvement.
+3. Follow the architecture boundaries: do not import Electron, DOM, or React into `packages/core` or `packages/database`; preserve `contextIsolation: true` and `nodeIntegration: false`.
+4. Add or update Vitest coverage for domain and database behavior.
+5. Run the relevant checks:
 
-> [!IMPORTANT]
-> **Do not open unsolicited large Pull Requests without prior discussion.**
+   ```bash
+   npm test
+   npm run build
+   ```
 
-- **Feature Proposals**: Open an **Issue / RFC** describing the proposed feature, user flow, UX mockup, and architectural changes *before* writing code.
-- **Bug Fixes**: Open an issue detailing reproduction steps, macOS version, hardware architecture (Apple Silicon / Intel), and relevant logs.
+6. Open a pull request using the provided template. Include screenshots or a short recording for renderer changes.
 
----
+## Pull request expectations
 
-## 3. Engineering & Code Quality Standards
+- Use a clear, conventional commit message, for example `fix(island): preserve hover bounds`.
+- Link the issue the pull request resolves when one exists.
+- Do not include unrelated formatting changes or generated build output.
+- Be respectful in review and respond to requested changes.
 
-All submissions must adhere to the following standards:
+## License for contributions
 
-### Architecture & Tech Stack
-- **Runtime**: Electron 34+, Node.js 22+
-- **Language**: TypeScript 5.8+ with strict type checking enabled (`noImplicitAny`, `strictNullChecks`).
-- **UI Framework**: React 19 + Vite 6.
-- **Persistence**: SQLite via `better-sqlite3` with Write-Ahead Logging (WAL) and idempotent schema migrations.
-- **Pure Core**: `packages/core/` and `packages/database/` must never import DOM, Electron, or React libraries.
-- **Context Isolation**: Always maintain `contextIsolation: true` and `nodeIntegration: false` in Electron windows.
+By submitting a contribution, you agree that your contribution is your original work and that it may be distributed under the repository's [MIT License](LICENSE). You retain copyright in your contribution.
 
-### Testing & Verification
-- **Automated Tests**: Every new feature or bug fix in `packages/core/` or `packages/database/` must include comprehensive Vitest unit tests.
-- **Verification Commands**:
-  ```bash
-  npm test           # Run Vitest test suite
-  npx tsc --noEmit   # Strict TypeScript type check
-  npm run build      # Verify production build compilation
-  ```
+## Reporting security issues
 
----
-
-## 4. Git & PR Guidelines
-
-1. **Branch Naming**:
-   - `feat/<short-description>`
-   - `fix/<short-description>`
-   - `docs/<short-description>`
-2. **Commit Hygiene**:
-   - Use Conventional Commits (e.g., `feat(core): add streak rest day evaluation`, `fix(ui): adjust island pill hover bounds`).
-   - Clean, rebased branch history with no merge commits (`git rebase main`).
-
----
-
-## 5. Security Reporting
-
-If you discover a security vulnerability or sensitive data issue in Beacon, **do not open a public issue**. Please report it privately to **Tarunya K** via GitHub Security Advisories.
+Do not report security vulnerabilities in a public issue. Follow [SECURITY.md](SECURITY.md) instead.

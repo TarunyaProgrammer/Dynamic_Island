@@ -1,7 +1,7 @@
 {
   "name": "beacon",
   "version": "1.1.0",
-  "description": "Minimalist macOS Goal Operating Layer — Glance, Update, Move On",
+  "description": "A quiet layer of motivation for macOS — your goals, always in sight.",
   "main": "dist-electron/main/index.js",
   "bin": {
     "beacon": "scripts/beacon-cli.js"
@@ -27,7 +27,7 @@
     "productivity"
   ],
   "author": "Tarunya K <https://github.com/TarunyaProgrammer>",
-  "license": "Proprietary",
+  "license": "MIT",
   "dependencies": {
     "better-sqlite3": "^11.8.1",
     "lucide-react": "^1.16.0",

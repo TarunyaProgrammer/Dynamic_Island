@@ -1,110 +1,21 @@
-BEACON — PROPRIETARY SOFTWARE LICENSE
-Copyright (c) 2026 Tarunya Kesharwani (@TarunyaProgrammer). All Rights Reserved.
+MIT License
 
-================================================================================
-IMPORTANT — READ CAREFULLY BEFORE ACCESSING, COPYING, OR USING THIS SOFTWARE
-================================================================================
+Copyright (c) 2026 Tarunya Kesharwani
 
-This software, including all source code, compiled binaries, algorithms, interface
-designs, shaders, icons, assets, documentation, and associated files (collectively,
-the "Software"), is the exclusive proprietary intellectual property of
-Tarunya Kesharwani ("Author"). All rights are reserved.
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
 
-NO LICENSE GRANTED BY POSSESSION — ACCESS DOES NOT CONFER RIGHTS
-Acquisition of this Software by any means — including unauthorized disclosure,
-repository leak, mirror, fork, or any other mechanism — confers NO rights
-whatsoever. Possession of this Software does not grant any license, express or
-implied, to use, copy, modify, distribute, reverse engineer, or create derivative
-works from the Software or any portion thereof.
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
 
-───────────────────────────────────────────────────────────────────────────────
-
-1. PROPRIETARY RIGHTS & RESERVATION OF ALL RIGHTS
-   The Author reserves all copyright, trademark, trade secret, and other
-   intellectual property rights in and to the Software. This License grants
-   NO rights unless expressly authorized in writing by the Author.
-
-2. STRICT PROHIBITIONS — YOU ARE EXPLICITLY PROHIBITED FROM:
-   a. Use: Operating, executing, or otherwise using the Software or any portion
-      thereof for any purpose, commercial or personal, without express written
-      authorization from the Author.
-   b. Commercial Exploitation: Selling, renting, leasing, licensing, sublicensing,
-      hosting as SaaS/BaaS, monetizing, or otherwise exploiting the Software or
-      any derivative thereof for direct or indirect commercial gain.
-   c. Redistribution & Mirroring: Distributing, publishing, broadcasting, uploading
-      to third-party repositories, package registries, app stores, or mirrors.
-   d. Derivative Works & Clones: Creating derivative works, competing clones,
-      re-branded versions, or similar applications derived in whole or in part
-      from the Software's architecture, design, source code, or algorithms.
-   e. Reverse Engineering: Decompiling, disassembling, decrypting, reverse
-      engineering, or using the compiled binary to reconstruct the Software's
-      source code, architecture, algorithms, or interface design by any method.
-   f. Circumvention: Removing, disabling, or bypassing any technical protection
-      measures, license enforcement mechanisms, or copyright notices embedded
-      in the Software.
-   g. Trademark & Branding: Using the names "Beacon", "Beacon Spirit", "Beacon HUD",
-      the Author's name "Tarunya Kesharwani", "TarunyaProgrammer", or associated
-      branding, logos, or iconography to endorse, promote, or brand any product.
-   h. Sublicensing & Transfer: Sublicensing, assigning, or transferring any rights
-      claimed under this License to any third party.
-
-3. AUTHORIZED USE — PURCHASED LICENSES ONLY
-   End-users who have obtained a valid personal license key via the official
-   Beacon distribution channel (beacon.tarunya.me) are granted a limited,
-   non-exclusive, non-transferable, non-sublicensable personal license to:
-   - Install and run the compiled Beacon binary on macOS devices owned or
-     controlled by the license holder, solely for personal productivity use.
-   This section does not grant any right to access, view, modify, or distribute
-   the source code.
-
-4. LEAK & UNAUTHORIZED DISCLOSURE CLAUSE
-   If this Software or any portion of its source code is obtained through an
-   unauthorized disclosure, leak, or breach of confidentiality, the recipient
-   is explicitly prohibited from using, retaining, copying, or distributing it.
-   Recipients of leaked or unauthorized copies must immediately destroy all
-   copies in their possession or control and notify the Author at the contact
-   information below. Unauthorized use of leaked source code constitutes
-   copyright infringement and may constitute theft of trade secrets under
-   applicable law.
-
-5. CONTRIBUTIONS
-   Any pull requests, code submissions, bug fixes, features, or suggestions
-   submitted to this repository or directly to the Author are subject to the
-   terms in CONTRIBUTING.md. By submitting any contribution, you irrevocably
-   assign and transfer all right, title, interest, and intellectual property
-   rights in such contributions to Tarunya Kesharwani.
-
-6. THIRD-PARTY PACKAGES
-   Certain open-source components bundled by this Software remain subject to
-   their respective open-source licenses, as documented in THIRD_PARTY_NOTICES.md.
-   Nothing in this License restricts rights granted by those specific third-party
-   licenses for their respective original components only.
-
-7. TERMINATION
-   Any breach or violation of the terms of this License automatically and
-   immediately terminates all rights granted herein. Upon termination, you must
-   immediately destroy all copies of the Software in your possession or control.
-   The Author reserves the right to pursue all available legal remedies.
-
-8. GOVERNING LAW & JURISDICTION
-   This License shall be governed by and construed in accordance with the laws
-   of India, without regard to its conflict of law provisions. Any disputes
-   arising from or relating to this License shall be subject to the exclusive
-   jurisdiction of the courts located in India.
-
-9. DISCLAIMER OF WARRANTIES & LIMITATION OF LIABILITY
-   THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-   IMPLIED, INCLUDING BUT NOT LIMITED TO WARRANTIES OF MERCHANTABILITY, FITNESS
-   FOR A PARTICULAR PURPOSE, TITLE, AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-   AUTHOR BE LIABLE FOR ANY CLAIM, DAMAGES, LOSS OF DATA, OR OTHER LIABILITY,
-   WHETHER IN AN ACTION OF CONTRACT, TORT, OR OTHERWISE, ARISING FROM OR IN
-   CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-
-10. ENTIRE AGREEMENT
-    This License constitutes the entire agreement between you and the Author
-    concerning the Software and supersedes all prior agreements, representations,
-    and warranties.
-
-───────────────────────────────────────────────────────────────────────────────
-Contact for licensing inquiries: https://github.com/TarunyaProgrammer
-Official distribution: https://beacon.tarunya.me
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
