@@ -13,6 +13,9 @@
   [![Electron](https://img.shields.io/badge/Electron-34-47848f?logo=electron&logoColor=white)](https://www.electronjs.org)
   [![SQLite](https://img.shields.io/badge/SQLite-Local_First-003b57?logo=sqlite&logoColor=white)](https://sqlite.org)
   [![GitHub](https://img.shields.io/badge/Repository-TarunyaProgrammer%2FDynamic__Island-blue?logo=github)](https://github.com/TarunyaProgrammer/Dynamic_Island)
+  [![CI](https://github.com/TarunyaProgrammer/Dynamic_Island/actions/workflows/ci.yml/badge.svg)](https://github.com/TarunyaProgrammer/Dynamic_Island/actions/workflows/ci.yml)
+  [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+  [![Contributions welcome](https://img.shields.io/badge/contributions-welcome-7C6CFF.svg)](CONTRIBUTING.md)
 </div>
 
 ---
@@ -96,11 +99,16 @@ Beacon
 
 ---
 
-## Contributing & License
+## Open Source & SWOC
 
-- **License**: Beacon is licensed under a proprietary license. See [LICENSE](LICENSE) for terms.
-- **Contributions**: Quality submissions are welcome. See [CONTRIBUTING.md](CONTRIBUTING.md).
+Beacon is open source under the [MIT License](LICENSE) and welcomes contributors through SWOC and beyond. If you are new to the project, start with [`good first issue`](https://github.com/TarunyaProgrammer/Dynamic_Island/labels/good%20first%20issue) or [`swoc`](https://github.com/TarunyaProgrammer/Dynamic_Island/labels/swoc) issues.
+
+Before contributing, read [CONTRIBUTING.md](CONTRIBUTING.md), check the [open issues](https://github.com/TarunyaProgrammer/Dynamic_Island/issues), and join [Discussions](https://github.com/TarunyaProgrammer/Dynamic_Island/discussions) for questions and ideas.
+
+## Security
+
+Please report vulnerabilities privately as described in [SECURITY.md](SECURITY.md). Do not open public issues for security reports.
 
 <div align="center">
-  <sub>Created with ❤️ by <b>Tarunya K</b> • <a href="https://github.com/TarunyaProgrammer">@TarunyaProgrammer</a></sub>
+  <sub>Created with care by <b>Tarunya K</b> • <a href="https://github.com/TarunyaProgrammer">@TarunyaProgrammer</a></sub>
 </div>
