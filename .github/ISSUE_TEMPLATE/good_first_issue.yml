@@ -1,0 +1,43 @@
+name: New contributor task
+description: Propose a scoped task suitable for a first contribution or SWOC participant.
+title: "[Good first issue]: "
+labels: [good first issue, swoc]
+body:
+  - type: textarea
+    id: task
+    attributes:
+      label: Task summary
+    validations:
+      required: true
+  - type: textarea
+    id: files
+    attributes:
+      label: Suggested files or areas
+    validations:
+      required: true
+  - type: textarea
+    id: acceptance
+    attributes:
+      label: Acceptance criteria
+      placeholder: |
+        - [ ] ...
+        - [ ] ...
+    validations:
+      required: true
+  - type: input
+    id: skills
+    attributes:
+      label: Skills or prerequisites
+      placeholder: TypeScript, React, Electron, documentation, or none
+    validations:
+      required: true
+  - type: dropdown
+    id: mentor
+    attributes:
+      label: Maintainer guidance available
+      options:
+        - Yes
+        - Limited
+        - No
+    validations:
+      required: true

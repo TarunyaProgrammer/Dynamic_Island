@@ -1,0 +1,30 @@
+name: Feature proposal
+description: Propose a focused improvement to Beacon.
+title: "[Feature]: "
+labels: [enhancement]
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem to solve
+      description: Explain the user problem, not just the implementation idea.
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposed solution
+      description: Describe the expected user flow and result.
+    validations:
+      required: true
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives considered
+    validations:
+      required: true
+  - type: textarea
+    id: visuals
+    attributes:
+      label: Mockups or references
+      description: Add sketches, screenshots, or links when the change affects the interface.

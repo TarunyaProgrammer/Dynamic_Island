@@ -1,0 +1,11 @@
+* @TarunyaProgrammer
+
+/apps/main/ @TarunyaProgrammer
+/apps/preload/ @TarunyaProgrammer
+/packages/core/ @TarunyaProgrammer
+/packages/database/ @TarunyaProgrammer
+/shared/ipc-channels.ts @TarunyaProgrammer
+/.github/ @TarunyaProgrammer
+/scripts/ @TarunyaProgrammer
+/build/ @TarunyaProgrammer
+/package.json @TarunyaProgrammer

@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Questions and ideas
+    url: https://github.com/TarunyaProgrammer/Dynamic_Island/discussions
+    about: Please use Discussions for questions, support, and early-stage ideas.
+  - name: Report a security vulnerability
+    url: https://github.com/TarunyaProgrammer/Dynamic_Island/security/advisories/new
+    about: Please report vulnerabilities privately.

@@ -1,0 +1,43 @@
+labels:
+  - name: good first issue
+    color: 7C6CFF
+    description: A well-scoped task for a first contribution.
+  - name: help wanted
+    color: 2EA44F
+    description: Maintainers welcome community help with this task.
+  - name: swoc
+    color: F9A825
+    description: Suitable for Social Winter of Code contributors.
+  - name: bug
+    color: D73A4A
+    description: Something is not working as intended.
+  - name: enhancement
+    color: A2EEEF
+    description: A proposed product or engineering improvement.
+  - name: docs
+    color: 0075CA
+    description: Documentation needs work.
+  - name: dependencies
+    color: 0366D6
+    description: Dependency updates and maintenance.
+  - name: 'area: ui'
+    color: C5DEF5
+    description: Renderer UI, interaction, or visual design.
+  - name: 'area: core'
+    color: 5319E7
+    description: Domain logic and application services.
+  - name: 'area: database'
+    color: 1D76DB
+    description: SQLite schema, migration, or repository code.
+  - name: 'area: electron'
+    color: 24292F
+    description: Electron main process, preload, windows, or IPC.
+  - name: 'priority: high'
+    color: B60205
+    description: Needs prompt maintainer attention.
+  - name: 'priority: medium'
+    color: FBCA04
+    description: Important but not urgent.
+  - name: 'priority: low'
+    color: 0E8A16
+    description: Useful improvement with no time pressure.
